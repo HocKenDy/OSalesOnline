@@ -1,0 +1,59 @@
+﻿@model Erp.BackOffice.Sale.Models.ProductInvoiceDetailViewModel
+
+@{
+    var thanh_tien = Model.Quantity * Model.Price;
+    var targetPoint = Model.ProductTargetPoint != null ? Model.ProductTargetPoint : 0;
+    var _p = ((double?)thanh_tien / targetPoint) * Model.ProductPoint;
+    var point = targetPoint == 0 ? 0 : Math.Round(_p != null ? _p.Value : 0, 0, MidpointRounding.AwayFromZero);
+    Model.DisCountAmount = Convert.ToInt32(Model.Price * Model.DisCount) / 100;
+    var thanh_tien_sau_ck = thanh_tien - Model.DisCountAmount;
+}
+
+<tr role="@Model.OrderNo" id="product_item_@Model.OrderNo" data-id="@Model.OrderNo" data-productid="@Model.ProductId">
+    <td class="text-center">
+        @(Model.OrderNo + 1)
+    </td>
+    <td>
+        <div class="profile-picture">
+            <a href="@(string.IsNullOrEmpty(Model.Images) ? "/assets/css/images/noimage.gif" : Model.Images)" class="image-link">
+                <img class="imageClass" src="@(string.IsNullOrEmpty(Model.Images) ? "/assets/css/images/noimage.gif" :  Model.Images)" />
+            </a>
+        </div>
+    </td>
+    <td>
+        <input class="pricetest" type="text" id="DetailList_@(Model.OrderNo)__PriceTest" name="DetailList[@(Model.OrderNo)].PriceTest" value="@Model.PriceTest" data-val="true" autocomplete="off" hidden />
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].ProductId", Model.ProductId, new { @class = "detail_item_id" })
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].ProductType", Model.ProductType, new { @class = "detail_item_product_type" })
+        @Model.ProductCode - @Model.ProductName
+    </td>
+    <td>
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].Quantity", Model.Quantity, new { style = "width:50px", @class = "detail_item_qty", autocomplete = "off", data_quantity_inventory = Model.QuantityInInventory })
+    </td>
+    <td>
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].Price", Model.Price, new { style = "width:85px", @class = "detail_item_price", autocomplete = "off" })
+
+    </td>
+    <td>
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].DisCount", Model.DisCount, new { style = "width:35px", @class = "detail_item_discount", autocomplete = "off" })
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].DisCountAmount1", Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.DisCountAmount), new { style = "width:85px;", @class = "detail_item_discount_amount", autocomplete = "off", @readonly = "readonly" })
+    </td>
+    <td class="detail_item_total">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(thanh_tien_sau_ck)</td>
+    <td>
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].Point", Model.Point, new { @class = "detail_item_point", style = "width:50px; text-align: right", @readonly = "readonly" })
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].ProductPoint", Model.ProductPoint, new { @class = "detail_item_p_point" })
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].ProductTargetPoint", Model.ProductTargetPoint, new { @class = "detail_item_target_p_point" })
+    </td>
+    <td class="text-center">
+        <label>
+            <input class="detail_item_check ace" type="checkbox" name="DetailList[@Model.OrderNo].CheckPromotion" id="DetailList_@(Model.OrderNo)__CheckPromotion" value="@(Model.CheckPromotion==true?"True":"False")" data-orginal-price="@Model.Price" @(Model.CheckPromotion != null && Model.CheckPromotion == true ? "checked=\"checked\"" : "") />
+            <span class="lbl">
+            </span>
+        </label>
+    </td>
+
+    <td class="text-center">
+        <a class="btn-delete-item">
+            <i class="ace-icon fa fa-trash red bigger-120" style="cursor:pointer"></i>
+        </a>
+    </td>
+</tr>

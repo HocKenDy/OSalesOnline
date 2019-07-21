@@ -1,0 +1,224 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@{
+    ViewBag.Title = Wording.Import +" khách hàng lead";
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "CustomerLead",
+        ActionName = "Import",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true,
+        AdvancedSearch = false,
+    };
+}
+<style>
+    tr.has-error td {
+        background: rgba(255, 0, 0,.7);
+        color: #fff;
+    }
+
+    .arrow-step {
+        display: inline-block;
+        height: 10px;
+        width: 50px;
+        background: #808080;
+        margin: 0 30px 0 10px;
+        position: relative;
+    }
+
+        .arrow-step:after {
+            position: absolute;
+            content: "";
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 20px solid #808080;
+            right: -20px;
+            position: absolute;
+            top: -5px;
+        }
+
+        .arrow-step.green {
+            background: #36cc8b;
+        }
+
+            .arrow-step.green:after {
+                border-left-color: #36cc8b;
+            }
+
+    .wizard-hide {
+        display: none;
+    }
+
+    .success-step {
+        display: inline-block;
+        padding: 11px 20px;
+        color: #36cc8b;
+        font-weight: bold;
+    }
+</style>
+
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+<div class="alert alert-block alert-info">
+    <i class="icon-info-sign"></i>
+    <p><b>Hướng dẫn:</b></p>
+    <p>
+        * Chọn file excel được định dạng theo mẫu
+        <a href="~/Data/FORM_CUSTOMER.xlsx" class="btn btn-white btn-info btn-bold">
+            <i class="ace-icon fa fa-download bigger-120 blue"></i>
+            Tải file mẫu
+        </a>
+    </p>
+    <p>* Chú ý các dòng màu đỏ khi bấm kiểm tra</p>
+</div>
+
+<div class="alert alert-block alert-danger hidden">
+    <p>Có <span id="count_error"></span> dòng bị lỗi</p>
+</div>
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+<div class="row">
+    <form action="" id="form-upload-excel" method="post" class="form-horizontal" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="control-label col-sm-3 text-right file_name_upload"></label>
+            <div class="col-sm-9">
+                @Html.ValidationSummary(true)
+                <div class="btn btn-primary" style="position: relative">
+                    <input type="file" id="file_excel" name="file" style="position: absolute; top: 0; left: 0; right: 0; opacity: 0; width: 100%; bottom: 0;" />
+                    <span>Bấm để chọn file</span>
+                </div>
+                <span class="arrow-step @(ViewBag.save != null ? "green" : "wizard-hide")"></span>
+                <button type="button" onclick="checkHasFile()" class="btn btn-warning @(ViewBag.save != null ? "" : "wizard-hide")">Kiểm tra</button>
+                <span class="text-danger label-check-file" style="display: none">Hãy chọn file</span>
+                @if (ViewBag.save == false)
+                {
+                    <span class="arrow-step @(ViewBag.success != null ? "green" : "")"></span>
+                    <button type="@(ViewBag.success != null ? "button" : "submit")" class="btn btn-success">Lưu lại</button>
+                }
+                @if (ViewBag.success == true)
+                {
+                    <span class="arrow-step @(ViewBag.success != null ? "green" : "")"></span>
+                    <span class="success-step">Thành công</span>
+                }
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<div class="widget-box">
+    <div class="widget-header widget-header-blue widget-header-flat">
+        <h4 class="lighter"></h4>
+    </div>
+    <div class="widget-body">
+        <div class="widget-main">
+            <div class="table-responsive">
+                <table border="1" cellpadding="5" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            @foreach (System.Data.DataColumn col in Model.Columns)
+                            {
+                                <th>@col.Caption</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="list-row">
+                        @foreach (System.Data.DataRow row in Model.Rows)
+                        {
+                            <tr>
+                                @foreach (var cell in row.ItemArray)
+                                {
+                                    <td>@cell.ToString()</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        var count_error = 0;
+        $('#list-row tr').each(function (i, elem) {
+            if ($(elem).find('td:last-child').text() != '') {
+                $(elem).addClass('has-error');
+                count_error++;
+            }
+        });
+        if (count_error != 0) {
+            $('#count_error').text(count_error).closest('div').removeClass('hidden');
+        }
+
+        $('#file_excel').change(function () {
+            var fullPath = document.getElementById('file_excel').value;
+            if (fullPath) {
+                var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+                var filename = fullPath.substring(startIndex);
+                if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+                    filename = filename.substring(1);
+                }
+                fullPath = filename;
+            }
+
+            $('.file_name_upload').text(fullPath);
+            $('.wizard-hide').removeClass('wizard-hide');
+        });
+
+        $('#form-upload-excel button[type="button"].btn-success').click(function () {
+            var $this = $(this);
+            var file = $('#file_excel')[0].files[0];
+            if (file == null || file == undefined) {
+                $this.prev('span').remove();
+                $this.next('span').remove();
+                $this.remove();
+                $('.success-step').remove();
+                $('.btn-warning').addClass('wizard-hide');
+                $('.btn-warning').prev('span').addClass('wizard-hide');
+            }
+        });
+    });
+    function checkHasFile() {
+        var file = $('#file_excel')[0].files[0];
+        if (file != null && file != undefined) {
+            $('.label-check-file').hide();
+            $('#file_excel').closest('form').submit();
+        } else {
+            $('.label-check-file').show();
+        }
+    }
+
+
+
+</script>
+
+@Html.ScriptBottom_ValidationMvc()

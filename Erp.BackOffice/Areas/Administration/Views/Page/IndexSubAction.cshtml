@@ -1,0 +1,76 @@
+﻿@model List<Erp.BackOffice.Areas.Administration.Models.ListPagesModel>
+@using Erp.BackOffice.App_GlobalResources
+
+@using GridMvc.Html
+@using Erp.BackOffice.Helpers
+
+@{
+    ViewBag.Title = Resources.Wording.Pages;
+    Layout = "~/Views/Shared/_PopupLayout.cshtml";
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Page",
+        ActionName = "IndexSubAction",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+   
+}
+
+@if (Model != null)
+{
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th width="50"></th>
+                <th>Controller</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <label>
+                            <input name="PageId_@(item.Id)" type="checkbox" class="PageId ace" value="@(item.Id)">
+                            <span class="lbl"></span>
+                        </label>
+                    </td>
+                    <td>@item.ControllerDisplayName</td>
+                    <td>@item.ActionName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <a class="btn btn-mini btn-primary" onclick="selectItem()">
+            <i class="ace-icon fa fa-check"></i>
+            Chọn
+        </a>
+    }
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        function selectItem() {
+            var list = [];
+            $(".PageId").each(function (index, obj) {
+                if ($(obj).prop("checked")) {
+                    list.push($(obj).val());
+                }
+            });
+
+            parent.selectItem(list, @Request["ParentActionId"]);
+        }
+    </script>
+}

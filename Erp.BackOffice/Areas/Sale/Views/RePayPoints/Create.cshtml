@@ -1,0 +1,256 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Account.Models
+@using Erp.BackOffice.Areas.Administration.Models
+
+@model RePayPointsViewModel
+
+@{
+    if (Model.Id > 0)
+    {
+        ViewBag.Title = Wording.PageEdit_RePayPoints;
+    }
+    else
+    {
+        ViewBag.Title = Wording.PageCreate_RePayPoints;
+    }
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "RePayPoints",
+        ActionName = "Create",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+    @Html.ScriptTop_Select2()
+    <link href="~/Scripts/magnific_popup/magnific-popup.css" rel="stylesheet" />
+    <style type="text/css">
+        .has-error .field-validation-error, .has-error .field-validation-valid {
+            color: #de2a2a;
+        }
+
+        #popup_save .modal-header {
+            padding: 4px 8px;
+            background: #438EB9;
+            border: none;
+        }
+
+        .table.table-bordered > thead > tr > th {
+            text-align: center;
+        }
+
+        .main-content-popup {
+            margin-bottom: 50px;
+        }
+
+        .mfp-with-zoom .mfp-container,
+        .mfp-with-zoom.mfp-bg {
+            opacity: 0;
+            -webkit-backface-visibility: hidden;
+            /* ideally, transition speed should match zoom duration */
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        .mfp-with-zoom.mfp-ready .mfp-container {
+            opacity: 1;
+        }
+
+        .mfp-with-zoom.mfp-ready.mfp-bg {
+            opacity: 0.8;
+        }
+
+        .mfp-with-zoom.mfp-removing .mfp-container,
+        .mfp-with-zoom.mfp-removing.mfp-bg {
+            opacity: 0;
+        }
+
+        /*css*/
+        .profile-picture {
+            text-align: center;
+            max-width: 150px;
+            max-height: 55px;
+        }
+
+        .imageClass {
+            max-width: 100%;
+            max-height: 60px;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 27px;
+        }
+    </style>
+}
+
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Create", "RePayPoints", null, FormMethod.Post, new { id = "SaleOrder", @class = "form-horizontal clearfix" }))
+{
+    if (Model.Id == 0)
+    {
+        @Html.HiddenFor(model => model.CreatedUserName)
+    }
+    else
+    {
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.CreatedUserId)
+        @Html.HiddenFor(model => model.CreatedDate)
+        @Html.HiddenFor(model => model.IsDeleted)
+        @Html.HiddenFor(model => model.Code)
+        @Html.HiddenFor(model => model.BranchId)
+    }
+
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="alert alert-warning WarehouseAleart top-5">
+                <strong>Vui lòng chọn KH và kho xuất để tìm quà!</strong>
+            </div>
+            <div class="listsearch" style="@(Model.Id == 0 ? "display: none;" : "")">
+                <div class="product-search-box" id="Search_Product">
+                </div>
+                <div id="listOrderDetail" class="table-responsive top-10 table-invoice-create">
+                    <table class="table table-bordered bottom-5">
+                        <thead>
+                            <tr>
+                                <th class="detail-th-orderno" style="width:40px;">STT</th>
+                                <th class="detail-th-image" style="width:100px;">Hình</th>
+                                <th class="detail-th-product-name">Tên sản phẩm</th>
+                                <th class="detail-th-unit" style="width:100px;">Đơn vị</th>
+                                <th class="detail-th-quantity" style="width:50px;">Số lượng</th>
+                                <th class="detail-th-reddemption" style="width:100px;">Điểm quy đổi</th>
+                                <th class="detail-th-total" style="width:100px;">Tổng điểm</th>
+                                <th class="detail-th-action" style="width:40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="detailList">
+                            @if (Model.DetailList.Count > 0)
+                            {
+                                foreach (var item in Model.DetailList)
+                                {
+                                    @Html.Partial("LoadProductItem", item);
+                                }
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>
+                                    <input style="width:30px;" autocomplete="off" data-val="true" data-val-required="Vui lòng chọn sản phẩm!" id="ProductItemCount" name="ProductItemCount" type="text" value="@(Model.DetailList != null && Model.DetailList.Count > 0 ? Model.DetailList.Count.ToString() : "")" readonly="readonly" />
+                                </td>
+                                <td colspan="3" style="font-weight:bold; text-align:center;">Tổng cộng</td>
+                                <td id="TongSoLuong" align="right" style="font-weight:bold; text-align:center"></td>
+                                <td></td>
+                                <td id="TongDiem" align="right" style="font-weight:bold;text-align:center"></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+
+                    </table>
+                    <span style="color:red" class="field-validation-valid help-inline" data-valmsg-for="ProductItemCount" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="tabbable">
+                <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="tabCustomer">
+                    <li class="active">
+                        <a data-toggle="tab" href="#tab1">Thông tin chi tiết</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="tab1" class="tab-pane in active">
+
+                        @if (Model.Id > 0)
+                        {
+                            <div class="detail-view">
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(m => m.Code)
+                                </div>
+                            </div>
+                        }
+                        @Html.CustomDropDownListFor(model => model.WarehouseSourceId, SelectListHelper.GetSelectList_Warehouse(Model.WarehouseSourceId, Model.BranchId, "- Chọn kho -"), WidthType.span12, true, null, DropdownListStyle.DropdownListStyleDefault)
+                        @Html.CustomTextboxForSelect2Customer(model => model.CustomerId, "SĐT...", true, "/Customer/GetAllCustomerByPhone", "/Customer/GetCustomerById", "/Customer/Create", "Phone")
+                        @Html.HiddenFor(model => model.AvailabilityPoint)
+                        <div class="control-group form-group">
+                            <label class="control-label col-lg-5 col-md-4 col-sm-4" for="AvailabilityPoint">@Wording.AvailabilityPoint</label>
+                            <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                <div class="clearfix availability_point">0</div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                        @Html.HiddenFor(model => model.TotalPoint)
+                        <div class="control-group form-group">
+                            <label class="control-label col-lg-5 col-md-4 col-sm-4">@Wording.TotalPoint</label>
+                            <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                <div class="clearfix total_point">0</div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                        @Html.CustomDropDownListFor(model => model.SaleId, SelectListHelper.GetSelectList_User(Model.SaleId, UserTypeCodeClass.SalesExcutive,Common.CurrentUser.BranchId, "-Nhân viên-"), WidthType.span12, true, null, DropdownListStyle.DropdownListStyleChosen)
+                        @Html.CustomTextAreaFor(model => model.Note, Wording.Note, WidthType.span12, true, null, "hide", "full-w")
+                        <div id="infoCustomer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit"  value="Save" onclick="return CheckSubmit();">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+    <script src="~/Scripts/magnific_popup/jquery.magnific-popup.min.js"></script>
+    <link href="/Scripts/RadCombobox_v1/RadComboBoxLite.css" rel="stylesheet" />
+    <script src="/Scripts/RadCombobox_v1/rabCombobox.js"></script>
+    <script src="~/Scripts/area_sale/RePayPoints_Create.js"></script>
+    <script type="text/javascript">
+        var $tr_template = $('#detailList tr:first-child');
+
+        function CheckSubmit()
+        {
+
+            var mes = "";
+            if ($('#CustomerId').val() == '')
+            {
+                mes += "Chưa nhập khách hàng <br/>";
+            }
+            if (mes != '')
+            {
+                alertPopup('Lỗi!', mes, 'error');
+                HideLoading();
+                return false;
+            }
+            if (!checkPointExchangeGiftsAndPointOfCustomer())
+            {
+                alertPopup('Lỗi!', "Điểm tích lũy của bạn không đủ", 'error');
+                return false;
+            }
+            return true;
+
+        }
+
+
+    </script>
+}

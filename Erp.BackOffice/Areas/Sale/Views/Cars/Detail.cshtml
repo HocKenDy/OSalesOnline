@@ -1,0 +1,74 @@
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model CarsViewModel
+
+@{
+    ViewBag.Title = Wording.PageDetail_Cars;
+    Layout = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower().Equals("true") ? StringExtention.LAYOUT_POPUP : StringExtention.LAYOUT_ADMIN;
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Cars",
+        ActionName = StringExtention.ACTION_DETAIL,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+<div class="detail-view">
+
+    <div class="row control-group">@Html.DetailViewItemFor2(model => model.Manufacturer)</div>
+    <div class="row control-group">@Html.DetailViewItemFor2(model => model.Vehicles)</div>
+    <div class="row control-group">@Html.DetailViewItemFor2(model => model.Color)</div>
+    <div class="row control-group">@Html.DetailViewItemFor2(model => model.Frames)</div>
+    <div class="row control-group">@Html.DetailViewItemFor2(model => model.Number)</div>
+    <div class="row control-group">@Html.DetailViewItemFor2(model => model.Plate)</div>
+    <div class="row control-group">@Html.DetailViewItemFor2(model => model.Note)</div>
+
+</div>
+
+@using (Html.BeginButtonContainer(pageSetting))
+{
+
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        function CheckIsval() {
+            if ($('[name="DeleteAll-checkbox"]').is(':checked') == false) {
+                alert("Phải chọn ít nhất 1 item.");
+                return false;
+            }
+            else {
+                if (confirm('Bạn có chắc muốn xóa các item đã chọn ?')) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        $('[name="Delete"]').click(function () {
+            if (confirm('Bạn có chắc muốn xóa item ?')) {
+                $(this).closest('tr').children('td').each(function (i, e) {
+                    $(this).find("input.class-delete-all").prop("checked", true);
+                    return true;
+                })
+            }
+            else {
+                return false;
+            }
+
+        })
+
+    </script>
+}

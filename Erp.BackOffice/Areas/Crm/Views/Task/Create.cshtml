@@ -1,0 +1,43 @@
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Crm.Models
+
+@model TaskViewModel
+
+@{
+    ViewBag.Title = Wording.PageCreate_Task;
+
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Create", "Task", null, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.ValidationSummary(true)
+
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+    @Html.CustomTextboxFor(model => model.Subject, null, null, WidthType.span6)
+    @Html.CustomDropDownListFor(model => model.Status, SelectListHelper.GetSelectList_Category("task_status", null, "Value", Wording.Empty), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleDefault)
+    @Html.DateInput(model => model.StartDate, "dd/MM/yyyy", "99/99/9999", true)
+    @Html.DateInput(model => model.DueDate, "dd/MM/yyyy", "99/99/9999", true)
+    @Html.CustomDropDownListFor(model => model.ParentType, SelectListHelper.GetSelectList_Module(null), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleChosen)
+    @Html.CustomDropDownListFor(model => model.ContactId, SelectListHelper.GetSelectList_Contact(null), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleChosen)
+    @Html.CustomDropDownListFor(model => model.Priority, SelectListHelper.GetSelectList_Category("task_priority", null, "Value", Wording.Empty), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleDefault)
+    @Html.CustomTextAreaFor(model => model.Description, null, WidthType.span12)
+
+    <button style="margin-top:10px" type="submit" class="btn btn-info" name="Submit" value="Save">
+        <i class="ace-icon fa fa-save bigger-110"></i>
+        @Wording.Save
+    </button>
+}
+
+@section Scripts {
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+    @Html.ScriptBottom_DatePicker("dd/mm/yyyy")
+}

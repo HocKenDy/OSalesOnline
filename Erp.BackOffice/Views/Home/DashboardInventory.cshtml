@@ -1,0 +1,154 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Helpers
+
+@{
+    ViewBag.Title = "Kho";
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "",
+        ActionName = "",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false,
+        HideClearButton = true,
+        SearchButtonText = "Lấy dữ liệu"
+    };
+    IEnumerable<SelectListItem> warehouseList = (IEnumerable<SelectListItem>)ViewBag.warehouseList;
+    string Month = Request["month"] != null ? Request["month"] : DateTime.Now.Month.ToString();
+    string Year = Request["year"] != null ? Request["year"] : DateTime.Now.Year.ToString();
+    string manufacturer = Request["manufacturer"] != null ? Request["manufacturer"] :  "";
+    string group = Request["group"] != null ? Request["group"] : "";
+    string WarehouseId = Request["warehouseList"] != null ? Request["warehouseList"] :  "";
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+    <p>
+        Xem dữ liệu theo
+        <label>
+            <input id="single1" name="single" type="radio" class="ace" value="true" checked="checked">
+            <span class="lbl"> Tháng</span>
+        </label>
+        <label>
+            <input id="single2" name="single" type="radio" class="ace" value="false">
+            <span class="lbl"> Quý</span>
+        </label>
+    </p>
+    <p>
+        <select id="month" name="month">
+            @for (int i = 1; i <= 12; i++)
+            {
+                <option @(Month == i.ToString() ? "Selected" : "") value="@i">Tháng @i</option>
+            }
+        </select>
+        <select id="quarter" name="quarter" style="display:none">
+            <option value="1">Quý I</option>
+            <option value="2">Quý II</option>
+            <option value="3">Quý III</option>
+            <option value="4">Quý IV</option>
+        </select>
+
+        <select id="year" name="year">
+            <option value="">- Chọn năm -</option>
+            @for (int i = 2016; i <= DateTime.Now.Year; i++)
+            {
+                <option @(Year == i.ToString() ? "Selected" : "") value="@i">Năm @i</option>
+            }
+        </select>
+        @Html.DropDownList("manufacturer", SelectListHelper.GetSelectList_Category("manufacturerList", manufacturer, "- Nhà sản xuất -"))
+        @Html.DropDownList("group", SelectListHelper.GetSelectList_Category("Categories_product", group, "- Nhóm sản phẩm -"))
+        @Html.DropDownList("warehouseList", SelectListHelper.GetSelectList_Warehouse(WarehouseId, null))
+    </p>
+}
+<div class="tabbable">
+    <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="tab">
+        <li class="active">
+            <a data-toggle="tab" href="#tab1">Cảnh báo tồn kho</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#tab2">Biểu đồ số lượng nhập xuất kho</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="tab1" class="tab-pane in active">
+            <div id="InventoryWarning">
+                @Html.Partial("_Loading")
+            </div>
+        </div>
+        <div id="tab2" class="tab-pane">
+            <div id="ChartInboundAndOutboundInMonth">@Html.Partial("_Loading")</div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        ShowLoading();
+        $.get('@Url.Action("ChartInboundAndOutboundInMonth", "SaleReport", new { area = "Sale", single = true, year = Year, month = Month })', function (html) {
+            $("#ChartInboundAndOutboundInMonth").html(html);
+            //HideLoading();
+        });
+        $.get('@Url.Action("BaoCaoKho_CanhBaoTonKho", "SaleReport", new { area = "Sale", WarehouseId = WarehouseId })', function (html) {
+            $("#InventoryWarning").html(html);
+            //HideLoading();
+        });
+        
+        
+         
+        $("#quarter").val(currentQuarter);
+
+        var single = true;
+
+        $("#single1").change(function () {
+            if ($(this).val() == 'true') {
+                $("#month").show();
+                $("#quarter").hide();
+                single = true;
+            }
+        });
+
+        $("#single2").change(function () {
+            if ($(this).val() == 'false') {
+                $("#month").hide();
+                $("#quarter").show();
+                single = false;
+            }
+        });
+
+        $("button[name='search']").click(function (e) {
+            e.preventDefault();
+            ShowLoading();
+
+            var month = $("#month option:selected").val();
+            var quarter = $("#quarter option:selected").val();
+            var year = $("#year option:selected").val();
+            var group = $("#group option:selected").val();
+            var manufacturer = $("#manufacturer option:selected").val();
+            var WarehouseId = $("#warehouseList option:selected").val();
+            var done1 = 0, done2 = 0;
+
+            $.get('@Url.Action("ChartInboundAndOutboundInMonth", "SaleReport", new { area = "Sale" })/?single=' + single + '&year=' + year + '&month=' + month + '&quarter=' + quarter + '&manufacturer=' + manufacturer + '&group=' + group, function (html) {
+                $("#ChartInboundAndOutboundInMonth").html(html);
+                //done1 = 1;
+                //if (done1 == 1 && done2 == 1) {
+                //    HideLoading();
+                //}
+                //HideLoading();
+            });
+            $.get('@Url.Action("BaoCaoKho_CanhBaoTonKho", "SaleReport", new { area = "Sale" })?WarehouseId=' + WarehouseId, function (html) {
+                $("#InventoryWarning").html(html);
+                //HideLoading();
+                //done2 = 1;
+                //if (done1 == 1 && done2 == 1) {
+                //    HideLoading();
+                //}
+            });
+            return false;
+        });
+    });
+</script>

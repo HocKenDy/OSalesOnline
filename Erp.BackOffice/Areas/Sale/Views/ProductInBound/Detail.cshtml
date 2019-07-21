@@ -1,0 +1,199 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model ProductInboundViewModel
+
+@{
+        ViewBag.Title = Wording.PageView_ProductInBound;
+
+        Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+        Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+        {
+            ModuleName = "ProductInBound",
+            ActionName = "Detail",
+            PageTitle = ViewBag.Title,
+            DisplaySearchPanel = false,
+            IsPopup = false,
+            DisplayBackButton = true,
+            ActionBack = Model.Type == ProductInboundType.Card ? "ListForCard" : null
+    };
+    IEnumerable<SelectListItem> warehouseList = (IEnumerable<SelectListItem>)ViewBag.warehouseList;
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+<style>
+    .lighter.block.green {
+        display: none !important;
+    }
+
+    .detail-view .control-value {
+        height: 100% !important;
+    }
+</style>
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @Html.Raw(ViewBag.FailedMessage)
+    </div>
+}
+
+@Html.ValidationSummary(true)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.CreatedUserId)
+@Html.HiddenFor(model => model.CreatedDate)
+@Html.HiddenFor(model => model.IsDeleted)
+<div class="row">
+    <div style="margin-left: 15px;">
+        <h4 class="green" style="margin-top:0px">
+            <span>Phiếu nhập: @Model.Code (@Model.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm"))</span>
+        </h4>
+    </div>
+    <div class="col-sm-7">
+        <div id="listOrderDetail" class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="40">STT</th>
+                        <th>Tên sản phẩm</th>
+                        <th width="100" style="text-align:center">Số lượng</th>
+                        <th width="100" style="text-align:right">Đơn giá</th>
+                        <th width="120" style="text-align:right">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="detailList" class="detailList">
+                    @for (int i = 0; i < Model.DetailList.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>
+                                @Model.DetailList[i].ProductCode - @Model.DetailList[i].ProductName
+                            </td>
+                            <td style="text-align:right">
+                                @Common.PhanCachHangNgan(Model.DetailList[i].Quantity)
+                            </td>
+                            <td style="text-align:right">
+                                @Common.PhanCachHangNgan(Model.DetailList[i].Price)
+                            </td>
+                            <td style="text-align:right">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.DetailList[i].Price * Model.DetailList[i].Quantity)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td id="TongSoLuong" align="right" style="font-weight:bold">@Common.PhanCachHangNgan(Model.DetailList.Sum(item => item.Quantity))</td>
+                        <td align="right">Thành tiền</td>
+                        <td id="TongThanhTien" align="right" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.TotalAmount)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" align="right">VAT @Model.VAT %</td>
+                        <td align="right" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.TotalVAT)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" align="right">Tổng tiền</td>
+                        <td align="right" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.Total)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <ul class="nav nav-tabs" id="myTab">
+            <li id="li-tab1" class="active"><a data-target="#tab1" data-toggle="tab" aria-expanded="true">Thông tin chi tiết</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active clearfix" id="tab1">
+                <div class="detail-view col-xs-12">
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.WarehouseDestinationName, null, null, "col-xs-4", "col-xs-8")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.Note, null, null, "col-xs-4", "col-xs-8")
+                    </div>
+                    @if(Model.PurchaseOrderId != null)
+                    { 
+                    <div class="row control-group">
+                        <div class="col-xs-4 control-label"><label for="PurchaseOrderCode">Mã đơn mua hàng</label></div><div class="col-xs-8 control-value" style=""><a href="/PurchaseOrder/Detail/?TransactionCode=@Model.PurchaseOrderCode" target="_blank">@Model.PurchaseOrderCode</a></div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginButtonContainer(pageSetting))
+{
+    if (!Model.IsArchive)
+    {
+        <a class="btn btn-mini btn-primary" href="@Url.Action("Edit", pageSetting.ModuleName, new { Id = Model.Id })">
+            <i class="ace-icon fa fa-edit"></i>
+            Chỉnh sửa
+        </a>
+    }
+    <a href="@Url.Action("Print", new { Id = Model.Id })" target="_blank" class="btn btn-primary btn-white btn-sm"><i class="fa fa-print"></i> In phiếu</a>
+
+    if (Model.AllowEdit)
+    {
+        if (!Model.IsArchive)
+        {
+            using (Html.BeginForm("Archive", pageSetting.ModuleName, FormMethod.Post, new { @class = "inline" }))
+            {
+                @Html.HiddenFor(m => m.Id)
+                <button class="btn btn-mini btn-success" type="submit" name="Submit" value="Save">
+                    <i class="ace-icon fa fa-save"></i>
+                    Ghi sổ
+                </button>
+            }
+
+            using (Html.BeginForm("Delete", pageSetting.ModuleName, FormMethod.Post, new { @class = "inline" }))
+            {
+                @Html.HiddenFor(m => m.Id)
+                <button class="btn btn-white btn-danger btn-sm no-border" type="submit" name="Submit" value="Delete" onclick="return confirm('Bạn chắc chắn muốn thực hiện thao tác này?')">
+                    <i class="ace-icon fa fa-trash"></i>
+                    Xóa phiếu
+                </button>
+            }
+        }
+        else
+        {
+            using (Html.BeginForm("UnArchive", pageSetting.ModuleName, FormMethod.Post, new { @class = "inline" }))
+            {
+                @Html.HiddenFor(m => m.Id)
+                <button class="btn btn-white btn-danger btn-sm no-border" type="submit" name="Submit" value="Save" onclick="return confirm('Bạn chắc chắn muốn thực hiện thao tác này?')">
+                    Bỏ ghi sổ
+                </button>
+            }
+        }
+    }
+}
+
+@section Scripts {
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+}

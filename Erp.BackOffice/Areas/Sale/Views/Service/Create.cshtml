@@ -1,0 +1,327 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model ProductViewModel
+
+@{
+    ViewBag.Title = Wording.PageCreate_Service;
+
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Service",
+        ActionName = "Create",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    IEnumerable<SelectListItem> service = (IEnumerable<SelectListItem>)ViewBag.service;
+    IEnumerable<SelectListItem> CategoryList = Erp.BackOffice.Helpers.Common.GetSelectList_Category("service", null, "value");
+    IEnumerable<SelectListItem> productUnitList = Erp.BackOffice.Helpers.Common.GetSelectList_Category("serviceUnit", null, "value");
+    IEnumerable<SelectListItem> productGroupList = Erp.BackOffice.Helpers.Common.GetSelectList_Category("serviceGroup", Model.ProductGroup, "value");
+
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Create", "Service", null, FormMethod.Post, new { id = "CreateProduct", @class = "form-horizontal clearfix" }))
+{
+    //@Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <input type="hidden" name="IsPopup" value="@Request["IsPopup"]" />
+    <input type="hidden" name="Type" value="service" />
+
+    <div class="col-sm-6">
+        @Html.CustomTextboxFor(model => model.Code, null, null, WidthType.span12)
+        @Html.CustomTextboxFor(model => model.Name, null, null, WidthType.span12)
+        @Html.CustomDropDownListFor(model => model.ProductGroup, productGroupList, WidthType.span12, true, null, DropdownListStyle.DropdownListStyleDefault)
+        @Html.CustomSwitchesFor(model => model.IsServicePackage, SwitchesStyle.CheckboxStyle, false)
+        @Html.CustomTextboxFor(model => model.PriceInbound, null, null, WidthType.span12, true, new Dictionary<string, object> { {"class" ,"col-sm-12 text-right" } })
+        @Html.CustomTextboxFor(model => model.PriceOutbound, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+        @Html.CustomDropDownListFor(model => model.Unit, productUnitList, WidthType.span12, true, null, DropdownListStyle.DropdownListStyleDefault)
+        @Html.CustomTextboxFor(model => model.TargetPoint, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+        @Html.CustomTextboxFor(model => model.Point, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+    </div>
+    <div class="col-sm-6">
+        <div class="wrap-btn-upload">
+            <a class="btn btn-primary btn-sm"><i class="fa fa-upload"></i><span>Tải hình mới</span></a>
+            <input type="file" id="file-image" name="file-image" class="file-image" onchange="previewFileImage(event, '#display-image img')" />
+        </div>
+        <div class="text-center" id="display-image">
+            <img src="/assets/css/images/noimage.gif" title="@Model.Name" id="" />
+        </div>
+    </div>
+
+    <div class="clearfix col-sm-12 box box-attr" style="padding:10px 0;display:none;">
+        <h4><span>Các đặc tính khác</span></h4>
+        <div class="clearfix list-attr-by-category">
+
+        </div>
+    </div>
+
+    <div class="clearfix col-sm-12 box box-service-in-package" style="padding:10px 12px; display:none">
+        <h4><span>Các dịch vụ trong gói</span></h4>
+        <a class="btn btn-sm btn-primary btn-add-detail-item">Thêm dòng</a>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th style="width:50px;">STT</th>
+                    <th>Tên dịch vụ</th>
+                    <th style="width:200px;">Số lần thực hiện</th>
+                    <th style="width:100px;"></th>
+                </tr>
+            </thead>
+            <tbody class="tbody-services">
+                <tr role="0">
+                    <td class="text-center"><span>1</span></td>
+                    <td>
+                        <div class="form-group">
+                            <select class="form-control detail_item_id" name="ServicesInPackage[0].ProductId">
+                                <option value="">-chọn-</option>
+                                @foreach (var item in service)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                            <span class="text-danger"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="number" name="ServicesInPackage[0].Quantity" class="form-control detail_item_qty" value="1" min="1" />
+                            <span class="text-danger"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-sm-12 top-10">
+        @*@Html.CustomTextAreaFor(model => model.Description, null, WidthType.span12, false, new Dictionary<string, object> { { "class", "ckeditor" } })*@
+        <div id="group-description" class="control-group form-group">
+            <label class="col-sm-12" for="Description">Mô tả</label>
+            <div class="control-value col-sm-12">
+                <div class="clearfix">
+                    <textarea class="ckeditor" cols="20" id="Description" name="Description" placeholder="" rows="2">@Model.Description</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+    <link href="/Scripts/ckeditor/contents.css" rel="stylesheet" />
+    <script src="/Scripts/ckeditor/ckeditor.js"></script>
+    <script>
+
+        function disabledProductSelected() {
+            var optionsSeletedValue = ',';
+            $('.tbody-services select.detail_item_id').each(function (index, elem) {
+                if ($(elem).val() != '')
+                    optionsSeletedValue += $(elem).val() + ",";
+            });
+
+            $('.tbody-services select.detail_item_id option').removeAttr('disabled');
+            $('.tbody-services select.detail_item_id').each(function (index, elem) {
+                $(elem).find('option:not([value="' + $(elem).val() + '"])').each(function (index2, option) {
+                    var value = ',' + $(option).attr('value') + ',';
+                    if (optionsSeletedValue.indexOf(value) != -1)
+                        $(option).attr('disabled', 'disabled');
+                });
+            });
+        };
+
+        $(document).ready(function () {
+            //lưu dòng mẫu
+            var $tr_template_service = $('.tbody-services tr:first-child').clone();
+
+            //Xóa các thuộc tính data-val cảu các trường không bắt buộc (do MVC DataAnnotation tự tạo)
+            $('#Parent_Id').removeDataAttr('val, val-number');
+
+            $('#PriceInbound, #PriceOutbound').numberFormat();
+            $('#MinInventory, #QuantityService').numberFormat();
+            $('#TargetPoint').numberFormat();
+            $('#Point').numberFormat();
+
+            //load các thuộc tính động của danh mục
+            $('#CategoryCode').change(function () {
+                var $this = $(this);
+                $('.list-attr-by-category').html('');
+                $.get('/ObjectAttribute/GetListByModuleCategory', { category: $this.val() }, function (res) {
+                    if (res.replace(/\s+/,'') != '') {
+                        $('.list-attr-by-category').html(res);
+                        initDataTypeInput($('.list-attr-by-category input'));
+                        $('.box-attr').show();
+                    }
+                });
+            });
+
+            //sự kiện khi chọn là gói dịch vụ
+            $('#IsServicePackage').change(function () {
+                if ($(this).is(':checked') == true) {
+                    if ($('.tbody-services tr').length == 0)
+                        $('.btn-add-detail-item').trigger('click');
+                } else {
+                    //nếu ko là gói DV thì xóa hết các dòng DV trong gói để ko phải validate
+                    $('.tbody-services tr').remove();
+                }
+                //hiển thị bảng chọn các dịch vụ trong gói
+                $('.box-service-in-package').toggle();
+            });
+
+            // sự kiện khi chọn hay thay đổi dịch vụ
+            $('body').on('change', '.tbody-services .detail_item_id', function () {
+                var $this = $(this);
+                $this.closest('form-group').removeClass('has-error');
+                $this.next('span').text('');
+                //disabled sản phẩm này ở các danh sách chọn khác
+                disabledProductSelected();
+
+                if ($this.val() == '')
+                    $this.closest('tr').find('.detail_item_qty').val(1);
+            });
+
+            // sự kiện khi chọn hay thay đổi dịch vụ
+            $('body').on('change', '.tbody-services .detail_item_qty', function () {
+                var $this = $(this);
+                if (parseInt($this.val()) <= 0 || $this.val() == '') {
+                    $this.val(1);
+                }
+            });
+
+            //sự kiện thêm mới 1 dòng
+            $('.btn-add-detail-item').click(function () {
+                var len = $('.tbody-services tr').length;
+                var tr_new = $tr_template_service.clone()[0].outerHTML;
+                tr_new = tr_new.replace(/\[0\]/g, "[" + len + "]").replace(/_0_/g, "_" + len + "_");
+                var $tr_new = $(tr_new);
+                $tr_new.attr('role', len);
+                $tr_new.find('td:first-child span').text(len + 1);
+                $tr_new.find('.detail_item_qty').val(1);
+                //đưa về tùy chọn cho sản phẩm
+                $tr_new.find('select').val('');
+
+                $('.tbody-services').append($tr_new);
+                //disabled sản phẩm này ở các danh sách chọn khác
+                disabledProductSelected();
+            });
+
+            // xóa 1 dòng
+            $('body').on('click', '.tbody-services .btn-danger', function () {
+                $(this).closest('tr').remove();
+                if ($('#detailList tr').length == 0) {
+                    $('#numOfdetailItem').val('');
+                }
+
+                $('.tbody-services tr').each(function (index, tr) {
+                    $(tr).attr('role', index);
+                    $(tr).find('td:first-child span').text(index + 1);
+
+                    $(tr).find('.detail_item_id').attr('name', 'DetailList[' + index + '].ProductId').attr('id', 'DetailList_' + index + '_ProductId');
+                    $(tr).find('.detail_item_qty').attr('name', 'DetailList[' + index + '].Quantity').attr('id', 'DetailList_' + index + '_Quantity');
+                });
+            });
+
+            resetLableRequired('#CreateProduct');
+            //parseValidatorForm('#ProductInBound');
+            $('#CreateProduct').submit(function () {
+                ShowLoading();
+                if ($(this).valid()) {
+                    if (checkFieldLiveRequired($(this)) == true) {
+                        if (checkRowOnTable() == true)
+                            return true;
+                        else {
+                            HideLoading();
+                            return false;
+                        }
+                    }
+                }
+                HideLoading(); return false;
+            });
+
+        });
+
+        function checkRowOnTable()
+        {
+            if ($("#IsServicePackage").is(':checked') == true)
+            {
+                $('.tbody-services tr span').text('');
+                var $rows = $('.tbody-services tr');
+                if ($rows.length == 0)
+                    return true;
+                else
+                {
+                    var flag = true;
+                    $rows.each(function (index, tr)
+                    {
+                        if ($(tr).find('.detail_item_id').val() == '')
+                        {
+                            $(tr).find('.detail_item_id').next('span').text('Chọn 1 dịch vụ!'); flag = false;
+                        }
+                    });
+                    return flag;
+                }
+            }
+            return true;
+        };
+
+        function initCkeditor() {
+            $('.ckeditor').ckeditor({
+                "extraPlugins": 'imagebrowser',
+                "imageBrowser_listUrl": "@Url.Action("ListJson","Images")",
+                // Define the toolbar groups as it is a more accessible solution.
+                toolbarGroups: [
+                    { "name": "document", "groups": ["mode", "document", "doctools"] },
+                    { "name": "editing", "groups": ["find", "selection", "spellchecker"] },
+                    { "name": "forms" },
+                    { "name": "tools" },
+                    { "name": "basicstyles", "groups": ["basicstyles", "cleanup"] },
+                    { "name": "clipboard", "groups": ["clipboar", "undo"] },
+                    { "name": "links", "groups": ["links"] },
+                    { "name": "paragraph", "groups": ["list", "blocks"] },
+                    { "name": "insert", "groups": ["insert"] },
+                    { "name": "styles", "groups": ["styles"] },
+                    //{ "name": "about", "groups": ["about"] },
+                    { "name": "styles" },
+                    { "name": "colors" },
+                    { "name": "align", "groups": ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] }
+
+                ],
+                // Remove the redundant buttons from toolbar groups defined above.
+                removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar'
+            });
+        }
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+}

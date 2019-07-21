@@ -1,0 +1,105 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+
+@model ProductViewModel
+
+@helper viewTargetPoint(double? TargetPoint)
+{
+    <span class="red">@Common.PhanCachHangNgan(TargetPoint)/Điểm</span>
+}
+<div class="row">
+    <div class="col-sm-7">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title">Thông tin sản phẩm</h5>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="detail-view">
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Code, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Name, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                        @if (Model.Type == ProductType.Product)
+                        {
+
+
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.Alias, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.Manufacturer, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.ProductGroup, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.CategoryCode, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.Size, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                        }
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Unit, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.PriceInbound, true, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.PriceOutbound, true, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.MinInventory, true, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.MinInventoryAlarms, true, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                        @if (Model.Type == ProductType.Product)
+                        {
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.NoInbound, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                            <div class="row control-group">
+                                @Html.DetailViewItem(viewTargetPoint(Model.TargetPoint), "TargetPoint", Wording.TargetPoint, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                        }
+                        @if (Model.Type == ProductType.Gift)
+                        {
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.RedemptionPoints, true, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                            </div>
+                        }
+                        @*<div class="row control-group">
+            @Html.DetailViewItemFor2(model => model.Point, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+        </div>*@
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Description, null, null, "col-sm-4 col-xs-5", "col-sm-8 col-xs-7")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title">Hình ảnh</h5>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="profile-picture">
+                        <a href="@(string.IsNullOrEmpty(Model.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + Model.Image_Name)" class="image-link">
+                            <img class="imageClass img-responsive" src="@(string.IsNullOrEmpty(Model.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + Model.Image_Name)" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

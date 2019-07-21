@@ -1,0 +1,444 @@
+﻿@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Areas.Administration.Models
+
+@model Erp.BackOffice.Areas.Administration.Models.AccessRightViewModel
+
+@{
+    ViewBag.Title = "Phân quyền";
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "AccessRight",
+        ActionName = "Create",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+
+    var userTypeId = Request["userTypeId"] == null ? 0 : Convert.ToInt32(Request["userTypeId"]);
+    var userId = Request["userId"] == null ? 0 : Convert.ToInt32(Request["userId"]);
+}
+<link href="~/assets/css/bootstrap-multiselect.min.css" rel="stylesheet" />
+<link href="~/assets/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="/Scripts/jstree/themes/default/style.min.css" />
+
+<style type="text/css">
+    .group-item a:hover, .group-item a.active {
+        text-decoration: none;
+        color: red;
+    }
+
+    .list-usertype ul {
+        padding: 0px;
+        margin: 0px;
+    }
+
+        .list-usertype ul li {
+            list-style: none;
+        }
+
+            .list-usertype ul li a {
+                display: block;
+                padding: 5px 10px;
+            }
+
+                .list-usertype ul li a:hover, .list-usertype ul li a.active {
+                    color: #fff;
+                    background: #337ab7;
+                    text-decoration: none;
+                }
+</style>
+
+
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@if (ViewBag.AlertMessage != null && ViewBag.AlertMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="icon-remove"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.AlertMessage
+    </div>
+}
+
+@using (Html.BeginForm("Create", "AccessRight", FormMethod.Post, new { id = "accessRight", @class = "form-horizontal" }))
+{
+    @Html.Hidden("UserTypeId", Model.UserTypeId)
+    <div class="row">
+        <div class="col-sm-3">
+            @foreach (var item in Model.ListUserType)
+            {
+                <div class="widget-box">
+                    <div class="widget-header">
+                        <h5 class="widget-title group-item">
+                            <b>@item.Name</b>
+                        </h5>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main list-usertype">
+                            <ul>
+                                @foreach (var user in Model.ListUser.Where(x => x.UserTypeId == item.Id))
+                                {
+                                    <li><a class="@(user.Id == userId ? "active" : "")" href="?userTypeId=@(user.UserTypeId)&userId=@user.Id"><b>@user.UserName </b></a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <p></p>
+            }
+        </div>
+
+        <div class="col-sm-9 clearfix">
+            @if (Model.UserTypeId != null && Model.UserId != null)
+            {
+                int i = 0, j = 0;
+                <div class="tabbable">
+                    <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="tab">
+                        @foreach (var item1 in Model.ListPageGroup)
+                        {
+                            i++;
+                            <li class="@(i == 1 ? "active" : "")">
+                                <a data-toggle="tab" href="#tab@(i)">@item1.Name</a>
+                            </li>
+                        }
+                    </ul>
+
+                    <div class="tab-content">
+                        @foreach (var item1 in Model.ListPageGroup)
+                        {
+                            j++;
+
+                            <div id="tab@(j)" class="tab-pane in @(j == 1 ? "active" : "")">
+
+                               
+                                    <label>
+                                        <input name="CheckAll"  class="ace ace-checkbox-2" type="checkbox"  data-id="tab@(j)">
+                                        <span class="lbl">Chọn hết </span>
+                                    </label>
+                                @if (item1.ListPageGroup != null)
+                                {
+                                    <table class="table table-striped grid-table">
+                                        <thead>
+                                            <tr>
+                                                <td width="200">Tiêu đề</td>
+                                                <td>Truy cập</td>
+                                                <td>Chi tiết</td>
+                                                <td>Thêm mới</td>
+                                                <td>Cập nhật</td>
+                                                <td>Xóa</td>
+                                                <td>In</td>
+                                                <td>Khác</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item2 in item1.ListPageGroup)
+                                            {
+                                                <tr>
+                                                    <td width="200">
+                                                        <p>
+                                                            <input name="CheckRows" class="ace ace-checkbox-2" type="checkbox" data-id="tab@(j)">
+                                                            <span class="lbl"><b>@item2.Name</b></span>
+
+                                                       
+                                                        
+                                                        </p>
+                                                    </td>
+                                                    <td width="100">
+                                                        @renderItem(item2.ListPageGroup, new string[] { "Danh sách" })
+                                                    </td>
+                                                    <td width="100">
+                                                        @renderItem(item2.ListPageGroup, new string[] { "Chi tiết" })
+                                                    </td>
+                                                    <td width="100">
+                                                        @renderItem(item2.ListPageGroup, new string[] { "Thêm mới" })
+                                                    </td>
+                                                    <td width="100">
+                                                        @renderItem(item2.ListPageGroup, new string[] { "Cập nhật" })
+                                                    </td>
+                                                    <td width="100">
+                                                        @renderItem(item2.ListPageGroup, new string[] { "Xóa" })
+                                                    </td>
+                                                    <td width="100">
+                                                        @renderItem(item2.ListPageGroup, new string[] { "In" })
+                                                    </td>
+                                                    <td>
+                                                        @renderItemOther(item2.ListPageGroup)
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="" style="margin-left: 10px;">
+                    <div class="alert alert-warning">Vui lòng chọn loại người dùng!</div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@helper renderItem(List<PageGroupViewModel> list, string[] actionName)
+{
+    if (list != null)
+    {
+        var action = list.Where(item => actionName.Contains(item.Name)).FirstOrDefault();
+        if (action != null)
+        {
+            @renderItemInput(action, false)
+        }
+    }
+}
+@helper renderItemOther(List<PageGroupViewModel> list)
+{
+    var actions = new string[] { "Danh sách", "Thêm mới", "Cập nhật", "Xóa", "Chi tiết", "In" };
+
+    if (list != null)
+    {
+        var q = list.Where(item => !actions.Contains(item.Name)).ToList();
+        if (q.Count > 0)
+        {
+            foreach (var item in q)
+            {
+                <p>@renderItemInput(item, true)</p>
+            }
+        }
+    }
+}
+
+@helper renderItemInput(PageGroupViewModel item, bool showTitle)
+{
+    var name = item.Name;
+    if (name == "Danh sách")
+    {
+        name = "Truy cập";
+    }
+    <label>
+        <input name="PageId_@(item.Id)" type="checkbox" class="PageId SubPageId ace" value="@(item.Id)" @(item.Selected ? "checked" : "")>
+        @*<span class="lbl" style="margin-right:10px"> @Html.Raw(showTitle ? item.Name : "")</span>*@
+        <span class="lbl" style="margin-right:10px; font-size:11px"> @name</span>
+    </label>
+    foreach (var sub in item.ListSubAction)
+    {
+        <input name="PageId_@(sub.Id)" type="checkbox" class="PageId SubPageId_@(item.Id)" value="@(sub.Id)" @(sub.Selected ? "checked" : "") style="display:none" />
+    }
+}
+
+@using (Html.BeginButtonContainer(pageSetting))
+{
+    if (Request["notree"] == null)
+    {
+        if (Model.UserTypeId != null)
+        {
+            <a class="btn btn-mini btn-primary" onclick="submitForm()">
+                <i class="ace-icon fa fa-save"></i>
+                Phân quyền
+            </a>
+            <script type="text/javascript">
+                function submitForm() {
+                    var UserTypeId = @Model.UserTypeId.Value;
+                    var UserId = @(Model.UserId.HasValue?Model.UserId.Value:0);
+                    var objPost = { UserTypeId: UserTypeId, UserId:UserId};
+                    var n = 0;
+
+                    $(".PageId").each(function(index, obj){
+                        if($(obj).prop("checked"))
+                        {
+                            objPost["ListPages[" + (n++) +"]"] = $(obj).val();
+                        }
+                    });
+
+                    console.log(objPost);
+
+                    ShowLoading();
+                    $.post('/AccessRight/Create',
+                        objPost,
+                        function (res) {
+                            if (res == 'success') {
+                                alertPopup('Lưu thành công!', '', 'success');
+                            } else {
+
+                            }
+                            HideLoading();
+                        });
+                }
+            </script>
+        }
+        @*<a class="btn btn-white btn-success btn-sm" href="@Url.Action("Create", "AccessRight", new { userTypeId = Model.UserTypeId,userId=Request["userId"], notree = true })">
+                <i class="ace-icon fa fa-edit"></i>
+                Chỉnh sửa
+            </a>*@
+    }
+    else
+    {
+        <a class="btn btn-white btn-success btn-sm" href="@Url.Action("Create", "AccessRight", new { userTypeId = Model.UserTypeId,userId=Request["userId"] })">
+            <i class="ace-icon fa fa-arrow-left"></i>
+            Quay lại
+        </a>
+    }
+
+    <a class="btn btn-white btn-success btn-sm" onclick="OpenPopup('@Url.Action("CreateUser", "User", new { IsPopup = true })', '', 500, 500)">
+        <i class="ace-icon fa fa-plus"></i>
+        Thêm người dùng
+    </a>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            //$("#tree").height($(window).height() - 170);
+
+
+            //$(".btn-group").click(function () {
+            //    var id = $(this).data("controller");
+            //    var on = $(this).hasClass("on");
+            //    if (on) {
+            //        $(".item_of_" + id).hide();
+            //        $(this).removeClass("on");
+            //        $(this).removeClass("fa-minus-square-o");
+            //        $(this).addClass("fa-plus-square-o");
+            //    }
+            //    else {
+            //        $(".item_of_" + id).show();
+            //        $(this).addClass("on");
+            //        $(this).removeClass("fa-plus-square-o");
+            //        $(this).addClass("fa-minus-square-o");
+            //    }
+            //});
+
+            $("input[name='CheckAll']").change(function() {
+                if(this.checked) {
+                    //Do stuff
+                    $('div#'+ $(this).data('id')).find(':checkbox').prop("checked", true);
+                }
+                else{
+                    $('div#'+ $(this).data('id')).find(':checkbox').prop("checked", false);
+                }
+            });
+            $("input[name='CheckRows']").change(function() {
+                if(this.checked) {
+                    //Do stuff
+                    $($(this).closest('tr')).find(':checkbox').prop("checked", true);
+                }
+                else{
+                    $($(this).closest('tr')).find(':checkbox').prop("checked", false);
+                }
+            });
+
+            $('.btn-delete-page').click(function () {
+                if (confirm("Bạn muốn thực hiện thao tác này?")) {
+                    ShowLoading();
+                    var $this = $(this);
+
+                    $.post('/Page/Delete', { isAjax: true, pageId: $this.data('id') }, function (res) {
+                        if (res == 'success') {
+                            $this.closest('li').remove();
+                        } else {
+                            alert('Xóa không thành công.');
+                        }
+                        HideLoading();
+                    });
+
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+
+            $(".page_name").change(function () {
+                ShowLoading();
+                var $this = $(this);
+
+                $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "Name",
+                        value: $this.val()
+                    },
+                    function (res) {
+                        if (res.status == 'success') {
+                            alertPopup('Lưu thành công!', '', 'success');
+                        } else {
+
+                        }
+
+                        HideLoading();
+                    });
+            });
+
+            $(".page_name").focus(function () {
+                $(this).select();
+            });
+
+            $(".page_name").keypress(function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                }
+            });
+
+            $(".page_visible").change(function () {
+                ShowLoading();
+                var $this = $(this);
+
+                $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "IsVisible",
+                        value: $this.prop("checked")
+                    },
+                    function (res) {
+                        if (res.status == 'success') {
+                            alertPopup('Lưu thành công!', '', 'success');
+                        } else {
+
+                        }
+
+                        HideLoading();
+                    });
+            });
+            $(".page_status").change(function () {
+                ShowLoading();
+                var $this = $(this);
+
+                $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "Status",
+                        value: $this.prop("checked")
+                    },
+                    function (res) {
+                        if (res.status == 'success') {
+                            alertPopup('Lưu thành công!', '', 'success');
+                        } else {
+
+                        }
+
+                        HideLoading();
+                    });
+            });
+
+            $(".SubPageId").change(function(){
+                $(".SubPageId_" + $(this).val()).prop("checked", $(this).prop("checked"));
+            });
+
+            $('[data-rel=tooltip]').tooltip({ container: 'body' });
+        });
+    </script>
+
+    @Html.ScriptBottom_ValidationMvc()
+}

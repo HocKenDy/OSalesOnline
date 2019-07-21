@@ -1,0 +1,733 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Account.Models
+
+@model ProductInvoiceViewModel
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+
+    bool IsPopup = Request["IsPopup"] == null ? false : true;
+    Layout = "~/Views/Shared/" + (IsPopup == false ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+
+    IEnumerable<SelectListItem> SaleList = (IEnumerable<SelectListItem>)ViewBag.SaleList;
+
+    IEnumerable<ProductViewModel> productList = (IEnumerable<ProductViewModel>)ViewBag.productList;
+
+    SelectList provinceList = Erp.BackOffice.Helpers.Common.GetSelectList_Location("0", null);
+    SelectList districtList = Erp.BackOffice.Helpers.Common.GetSelectList_Location(Model.ShipCityId, null);
+    SelectList wardList = Erp.BackOffice.Helpers.Common.GetSelectList_Location(Model.ShipDistrictId, null);
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "ProductInvoice",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = IsPopup,
+        DisplayBackButton = true
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+    <style type="text/css">
+        .mini-popup {
+            position: relative;
+            display: inline;
+        }
+
+        #popup_huy {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            width: 450px;
+            height: 160px;
+            max-width: inherit;
+            top: inherit;
+        }
+
+        #popup_archive {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            width: 450px;
+            height: 235px;
+            max-width: inherit;
+            top: inherit;
+        }
+
+        #popup_pay {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            width: 450px;
+            height: 235px;
+            max-width: inherit;
+            top: inherit;
+        }
+
+        .table-invoice > thead > tr > th {
+            margin: 5px;
+        }
+    </style>
+}
+
+@helper renderStatus(string status)
+{
+switch (status)
+{
+    case "pending":
+        <span class="label label-info pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_pending</span>
+    break;
+    case "inprogress":
+        <span class="label label-warning pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_inprogress</span>
+    break;
+    case "shipping":
+        <span class="label label-warning pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_shipping</span>
+    break;
+    case "complete":
+        <span class="label label-success pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_complete</span>
+    break;
+    case "delete":
+        <span class="label label-danger pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_delete</span>
+    break;
+}
+}
+@helper renderCustomer(int? CustomerId, string CustomerName)
+{
+    <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new {area="Account", Id = CustomerId, IsPopup = true })', '', 0, 0)">@CustomerName</a>
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+<div class="row">
+    <div class="col-sm-7">
+        @if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+        {
+            <div class="alert alert-block alert-success">
+                <button class="close" data-dismiss="alert" type="button">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <i class="ace-icon fa fa-check green"></i>
+                @Html.Raw(ViewBag.SuccessMessage)
+            </div>
+        }
+
+        @if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+        {
+            <div class="alert alert-block alert-danger">
+                <button class="close" data-dismiss="alert" type="button">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <i class="ace-icon fa fa-warning red"></i>
+                @Html.Raw(ViewBag.FailedMessage)
+            </div>
+        }
+
+        <h4 class="green" style="margin-top:0px">
+            @renderStatus(Model.Status)
+            <span>Đơn hàng: @Model.Code (@Model.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm"))</span>
+            @*<span class="pull-right red"><b>@Common.PhanCachHangNgan(Model.TotalAmount)</b></span>*@
+        </h4>
+        @if (Model.IsDeleted == true)
+        {
+            <div class="alert alert-danger">
+                <p><i class="ace-icon fa fa-warning red"></i> @Model.ModifiedUserName đã hủy bỏ chứng từ lúc @Model.ModifiedDate.Value.ToString("HH:mm dd/MM/yyyy").</p>
+                <p>Lý do hủy: @Model.CancelReason</p>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-invoice">
+                <thead>
+                    <tr>
+                        <th class="detail-th-orderno">STT</th>
+                        <th class="detail-th-product-name">Tên sản phẩm</th>
+                        <th class="detail-th-quantity">SL</th>
+                        <th class="detail-th-price">Đơn giá</th>
+                        <th class="detail-th-discount">% CK</th>
+                        <th class="detail-th-discount-amount">Trị giá CK</th>
+                        <th class="detail-th-total">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody class="detailList">
+                    @foreach (var i in Model.GroupProduct)
+                    {
+                        if (!string.IsNullOrEmpty(i.ProductGroup))
+                        {
+                            var count = Model.DetailList.Where(x => x.ProductGroup == i.ProductGroup).ToList();
+                            decimal? subTotal1 = count.Sum(x => (x.Quantity) * (x.Price));
+                            var chiet_khau1 = count.Sum(x => x.DisCountAmount.HasValue ? x.DisCountAmount.Value : 0);
+                            var thanh_tien1 = subTotal1 - chiet_khau1;
+                            if (i.PromotionValue.HasValue)
+                            {
+                                thanh_tien1 = thanh_tien1 - Math.Round((Convert.ToDecimal(i.PromotionValue) * thanh_tien1.Value) / 100);
+                            }
+                            <tr data-type="" data-id="" style="background-color:#eee; font-weight:bold">
+                                <td colspan="2">@(i.ProductType == ProductType.Product ? "Sản phẩm" : "Dịch vụ") : @i.ProductGroupName</td>
+                                <td class="text-right">@Common.PhanCachHangNgan(count.Sum(x => x.Quantity))</td>
+                                <td colspan="3"></td>
+                                <td class="text-right">@Common.PhanCachHangNgan(thanh_tien1)</td>
+                            </tr>
+                        }
+                        int index = 1;
+                        foreach (var item in Model.DetailList.Where(x => x.ProductGroup == i.ProductGroup))
+                        {
+
+                            decimal? subTotal = (item.Quantity * item.Price.Value);
+                            decimal? subDiscountAmount = (item.Quantity * item.Price.Value) * item.DisCount / 100;
+                            if (item.PromotionValue.HasValue)
+                            {
+                                subTotal = subTotal - Math.Round((Convert.ToDecimal(item.PromotionValue) * subTotal.Value) / 100);
+                            }
+                            if (item.DisCount.HasValue)
+                            {
+                                subTotal = subTotal - subDiscountAmount;
+                            }
+                            <tr data-type="" data-id="">
+                                <td class="text-center">@(index++)</td>
+                                <td class="has-error">
+                                    <p style="margin-bottom:0px;">
+                                        @(item.ProductCode) - @(item.ProductName)
+                                        @if (item.CheckPromotion == true)
+                                        {
+                                            <span class="label label-success arrowed-in pull-right">Khuyến mãi</span>
+                                        }
+                                    </p>
+                                </td>
+
+                                <td class="text-right">@item.Quantity</td>
+                                <td class="text-right detail-product-price">@Common.PhanCachHangNgan(item.Price)</td>
+                                <td class="detail_item_discount text-right">
+                                    @*@if (!Model.IsArchive && Model.Status != ProductInvoiceStatus.Delete)
+                                        {
+                                            @Html.TextBox("DetailList[" + item.Id + "].DisCount", item.DisCount, new { style = "width:85px", @class = "detail_item_discount", autocomplete = "off", data_id = item.Id })
+                                        }
+                                        else
+                                        {*@
+                                    @(item.DisCount.HasValue ? item.DisCount.Value : 0)
+                                    @*}*@
+                                </td>
+                                <td class="detail_item_discount_amount text-right">
+                                    <span class="display-value" title="">@Common.PhanCachHangNgan(item.DisCountAmount.HasValue ? item.DisCountAmount : 0)</span>
+                                </td>
+                                <td class="detail_item_total text-right">
+                                    @if (item.IsReturn)
+                                    {
+                                        <i class="ace-icon fa fa-exclamation-triangle orange" title="Hàng bán trả lại"></i>
+                                    }
+                                    @Common.PhanCachHangNgan(subTotal)
+                                </td>
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" align="right">@Wording.TotalNoVAT</td>
+                        <td align="right" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.TotalNoVAT)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" align="right">VAT @Model.TaxFee %</td>
+                        <td align="right" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.TotalNoVAT * Convert.ToDecimal(Model.TaxFee) / 100)</td>
+                    </tr>
+                    @if (Model.CheckUsePoint == true)
+                    {
+                        <tr>
+                            <td colspan="6" align="right">@Wording.UsePoint <b>@Model.UsePoint</b> điểm=</td>
+                            <td align="right" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.UsePointAmount)</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="6" align="right">@Wording.TotalAmount</td>
+                        <td align="right" class="red" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.TotalAmount)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" align="right">@Wording.PaidAmount</td>
+                        <td align="right" class="red" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.PaidAmount)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" align="right">@Wording.RemainingAmount</td>
+                        <td align="right" class="red" style="font-weight:bold">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.RemainingAmount)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="top-5">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title"><i class="fa fa-commenting-o"></i> Hoạt động</h5>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main no-padding">
+                        @{Html.RenderAction("ListByTarget", "Post", new { area = "Crm", TargetModule = "ProductInvoice", TargetId = Model.Id });}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <div class="tabbable">
+            <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="myTab">
+                <li id="li-tab1" class="active"><a data-target="#tab1" data-toggle="tab" aria-expanded="true">Thông tin chi tiết</a></li>
+                <li id="li-tab2" class=""><a data-target="#tab2" data-toggle="tab" aria-expanded="false">Giao hàng</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active clearfix" id="tab1">
+                    <a class="btn btn-white btn-success btn-sm bottom-5" onclick="OpenPopup('@Url.Action("Edit", "ProductInvoice", new { IsPopup = true,Id=Model.Id })', 'Cập nhật hóa đơn', 500, 500)">
+                        <i class="ace-icon fa fa-edit">
+                        </i>
+                        @Wording.Edit
+                    </a>
+                    <div class="detail-view">
+                        <div class="row control-group">
+                            @Html.DetailViewItem(renderCustomer(Model.CustomerId, Model.CustomerName), "CustomerName", Wording.CustomerName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.AccumulatedPoint, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.SalerName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        @if (Model.Id > 0)
+                        {
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.CodeInvoiceRed, null, null, "col-xs-4", "col-xs-8")
+                            </div>
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.Note, null, null, "col-xs-4", "col-xs-8")
+                            </div>
+                        }
+                    </div>
+                    @if (Model.Id == 0)
+                    {
+                        @Html.CustomTextboxFor(model => model.CodeInvoiceRed, null, null, WidthType.span12)
+                        @Html.CustomTextAreaFor(model => model.Note, Wording.Note, WidthType.span12, true, null, "hide", "full-w")
+                    }
+
+                </div>
+                <div class="tab-pane clearfix" id="tab2">
+                    <div class="detail-view">
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.ShipName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Phone, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.ShipAddress, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.ShipWardName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.ShipDistrictName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.ShipCityName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p></p>
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title">Lịch sử thanh toán</h5>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    @if (Model.RemainingAmount > 0)
+                    {
+                        <div class="detail-view">
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.RemainingAmount, true, null, "font-weight:bold;", "col-xs-4", "col-xs-8")
+                            </div>
+                            <div class="row control-group">
+                                @Html.DetailViewItemFor2(model => model.NextPaymentDate, true, null, "font-weight:bold;", "col-xs-4", "col-xs-8")
+                            </div>
+                        </div>
+                    }
+                    <table class="table table-striped grid-table">
+                        <thead>
+                            <tr>
+                                <th class="grid-header" style="width:130px">Ngày giao dịch</th>
+                                <th class="grid-header" style="width:200px">Loại giao dịch</th>
+                                <th class="grid-header">Mã giao dịch</th>
+                                <th class="grid-header" style="width: 100px; text-align: right;">Nợ</th>
+                                <th class="grid-header" style="width: 100px; text-align: right;">Có</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ListTransactionLiabilities.Count > 0)
+                            {
+                                foreach (var item in Model.ListTransactionLiabilities)
+                                {
+                                    <tr class="grid-row">
+                                        <td>@item.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@item.TransactionName</td>
+                                        <td>
+                                            @switch (item.TransactionModule)
+                                            {
+                                                case "ProductInvoice":
+                                                {
+                                                    @item.TransactionCode
+                                                    break;
+                                                }
+                                                default:
+                                                {
+                                                    <a onclick="OpenPopup('/@(item.TransactionModule)/Detail/?TransactionCode=@(item.TransactionCode)&IsPopup=true', 'Thông tin chứng từ', 0, 0)">@item.TransactionCode</a>
+                                                    break;
+                                                }
+
+                                            }
+                                        </td>
+                                        <td style="text-align: right; font-weight: bold">@Common.PhanCachHangNgan(item.Debit)</td>
+                                        <td style="text-align: right; font-weight: bold">@Common.PhanCachHangNgan(item.Credit)</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <p></p>
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title">Chứng từ</h5>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <table class="table table-striped grid-table">
+                        <thead>
+                            <tr>
+                                <th class="grid-header" style="width:130px">Ngày chứng từ</th>
+                                <th class="grid-header" style="width:150px">Loại chứng từ</th>
+                                <th class="grid-header">Mã chứng từ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ListTransactionRelationship.Count > 0)
+                            {
+                                foreach (var item in Model.ListTransactionRelationship)
+                                {
+                                    string TransactionCode = item.TransactionA == Model.Code ? item.TransactionB : item.TransactionA;
+                                    string TransactionModule = item.TransactionA == Model.Code ? item.TransactionB_Module : item.TransactionA_Module;
+                                    string TransactionName = item.TransactionA == Model.Code ? item.TransactionB_Name : item.TransactionA_Name;
+                                    <tr class="grid-row">
+                                        <td>@item.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@TransactionName</td>
+                                        <td>
+                                            <a onclick="OpenPopup('/@TransactionModule/Detail/?TransactionCode=@(TransactionCode)&IsPopup=true', 'Thông tin chứng từ', 0, 0)">
+                                                @TransactionCode
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginButtonContainer(pageSetting))
+{
+    if (Model.IsDeleted != null && Model.IsDeleted == false)
+    {
+        if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Print", "ProductInvoice", "Sale"))
+        {
+            <a href="@Url.Action("Print", "ProductInvoice", new { id = Model.Id })" target="_blank" class="btn btn-white btn-success btn-sm">
+                <i class="ace-icon fa fa-print"></i>
+                In phiếu
+            </a>
+            <a class="btn btn-white btn-success btn-sm" href="@Url.Action("Print", "ProductInvoice", new { id = Model.Id, ExportExcel = true })">
+                <i class="ace-icon fa fa-file-excel-o"></i>
+                Xuất excel
+            </a>
+        }
+        if (Model.AllowEdit)
+        {
+            if (!Model.IsArchive)
+            {
+                if (Model.Type == ProductInvoiceType.Service || (Model.ProductOutboundViewModel != null && Model.Type != ProductInvoiceType.Service))
+                {
+                    if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Archive", "ProductInvoice", "Sale"))
+                    {
+                        <div class="mini-popup">
+                            <a class="btn btn-mini btn-success" data-toggle="collapse" data-target="#popup_archive">
+                                <i class="ace-icon fa fa-save"></i>
+                                Ghi sổ
+                            </a>
+                            <div id="popup_archive" class="popover fade top">
+                                <div class="arrow" style="left: 50%;"></div>
+                                <h3 class="popover-title"><i class="ace-icon fa fa-save"></i> Ghi sổ</h3>
+                                <div class="popover-content">
+                                    @using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Archive", "ProductInvoice", null, FormMethod.Post, new { @class = "form-horizontal" }))
+                                    {
+                                        @Html.ValidationSummary(true)
+                                        @Html.HiddenFor(model => model.Id)
+                                        @Html.HiddenFor(model => model.ReceiptViewModel.Name)
+                                        @Html.CustomTextboxFor(model => model.ReceiptViewModel.Amount, null, null, WidthType.span12, false, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+                                        <div class="NextPaymentDate-container" style="display:none">
+                                            <div class="control-group form-group" style="border-top:0px">
+                                                <label class="control-label no-padding-right col-lg-5 col-md-4 col-sm-4" for="AmountRemain">Số tiền còn lại</label>
+                                                <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                                    <div class="clearfix">
+                                                        @Html.TextBox("AmountRemain", 0, new { disabled = "disabled", @class = "col-sm-12 text-right" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @Html.DateInput(model => model.NextPaymentDate_Temp, "dd/MM/yyyy", "99/99/9999", true, WidthType.span12, "col-lg-5 col-md-4 col-sm-4", "col-lg-7 col-md-8 col-sm-8")
+                                        </div>
+
+                                        @Html.CustomDropDownListFor(model => model.ReceiptViewModel.PaymentMethod, SelectListHelper.GetSelectList_Category("FormPayment", null, "Name", Wording.Empty), WidthType.span12, true, null, DropdownListStyle.DropdownListStyleDefault)
+
+                                        <p class="top-10">
+                                            <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save" onclick="return submitArchive();">
+                                                Đồng ý
+                                            </button>
+                                            <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_archive">Đóng</a>
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                }
+                if (Model.QuantityCodeSaleReturns <= 0)
+                {
+                    if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Create", "ProductInvoice", "Sale"))
+                    {
+                        <a class="btn btn-primary btn-mini" href="@Url.Action("Create", "ProductInvoice", new { Id = Model.Id })">
+                            <i class="ace-icon fa fa-edit "></i>
+                            Chỉnh sửa
+                        </a>
+                    }
+                }
+                @*if (Model.Type != ProductInvoiceType.Service && Model.ProductOutboundViewModel == null && Erp.BackOffice.Filters.SecurityFilter.AccessRight("Create", "ProductOutbound", "Sale"))
+                    {
+                        <a class="btn btn-success btn-mini" href="@Url.Action("Create", "ProductOutbound", new { InvoiceId = Model.Id })" target="_blank">
+                            <i class="ace-icon fa fa-sign-out "></i>
+                            Lập phiếu xuất kho
+                        </a>
+                    }*@
+
+if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Delete", "ProductInvoice", "Sale"))
+{
+    <div class="mini-popup">
+        <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_huy" style="color: red !important;">
+            <i class="ace-icon fa fa-trash"></i>
+            Hủy đơn hàng
+        </a>
+        <div id="popup_huy" class="popover fade top">
+            <div class="arrow" style="left: 50%;"></div>
+            <h3 class="popover-title"><i class="ace-icon fa fa-bolt red"></i> Hủy đơn hàng</h3>
+            <div class="popover-content">
+                @using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Delete", "ProductInvoice", null, FormMethod.Post, new { id = "ProductInvoice_Delete", @class = "form-horizontal clearfix" }))
+                                {
+                    @Html.HiddenFor(m => m.Id)
+                    @Html.CustomTextAreaFor(model => model.CancelReason, Wording.Note, WidthType.span12)
+
+                    <p class="top-10">
+                        <button id="btnDelete" class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save" onclick="return submitDelete();">
+                            Đồng ý
+                        </button>
+                        <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_huy">Đóng</a>
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+    }
+}
+
+else
+{
+    if (Model.RemainingAmount > 0)
+    {
+        if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("PayInvoice", "ProductInvoice", "Sale"))
+        {
+            <div class="mini-popup">
+                <a class="btn btn-mini btn-success" data-toggle="collapse" data-target="#popup_pay">
+                    <i class="ace-icon fa fa-save"></i>
+                    Thanh toán
+                </a>
+                <div id="popup_pay" class="popover fade top">
+                    <div class="arrow" style="left: 50%;"></div>
+                    <h3 class="popover-title"><i class="ace-icon fa fa-save"></i> Thanh toán</h3>
+                    <div class="popover-content">
+                        @using (Html.BeginForm_AceStyle((string)ViewBag.Title, "PayInvoice", "ProductInvoice", null, FormMethod.Post, new { @class = "form-horizontal" }))
+                        {
+                            @Html.ValidationSummary(true)
+                            @Html.HiddenFor(model => model.Id)
+                            @Html.HiddenFor(model => model.ReceiptViewModel.Name)
+                            @Html.CustomTextboxFor(model => model.ReceiptViewModel.Amount, null, null, WidthType.span12, false, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+                            <div class="NextPaymentDate-container" style="display:none">
+                                <div class="control-group form-group" style="border-top:0px">
+                                    <label class="control-label no-padding-right col-lg-5 col-md-4 col-sm-4" for="AmountRemain">Số tiền còn lại</label>
+                                    <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                        <div class="clearfix">
+                                            @Html.TextBox("AmountRemain", 0, new { disabled = "disabled", @class = "col-sm-12 text-right" })
+                                        </div>
+                                    </div>
+                                </div>
+                                @Html.DateInput(model => model.NextPaymentDate_Temp, "dd/MM/yyyy", "99/99/9999", true, WidthType.span12, "col-lg-5 col-md-4 col-sm-4", "col-lg-7 col-md-8 col-sm-8")
+                            </div>
+                                @Html.CustomDropDownListFor(model => model.ReceiptViewModel.PaymentMethod, SelectListHelper.GetSelectList_Category("FormPayment", null, "Name", Wording.Empty), WidthType.span12, true, null, DropdownListStyle.DropdownListStyleDefault)
+                                <p class="top-10">
+                                    <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save" onclick="return submitPay();">
+                                        Đồng ý
+                                    </button>
+                                    <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_pay">Đóng</a>
+                                </p>
+                        }
+                    </div>
+                </div>
+            </div>
+                    }
+                }
+                if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Create", "SalesReturns", "Sale"))
+                {
+                    <a class="btn btn-mini btn-primary" href="@Url.Action("Create", "SalesReturns", new { ProductInvoiceId = Model.Id })">
+                        <i class="ace-icon fa fa-plus"></i>
+                        Trả lại hàng bán
+                    </a>
+                }
+                if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("UnArchive", "ProductInvoice", "Sale"))
+                {
+                    using (Html.BeginForm("UnArchive", pageSetting.ModuleName, FormMethod.Post, new { @class = "inline" }))
+                    {
+                        @Html.HiddenFor(m => m.Id)
+                        <button class="btn btn-white btn-sm no-border" type="submit" name="Submit" value="Save" onclick="return confirm('Bạn chắc chắn muốn thực hiện thao tác này?')">
+                            Bỏ ghi sổ
+                        </button>
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@section Scripts {
+    @if (!Model.IsArchive)
+    {
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('.detailList').on('keypress', '.detail_item_discount', function (e) {
+                    if (e.which == 13) {
+                        e.preventDefault();
+                        ShowLoading();
+                        var ProductInvoiceDetailId = $(this).data('id');
+                        var Discount = $(this).val();
+
+                        $.ajax({
+                            url: '/ProductInvoice/Update',
+                            type: 'POST',
+                            data: {
+                                ProductInvoiceDetailId: ProductInvoiceDetailId,
+                                Discount: Discount
+                            },
+                            success: function (res) {
+                                if (res == "success") {
+                                    location.reload();
+                                } else {
+
+                                }
+
+                                HideLoading();
+                            }
+                        });
+                    }
+                });
+
+                $('.detailList').on('focus', '.detail_item_discount', function () {
+                    $(this).select();
+                });
+
+                $('.detailList').on('blur', '.detail_item_discount', function () {
+                    if($(this).val() == '')
+                    {
+                        $(this).val(0);
+                    }
+                });
+
+                $('.detail_item_discount').numberOnly();
+            });
+        </script>
+    }
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#ReceiptViewModel_Amount').numberFormat();
+            $('.create_payment').show();
+            var modelNextDayPayment = '@DateTime.Now.AddDays(30).ToString("dd/MM/yyyy")';
+            $('#NextPaymentDate_Temp').val(modelNextDayPayment);
+            $('#AmountRemain').val('0');
+
+            $('#mask-ReceiptViewModel_Amount').focus(function(){
+                $(this).select();
+            });
+
+            $('#mask-ReceiptViewModel_Amount').blur(function () {
+
+                var totalAmount = @Model.TotalAmount;
+                var amount = parseFloat($('#ReceiptViewModel_Amount').val());
+                if (amount < totalAmount) {
+                    $('.NextPaymentDate-container').show();
+                    $('#AmountRemain').val(currencyFormat(totalAmount - amount));
+                }
+                else
+                    $('.NextPaymentDate-container').hide();
+            });
+        });
+
+        function submitArchive()
+        {
+            var amount = parseFloat($('#ReceiptViewModel_Amount').val());
+            if(amount > 0 && $("#ReceiptViewModel_PaymentMethod option:selected").val() == '')
+            {
+                alertPopup('Cảnh báo!',"Vui lòng chọn hình thức thanh toán!", 'warning');
+                return false;
+            }
+
+            return true;
+        }
+        function submitPay()
+        {
+            var amount = parseFloat($('#ReceiptViewModel_Amount').val());
+            if(amount > 0 && $("#ReceiptViewModel_PaymentMethod option:selected").val() == '')
+            {
+                alertPopup('Cảnh báo!',"Vui lòng chọn hình thức thanh toán!", 'warning');
+                return false;
+            }
+
+            return true;
+        }
+        function submitDelete()
+        {
+            if($("#CancelReason").val() == '')
+            {
+                alertPopup('Cảnh báo!',"Vui lòng nhập lý do hủy!", 'warning');
+                $("#CancelReason").focus();
+                return false;
+            }
+            if(confirm('Bạn chắc chắn muốn thực hiện thao tác này?'))
+            {
+                return true;
+            }
+            return false;
+        }
+    </script>
+
+}

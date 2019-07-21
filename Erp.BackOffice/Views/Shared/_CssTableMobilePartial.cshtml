@@ -1,0 +1,98 @@
+﻿@{
+    List<string> arrayHeader = (List<string>)ViewData["arrayHeader"];
+    string guild = ViewData["name"].ToString();
+}
+
+@helper RenderCss(string guild, List<string> model)
+{
+    string reponsive = "@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {";
+
+    string content_td_tr = "div." + guild + ">table," + "div." + guild + ">table thead, " + "div." + guild + ">table tbody, " + "div." + guild + ">table th, " + "div." + guild + ">table td, " + "div." + guild + ">table tr {"
+                            + "display: block !important;                                                                                "
+                            + "}                                                                                              "
+                            + " div." + guild + ">table tr:hover td > ol {             "
+                            + "          display: inline-grid;                                                                "
+                            + "}                                                                                              "
+                            + "div." + guild + ">table tr:hover td {                       "
+                            + "        background-image: none !important;                                                     "
+                            + "        border-top: none !important;                                                           "
+                            + "        border-bottom: solid #d1e1ec 1px !important;                                           "
+                            + "        border-top: none !important;                                                           "
+                            + "        background-color: #d1e1ec;                                                             "
+                            + "        box-sizing: border-box;                                                                "
+                            + "        cursor: pointer;                                                                       "
+                            + "    }                                                                                          "
+                            + "div." + guild + ">table tfoot {                                                                "
+                            + "        background-color: blanchedalmond;                                                      "
+                            + "       display: grid!important;                                                                "
+                            + "    }                                                                                          "
+                            + "                                                                                               "
+                            + "                                                                                               "
+                            + "div." + guild + ">table tr:hover td {                      "
+                            + "        background-image: none !important;                                                     "
+                            + "        border-top: none !important;                                                           "
+                            + "        cursor: pointer;                                                                       "
+                            + "        border-bottom: none !important;                                                        "
+                            + "    }                                                                                          "
+                            + "                                                                                               "
+                            + "div." + guild + ">table tr:hover td td {                   "
+                            + "            background-image: none !important;                                                 "
+                            + "            border-top: none !important;                                                       "
+                            + "            border-bottom: none !important;                                                    "
+                            + "        }                                                                                      "
+                            + "                                                                                               "
+                            + "div." + guild + ">table thead tr {                                    "
+                            + "        position: absolute !important;                                                         "
+                            + "        top: -9999px !important;                                                               "
+                            + "        left: -9999px !important;                                                              "
+                            + "    }                                                                                          "
+                            + "                                                                                               "
+                            + "div." + guild + ">table tr {                                          "
+                            + "        border: 1px solid #ccc;                                                                "
+                            + "        margin-bottom: 10px !important;                                                        "
+                            + "        padding-bottom: 10px !important;  box-shadow: 0 2px 4px #33333347;                     "
+                            + "    }                                                                                          "
+                            + "                                                                                               "
+                            + "div." + guild + ">table td {                                          "
+                            + "        border: none !important;                                                               "
+                            + "        border-bottom: 1px solid #eee !important;                                              "
+                            + "        position: relative !important;                                                         "
+                            + "        padding-left: 50% !important;                                                          "
+                            + "        text-align: left !important;                                                           "
+                            + "        min-height: 29px !important;                                                           "
+                            + "    }                                                                                          "
+                            + "                                                                                               "
+                            + "div." + guild + ">table td:before {                                   "
+                            + "            position: absolute;                                                                "
+                            + "            top: 6px;                                                                          "
+                            + "            left: 6px;                                                                         "
+                            + "            width: 45%;                                                                        "
+                            + "            padding-right: 10px;                                                               "
+                            + "            white-space: nowrap;                                                               "
+                            + "        }                                                                                      "
+                            + "                                                                                               "
+                            + "div." + guild + ">table .ace-thumbnails {                             "
+                            + "        text-align: left !important;                                                           "
+                            + "    }                                                                                          ";
+
+    string content_header = "";
+    int index = 1;
+    foreach (var column in model)
+    {
+        var rename = column.Replace("-sum", "");
+        content_header += "div." + guild + ">table thead, " + "div." + guild + "> table tbody td:nth-of-type(" + index + "):before {font-weight: 700;content: \"" + rename + "\";}";
+
+        var sum = "";
+        if (column.Contains("-sum"))
+        {
+            sum = "Tổng " + rename.ToLower();
+        }
+        content_header += "div." + guild + ">table tfoot td:nth-of-type(" + index + "):before {font-weight: 700;content: \"" + sum + "\";}";
+        index++;
+    }
+    <style>
+           @Html.Raw(reponsive+ content_td_tr + content_header+"}")
+    </style>
+}
+
+@RenderCss(guild, arrayHeader)

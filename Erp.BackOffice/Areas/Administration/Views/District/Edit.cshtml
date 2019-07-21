@@ -1,0 +1,60 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Administration.Models
+
+@model DistrictViewModel
+
+@{
+    ViewBag.Title = "Chỉnh sửa quận, huyện";
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower().Equals("true") ?  "_PopupLayout.cshtml":"ACE_AdminLayout.cshtml");
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {        
+        ModuleName = "District",
+        ActionName = StringExtention.ACTION_EDIT,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@using(Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, pageSetting.ActionName, pageSetting.ModuleName, null, FormMethod.Post, new { @class = "form-horizontal", showButton = true }))
+{
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.CreatedUserId)
+    @Html.HiddenFor(model => model.AssignedUserId)
+    @Html.HiddenFor(model => model.CreatedDate)
+    @Html.HiddenFor(model => model.IsDeleted)
+    @Html.HiddenFor(model => model.DistrictId)
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+    @Html.CustomDropDownListFor(model => model.ProvinceId, SelectListHelper.GetSelectList_Provinces(Model.ProvinceId ,"- "+Wording.Province+" -", true))
+    @Html.CustomDropDownListFor(model => model.Type, SelectListHelper.GetSelectList_Category("TypeDistrict", Model.Type, "value", "- Đơn vị hành chính -"))
+    @Html.CustomTextboxFor(model => model.Name, null, null, WidthType.span12)
+ 
+
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+    
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+}

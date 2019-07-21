@@ -1,0 +1,153 @@
+﻿@model List<PostViewModel>
+
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Crm.Models
+@using GridMvc.Html
+
+@{
+    Layout = null;
+    string TargetModule = Convert.ToString(ViewBag.TargetModule);
+    string TargetId = Convert.ToString(ViewBag.TargetModule);
+}
+
+@helper GridColumnCommand(int id)
+{
+    <button name="Delete" value="Delete" type="submit" class="btn btn-minier btn-danger">
+        <i class="ace-icon fa fa-trash"></i>
+    </button>
+}
+
+@helper GridColumnName(string name, int id, bool isPopup)
+{
+    if (isPopup)
+    {
+        <a onclick="parent.selectBranchItem(@id)">@name</a>
+    }
+    else
+    {
+        name = string.IsNullOrEmpty(name) ? "No Title" : name;
+        <a href="@Url.Action("Edit", "Post" , new { Id= id })">@name</a>
+    }
+}
+
+@helper GridColumnCategoryValue(object value)
+{
+    var attr = Common.GetCategoryByValueOrId("value", value);
+    <span>@(attr != null ? attr.Name : "")</span>
+}
+
+@helper CheckDeleteColumns(int Id)
+{
+    <label>
+        <input class="ace class-delete-all" type="checkbox" name="DeleteId-checkbox" value="@Id">
+        <span class="lbl"></span>
+    </label>
+}
+
+@helper BuildCheckAll()
+{
+    <label>
+        <input class="ace" type="checkbox" name="checkAll" id="checkAll" />
+        <span class="lbl"></span>
+    </label>
+}
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+
+@if (Model != null && Model.Count > 0)
+{
+    <div class="dialogs">
+        @foreach (var item in Model)
+        {
+            <div class="itemdiv dialogdiv">
+                <div class="user">
+                    @if (string.IsNullOrEmpty(item.ProfileImage))
+                    {
+                        <img src="/assets/img/no-avatar.png" class="msg-photo" />
+                    }
+                    else
+                    {
+                        <img alt="@item.CreatedUserName" src="@(item.ProfileImage)?w=40&h=40&mode=crop" />
+                    }
+                </div>
+
+                <div class="body">
+                    <div class="time">
+                        <i class="ace-icon fa fa-clock-o"></i>
+                        <span class="green">@item.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+
+                    <div class="name">
+                        <a href="#">@item.CreatedUserName</a>
+                    </div>
+                    <div class="text">@item.Content</div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p style="padding:10px"><em>Chưa có dữ liệu</em></p>
+}
+
+@using (Ajax.BeginForm("Comment", "Post"
+, new AjaxOptions()
+{
+    HttpMethod = "POST",
+    OnSuccess = "FormPostComment_OnSuccess"
+}
+, new { id = "FormPostComment", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.Hidden("TargetModule", TargetModule)
+    @Html.Hidden("TargetId", TargetId)
+
+    <div class="form-actions control-group">
+        <div class="input-group">
+            <input placeholder="Nhập nội dung ..." type="text" class="form-control" id="CommentContent" name="CommentContent" data-val-required="Bắt buộc nhập" data-val="true" />
+            <span class="input-group-btn">
+                <button class="btn btn-sm btn-primary no-radius" type="submit">
+                    <i class="ace-icon fa fa-share"></i>
+                    Đăng
+                </button>
+            </span>
+        </div>
+        <span class="field-validation-valid help-inline" data-valmsg-for="CommentContent" data-valmsg-replace="true"></span>
+    </div>
+}
+
+<script type="text/javascript">
+    function FormPostComment_OnSuccess(res) {
+        location.reload();
+    }
+
+    $(function(){
+        $('.dialogs,.comments').ace_scroll({
+            size: 380
+        });
+    });
+</script>
+@Html.ScriptBottom_ValidationMvc()

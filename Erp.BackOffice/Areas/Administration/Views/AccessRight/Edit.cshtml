@@ -1,0 +1,463 @@
+﻿@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Areas.Administration.Models
+
+@model List<PageGroupViewModel>
+
+@{
+    ViewBag.Title = "Cài đặt";
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "AccessRight",
+        ActionName = "Edit",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+
+<link href="~/assets/css/bootstrap-multiselect.min.css" rel="stylesheet" />
+<link href="~/assets/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="/Scripts/jstree/themes/default/style.min.css" />
+
+<style type="text/css">
+    .list-group-item {
+        padding: 0px;
+    }
+
+        .list-group-item a {
+            padding: 5px 10px;
+            display: block;
+            text-decoration: none;
+            font-size: 14px;
+            color: #333;
+        }
+
+            .list-group-item a:hover, .list-group-item a.active {
+                text-decoration: underline;
+                color: red;
+            }
+
+    .list-usertype ul {
+        margin-left: 40px;
+    }
+
+        .list-usertype ul li a {
+            color: #666;
+            padding: 2px 5px;
+            text-decoration: none;
+            background: #fff;
+            font-size: 12px;
+        }
+
+            .list-usertype ul li a:hover, .list-usertype ul li a.active {
+                color: red;
+                padding: 2px 5px;
+                text-decoration: underline;
+                background: #fff;
+            }
+</style>
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@if (ViewBag.AlertMessage != null && ViewBag.AlertMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="icon-remove"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.AlertMessage
+    </div>
+}
+
+<div class="table-responsive" id="tree">
+    @if (Model != null)
+    {
+        int i = 0, j = 0;
+        <div class="tabbable">
+            <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="tab">
+                @foreach (var item1 in Model)
+                {
+                    i++;
+                    <li class="@(i == 1 ? "active" : "")">
+                        <a data-toggle="tab" href="#tab@(i)">@item1.Name</a>
+                    </li>
+                }
+            </ul>
+
+            <div class="tab-content">
+                @foreach (var item1 in Model)
+                {
+                    j++;
+                    <div id="tab@(j)" class="tab-pane in @(j == 1 ? "active" : "")">
+                        <p>
+                            @Html.TextBox("GroupName_" + j, item1.Name, new { data_oldvalue = item1.Name, @class = "group_name" })
+                            <a onclick="checkPageVisible(@(j))" style="margin-left:10px">Chọn hiển thị</a>
+                            <a onclick="unCheckPageVisible(@(j))" style="margin-left:10px">Bỏ chọn hiển thị</a>
+                        </p>
+                        @if (item1.ListPageGroup != null)
+                        {
+                            <table class="table table-striped grid-table">
+                                <thead>
+                                    <tr>
+                                        <td width="150">Tiêu đề</td>
+                                        <td>Thông số</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{int k = 0;}
+                                    @foreach (var item2 in item1.ListPageGroup)
+                                    {
+                                        k++;
+                                        <tr>
+                                            <td>
+                                                <p>
+                                                    @Html.TextBox("ControllerDisplayName_" + j + "_" + k, item2.Name, new { data_oldvalue = item2.Name, @class = "ControllerDisplayName" })
+                                                </p>
+                                                <p>
+                                                    <select class="group_name_controller" data-controllername="@item2.Name" data-oldvalue="@(item1.Name)">
+                                                        <option value="">- Chọn nhóm -</option>
+                                                        @foreach (var select in Model)
+                                                        {
+                                                            <option value="@select.Name" @(item1.Name == select.Name ? "selected" : "")>@select.Name</option>
+                                                        }
+                                                    </select>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                @if (item2.ListPageGroup != null)
+                                                {
+                                                    foreach (var item3 in item2.ListPageGroup)
+                                                    {
+                                                        <div class="col-sm-3">
+                                                            @renderItem(item3, item2.Name)
+                                                        </div>
+                                                    }
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@helper renderItem(PageGroupViewModel item3, string ControllerDisplayName)
+{
+    <div id="page_item_@(item3.Id)" class="alert alert-warning">
+        <p style="font-size:11px">
+            @Html.CheckBox("PageVisible_" + item3.Id, item3.Visible, new { data_id = item3.Id, @class = "page_visible", style = "margin-right:5px" })
+            <b>@item3.Desc</b>
+        </p>
+        @*@Html.CheckBox("PageStatus_" + item3.Id, item3.Status, new { data_id = item3.Id, @class = "page_status", style = "margin-right:5px" })*@
+
+        <p>
+            <span>Tên: </span>@Html.TextBox("PageName_" + item3.Id, item3.Name, new { data_id = item3.Id, @class = "page_name", style = "width:100px; font-size:11px; margin-bottom:5px" })
+        </p>
+        <p>
+            <span>Nhóm: </span>@Html.TextBox("ControllerDisplayName_" + item3.Id, ControllerDisplayName, new { data_id = item3.Id, @class = "page_ControllerDisplayName", style = "width:100px; font-size:11px; margin-bottom:5px" })
+        </p>
+        <p>
+            @if (item3.CountSubAction > 0)
+            {
+                <a onclick="OpenPopup('@Url.Action("SubActionDetail", "Page", new { IsPopup = true, Id = item3.Id })', '', 500, 500)" class="label label-danger">(@item3.CountSubAction) action phụ</a>
+            }
+            else
+            {
+                <a onclick="OpenPopup('@Url.Action("SubActionDetail", "Page", new { IsPopup = true, Id = item3.Id })', '', 500, 500)">(@item3.CountSubAction) action phụ</a>
+            }
+            <span> . </span>
+            <a onclick="OpenPopup('@Url.Action("IndexSubAction", "Page", new { IsPopup = true, ParentActionId = item3.Id })', '', 500, 500)">Chọn</a>
+        </p>
+        <a class="btn-delete-page red" data-id="@item3.Id" style="position:absolute; bottom:25px; right:15px">
+            <i class="ace-icon fa fa-trash"></i>
+        </a>
+    </div>
+}
+
+@section Scripts {
+    <script src="/Scripts/jstree/jstree.min.js"></script>
+    <script src="~/assets/js/bootstrap-multiselect.min.js"></script>
+    <script src="~/assets/js/select2.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //$("#tree").height($(window).height() - 170);
+            $('#status_checkId').multiselect('destroy');
+            $('#status_checkId').multiselect({
+                enableFiltering: true,
+                //includeSelectAllOption: true,
+                buttonClass: 'btn btn-white',
+                nonSelectedText: 'Người dùng',
+                allSelectedText: 'Tất cả người dùng',
+                templates: {
+                    button: '<button type="button" class="multiselect dropdown-toggle" style="min-width: 124px;height: 27px;margin-bottom: 4px;" data-toggle="dropdown"><span class="multiselect-selected-text"></span><b class="fa fa-caret-down"></b></button>',
+                    ul: '<ul class="multiselect-container dropdown-menu" style="overflow:overlay;height:300px;width:300px!important"></ul>',
+                    filter: '<li class="multiselect-item filter"><div class="input-group" style="padding-right:27px"><span class="input-group-addon" style="padding: 0px 8px"><i class="fa fa-search"></i></span><input class="form-control multiselect-search" type="text" style="width:200px;"></div></li>',
+                    filterClearBtn: '<span class="input-group-btn"><button class="btn btn-default btn-white btn-grey multiselect-clear-filter" type="button" style="height:34px"><i class="fa fa-times-circle red2"></i></button></span>',
+                    li: '<li class="house-item"><a href="javascript:void(0);"><label></label></a></li>',
+                    divider: '<li class="multiselect-item divider"></li>',
+                    liGroup: '<li class="multiselect-item group"><label class="multiselect-group"></label></li>'
+                },
+                onChange: function (element, checked) {
+                    $("#status_check").val('');
+                    $('#status_checkId option:selected').each(function () {
+                        $("#status_check").val($("#status_check").val() + $(this).val() + ",");
+                    })
+                }
+            });
+
+            //$(".btn-group").click(function () {
+            //    var id = $(this).data("controller");
+            //    var on = $(this).hasClass("on");
+            //    if (on) {
+            //        $(".item_of_" + id).hide();
+            //        $(this).removeClass("on");
+            //        $(this).removeClass("fa-minus-square-o");
+            //        $(this).addClass("fa-plus-square-o");
+            //    }
+            //    else {
+            //        $(".item_of_" + id).show();
+            //        $(this).addClass("on");
+            //        $(this).removeClass("fa-plus-square-o");
+            //        $(this).addClass("fa-minus-square-o");
+            //    }
+            //});
+
+            $('.btn-delete-page').click(function () {
+                if (confirm("Bạn muốn thực hiện thao tác này?")) {
+                    ShowLoading();
+                    var $this = $(this);
+
+                    $.post('/Page/Delete', { isAjax: true, pageId: $this.data('id') }, function (res) {
+                        if (res == 'success') {
+                            $("#page_item_" + $this.data('id')).remove();
+                        } else {
+                            alert('Xóa không thành công.');
+                        }
+                        HideLoading();
+                    });
+
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+
+            $(".page_name").change(function () {
+                ShowLoading();
+                var $this = $(this);
+
+                $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "Name",
+                        value: $this.val()
+                    },
+                    function (res) {
+                        if (res.status == 'success') {
+                            alertPopup('Lưu thành công!', '', 'success');
+                        } else {
+
+                        }
+
+                        HideLoading();
+                    });
+            });
+
+            $(".page_name").focus(function () {
+                $(this).select();
+            });
+
+            $(".page_name").keypress(function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                }
+            });
+
+            $(".page_ControllerDisplayName").change(function () {
+                ShowLoading();
+                var $this = $(this);
+
+                $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "ControllerDisplayName",
+                        value: $this.val()
+                    },
+                    function (res) {
+                        if (res.status == 'success') {
+                            alertPopup('Lưu thành công!', '', 'success');
+                        } else {
+
+                        }
+
+                        HideLoading();
+                    });
+            });
+
+            $(".page_ControllerDisplayName").focus(function () {
+                $(this).select();
+            });
+
+            $(".page_ControllerDisplayName").keypress(function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                }
+            });
+
+            $(".page_visible").change(function () {
+                ShowLoading();
+                var $this = $(this);
+                console.log("page_visible: ", $this.data('id'), $this.prop("checked"));
+
+                $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "IsVisible",
+                        value: $this.prop("checked")
+                    },
+                    function (res) {
+                        if (res.status == 'success') {
+                            alertPopup('Lưu thành công!', '', 'success');
+                        } else {
+
+                        }
+
+                        HideLoading();
+                    });
+            });
+            $(".page_status").change(function () {
+                ShowLoading();
+                var $this = $(this);
+                $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "Status",
+                        value: $this.prop("checked")
+                    },
+                    function (res) {
+                        if (res.status == 'success') {
+                            alertPopup('Lưu thành công!', '', 'success');
+                        } else {
+
+                        }
+
+                        HideLoading();
+                    });
+            });
+
+            $(".group_name_controller").change(function () {
+                ShowLoading();
+                var $this = $(this);
+                var controllername = $this.data("controllername");
+                var oldValue = $this.data("oldvalue");
+                var newValue = $this.find("option:selected").val();
+
+                $.post('/Page/EditGroupNameByControllerName', {
+                    controllername: controllername,
+                    oldValue: oldValue,
+                    newValue: newValue
+                },
+                function (res) {
+                    if (res == 'success') {
+                        alertPopup('Lưu thành công!', '', 'success');
+                    }
+
+                    location.reload();
+                });
+            });            
+
+            $(".group_name").change(function () {
+                ShowLoading();
+                var $this = $(this);
+                var oldValue = $this.data("oldvalue");
+                var newValue = $this.val();
+
+                $.post('/Page/EditGroupName', {
+                    oldValue: oldValue,
+                    newValue: newValue
+                },
+                function (res) {
+                    if (res == 'success') {
+                        alertPopup('Lưu thành công!', '', 'success');
+                    }
+
+                    location.reload();
+                });
+            });
+
+            $(".ControllerDisplayName").change(function () {
+                ShowLoading();
+                var $this = $(this);
+                var oldValue = $this.data("oldvalue");
+                var newValue = $this.val();
+
+                $.post('/Page/EditControllerDisplayName', {
+                    oldValue: oldValue,
+                    newValue: newValue
+                },
+                function (res) {
+                    if (res == 'success') {
+                        alertPopup('Lưu thành công!', '', 'success');
+                    }
+
+                    HideLoading();
+                });
+            });
+            $('[data-rel=tooltip]').tooltip({ container: 'body' });
+        });
+
+        function checkPageVisible(id){
+            $("#tab" + id + " .page_visible").each(function(index, obj){
+                //console.log(obj, $(obj).prop("checked"));
+                if($(obj).prop("checked") == false)
+                {
+                    $(obj).prop("checked", true).trigger("change");
+                }
+            });
+        }
+
+        function unCheckPageVisible(id){
+            $("#tab" + id + " .page_visible").each(function(index, obj){
+                //console.log(obj, $(obj).prop("checked"));
+                if($(obj).prop("checked") == true)
+                {
+                    $(obj).prop("checked", false).trigger("change");
+                }
+            });
+        }
+
+        function selectItem(list, ParentActionId){
+            console.log(list, ParentActionId);
+            $(list).each(function(index, obj){
+                $.post('/Page/EditInline',
+                        {
+                            Id: obj,
+                            fieldName: "ParentActionId",
+                            value: ParentActionId
+                        },
+                        function (res) {
+                            if (res.status == 'success') {
+                                alertPopup('Lưu thành công!', '', 'success');
+                            } else {
+
+                            }
+                        });
+            });
+            ClosePopup();
+        }
+    </script>
+
+    @Html.ScriptBottom_ValidationMvc()
+}

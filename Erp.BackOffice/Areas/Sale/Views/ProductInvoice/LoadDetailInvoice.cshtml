@@ -1,0 +1,50 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model List<ProductInvoiceDetailViewModel>
+@{
+    int index = 1;
+
+}
+ 
+<div class="col-sm-12">
+    <table class="table table-bordered table-responsive" style="margin-bottom: 0px;">
+        <thead>
+            <tr>
+                <th rowspan="2" style="width:30px;">STT</th>
+                <th rowspan="2">Tên sản phẩm</th>
+                <th rowspan="2"style="width:50px;">SL</th>
+                <th colspan="2">Chu kỳ sửa</th>
+            </tr>
+            <tr>
+                <th style="width:60px;">KM</th>
+                <th style="width:75px;">Thời gian</th>
+            </tr>
+        </thead>
+    </table>
+    <table id="view_detail" class="table table-bordered table-responsive" style="height:50px;">
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var cycelUsed = Common.CalculateTwoDates(item.ProductInvoiceDate.Value, DateTime.Now);
+                var check = false;
+                if (cycelUsed >= item.CycleTime)
+                {
+                    check = true;
+                }
+                <tr data-type="" data-id="" class="@(check ?"thaythe":"")">
+                    <td class="text-center" style="width:30px;">@(index++)</td>
+                    <td class="has-error">
+                        <p>@(item.ProductCode) - @(item.ProductName)</p>
+                        <p><em>Ngày mua: </em><b>@string.Format("{0: dd/MM/yyyy}", item.ProductInvoiceDate)</b></p>
+                    </td>
+                    <td class="text-right"style="width:50px;">@item.Quantity</td>
+                    <td class="text-right detail-product-price"style="width:60px;">@Common.PhanCachHangNgan(item.CycleKM)</td>
+                    <td class="text-right detail-product-price"style="width:75px;">@Common.PhanCachHangNgan(item.CycleTime)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

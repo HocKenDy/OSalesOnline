@@ -1,0 +1,193 @@
+﻿@{
+    var lableUI = ViewData["lableUI"];
+    var QuantityImage = (int)ViewData["QuantityImage"];
+    var max_size = ViewData["max_size"];
+    var data = ViewData["data"] as List<string>;
+    var data_full = ViewData["data_full"] as List<string>;
+
+    int index = -1;
+}
+<style>
+    .ace-file-container {
+        margin-right: 5px;
+        width: 115px;
+        height: 100px !important;
+    }
+
+    .ace-file-name {
+        height: 100% !important;
+        width: 95px !important;
+    }
+
+    .ace-file-multiple .ace-file-container:before {
+        margin: 5px;
+    }
+
+    .ace-file-multiple .ace-file-container .ace-file-name .ace-icon {
+        margin: -6px 0;
+    }
+
+    .ace-file-multiple .ace-file-container.selected .ace-file-name:after {
+        display: none;
+    }
+
+    .ace-file-multiple .ace-file-container .ace-file-name {
+        display: inline-block;
+    }
+
+        .ace-file-multiple .ace-file-container .ace-file-name.large {
+            border-bottom: none;
+        }
+
+    .middle {
+        width: 100px !important;
+        height: 96px !important;
+    }
+
+    .ace-file-multiple .remove {
+        right: 2px;
+        top: 0px;
+    }
+</style>
+<div class="clearfix">
+    @if (data.Count > 0)
+    {
+        <div id="_CameraFileInput_wrap_image_link" class="alert alert-info">
+            <div class="clearfix">
+                @Html.Hidden("Images")
+                @foreach (var item in data_full)
+                {
+                    index++;
+
+                    <div id="image_link_@(index)" class="image_link inline" data-img="@data[index]">
+                        <a class="image-link" href="@item">
+                            <img src="@item" width="172" height="105" />
+                        </a>
+                        <p class="top-5" style="text-align:right">
+                            <a style="color:red; text-decoration:underline; font-size:11px" onclick="deleteImage(@index)">
+                                <i class="ace-icon fa fa-trash"></i>
+                                Xóa hình
+                            </a>
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    <div class="clearfix top-10">
+        @for (int i = 0; i < QuantityImage; i++)
+        {
+            <div style="float:left" data-id="@(i)" class="top-5">
+                <input data-id="@(i)" class="image_upload" type="file" id="FileUpload@(i)" onchange="encodeImageFileAsURL(@(i), @max_size);" title="Chọn file để tải lên" />
+                @Html.Hidden("ListImage[" + i + "]")
+            </div>
+        }
+    </div>
+</div>
+<script src="/Scripts/magnific_popup/jquery.magnific-popup.min.js"></script>
+<link href="/Scripts/magnific_popup/magnific-popup.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.image-link').magnificPopup({ type: 'image' });
+        updateImageJson();
+    });
+
+    function deleteImage(id) {
+        $("#image_link_" + id).remove();
+
+        updateImageJson();
+    }
+
+    function updateImageJson() {
+        var jsonImages = [];
+        $(".image_link").each(function () {
+            jsonImages.push($(this).data("img"));
+        });
+
+        $("#Images").val(JSON.stringify(jsonImages));
+
+        if (jsonImages.length == 0) {
+            $("#_CameraFileInput_wrap_image_link").hide();
+        }
+    }
+
+    $(document).ready(function () {
+        $('.image_upload').ace_file_input({
+            style: 'well',
+            btn_choose: 'Tải ảnh',
+            btn_change: null,
+            no_icon: 'ace-icon fa fa-cloud-upload',
+            droppable: true,
+            thumbnail: 'large',//large | fit
+            //,icon_remove:null//set null, to hide remove/reset button
+            /**,before_change:function(files, dropped) {
+                //Check an example below
+                //or examples/file-upload.html
+                return true;
+            }*/
+            allowExt: ['jpg', 'jpeg', 'png', 'gif'],
+            allowMime: ['image/jpg', 'image/jpeg', 'image/png', 'image/gif']
+            , before_remove: function (obj) {
+                console.log($(this));
+                $("#ListImage_" + $(this).data("id") + "_").val("");
+                return true;
+            }
+                ,
+            preview_error: function (filename, error_code) {
+                //name of the file that failed
+                //error_code values
+                //1 = 'FILE_LOAD_FAILED',
+                //2 = 'IMAGE_LOAD_FAILED',
+                //3 = 'THUMBNAIL_FAILED'
+                //alert(error_code);
+            }
+
+        }).on('change', function () {
+        });
+    });
+
+    function encodeImageFileAsURL(id, Max_Size) {
+        // Read in file
+        var file = document.getElementById("FileUpload" + id).files[0];
+
+        // Ensure it's an image
+        if (file.type.match(/image.*/)) {
+            console.log('An image has been loaded');
+
+            // Load the image
+            var reader = new FileReader();
+            reader.onload = function (readerEvent) {
+                var image = new Image();
+                image.onload = function (imageEvent) {
+
+                    // Resize the image
+                    var canvas = document.createElement('canvas'),
+                        max_size = Max_Size,// TODO : pull max size from a site config
+                        width = image.width,
+                        height = image.height;
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+                    var dataUrl = canvas.toDataURL('image/jpeg');
+                    //var resizedImage = dataURLToBlob(dataUrl);
+
+                    $("#ListImage_" + id + "_").val(dataUrl);
+                }
+                image.src = readerEvent.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+</script>

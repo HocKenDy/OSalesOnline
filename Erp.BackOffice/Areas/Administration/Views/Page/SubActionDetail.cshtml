@@ -1,0 +1,83 @@
+﻿@model List<Erp.BackOffice.Areas.Administration.Models.ListPagesModel>
+@using Erp.BackOffice.App_GlobalResources
+
+@using GridMvc.Html
+@using Erp.BackOffice.Helpers
+
+@{
+    ViewBag.Title = Resources.Wording.Pages;
+    Layout = "~/Views/Shared/_PopupLayout.cshtml";
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Page",
+        ActionName = "IndexSubAction",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+   
+}
+@if (Model != null)
+{
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Controller</th>
+                <th>Action</th>
+                <th width="50"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="page_item_@(item.Id)">
+                    <td>@item.ControllerDisplayName</td>
+                    <td>@item.ActionName</td>
+                    <td>
+                        <a class="btn-delete-page red" data-id="@item.Id">
+                            <i class="ace-icon fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('.btn-delete-page').click(function () {
+                if (confirm("Bạn muốn thực hiện thao tác này?")) {
+                    ShowLoading();
+                    var $this = $(this);
+
+                    $.post('/Page/EditInline',
+                    {
+                        Id: $this.data('id'),
+                        fieldName: "ParentActionId",
+                        value: ''
+                    }, function (res) {
+                        if (res == 'success') {
+                            $("#page_item_" + $this.data('id')).remove();
+                        } else {
+                            alert('Xóa không thành công.');
+                        }
+                        HideLoading();
+                    });
+
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    </script>
+}

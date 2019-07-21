@@ -1,0 +1,28 @@
+﻿@model Erp.BackOffice.Sale.Models.ProductInboundDetailViewModel
+@{
+    var thanh_tien = (decimal?)Model.Quantity * Model.Price;
+}
+<tr role="@(Model.OrderNo)" id="product_item_@Model.OrderNo" data-id="@Model.OrderNo" data-productid="@Model.ProductId">
+    <td class="text-center">
+        <span>@(Model.OrderNo + 1)</span>      
+    </td>
+    <td class="has-error detail_item_id">
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].Id", Model.Id)
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].ProductId", Model.ProductId, new { @class = "detail_item_ProductId" })
+        @Model.ProductName
+    </td>
+    <td class="has-error">
+        <input type="hidden" name="DetailList[@(Model.OrderNo)].Unit" value="" class="detail_item_unit" />      
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].Quantity", Model.Quantity, new { style = "width:50px", @class = "detail_item_qty", autocomplete = "off" })
+        <span style="display:block; font-size:11px;" class="field-validation-valid help-inline" data-valmsg-for="DetailList_@(Model.OrderNo)_Quantity" data-valmsg-replace="false"></span>
+    </td>
+    <td class="">
+        <input class="detail_item_price" type="text" id="DetailList_@(Model.OrderNo)_Price" name="DetailList[@(Model.OrderNo)].Price" value="@Model.Price" role="price" style="width:100%" data-val="true" data-val-required="Chưa nhập giá" autocomplete="off" />        
+    </td>
+    <td class="detail_item_total">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(thanh_tien)</td>
+    <td class="text-center">
+        <a class="btn-delete-item">
+            <i class="ace-icon fa fa-trash red bigger-120" style="cursor:pointer"></i>
+        </a>
+    </td>
+</tr>  

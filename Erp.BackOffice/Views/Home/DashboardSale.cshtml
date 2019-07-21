@@ -1,0 +1,256 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@{
+    ViewBag.Title = "Bán hàng";
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "",
+        ActionName = "",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false,
+        HideClearButton = true,
+        SearchButtonText = "Lấy dữ liệu"
+    };
+
+    string Month = Request["month"] != null ? Request["month"] : DateTime.Now.Month.ToString();
+    string Year = Request["year"] != null ? Request["year"] : DateTime.Now.Year.ToString();
+    string manufacturer = Request["manufacturer"] != null ? Request["manufacturer"] : "";
+    string group = Request["group"] != null ? Request["group"] : "";
+    string WarehouseId = Request["warehouseList"] != null ? Request["warehouseList"] : "";
+}
+
+<style type="text/css">
+    .widget-main.no-padding .table-bordered td:first-child, .widget-main.no-padding .table-bordered th:first-child {
+        border-left-width: 0px;
+    }
+
+    .widget-main.no-padding .table-bordered > thead > tr > th:last-child {
+        border-right-width: 0px !important;
+    }
+
+    .widget-main.no-padding .table-bordered > tbody > tr:last-child > td {
+        border-bottom-width: 0px !important;
+    }
+    .infobox-small{
+        height:70px;
+    }
+    .infobox-small > .infobox-data {
+        max-width: 100%;
+    }
+</style>
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+    <p>
+        Xem dữ liệu theo
+        <label>
+            <input id="single1" name="single" type="radio" class="ace" value="true" checked="checked">
+            <span class="lbl"> Tháng</span>
+        </label>
+        <label>
+            <input id="single2" name="single" type="radio" class="ace" value="false">
+            <span class="lbl"> Quý</span>
+        </label>
+    </p>
+    <p>
+        <select id="month" name="month">
+            @for (int i = 1; i <= 12; i++)
+            {
+                <option @(Month == i.ToString() ? "Selected" : "") value="@i">Tháng @i</option>
+            }
+        </select>
+        <select id="quarter" name="quarter" style="display:none">
+            <option value="1">Quý I</option>
+            <option value="2">Quý II</option>
+            <option value="3">Quý III</option>
+            <option value="4">Quý IV</option>
+        </select>
+
+        <select id="year" name="year">
+            @for (int i = 2016; i <= DateTime.Now.Year; i++)
+            {
+                <option @(Year == i.ToString() ? "Selected" : "") value="@i">Năm @i</option>
+            }
+        </select>
+        @Html.DropDownList("manufacturer", SelectListHelper.GetSelectList_Category("manufacturerList", manufacturer, "- Nhà sản xuất -"))
+        @Html.DropDownList("group", SelectListHelper.GetSelectList_Category("Categories_product", group, "- Nhóm sản phẩm -"))
+        @Html.DropDownList("warehouseList", SelectListHelper.GetSelectList_Warehouse(WarehouseId, null))
+    </p>
+}
+
+<script src="/Scripts/Chartjs-master/Chartjs.bundle.min.js"></script>
+<script src="/Scripts/Chartjs-master/globalConfig.js"></script>
+
+<div class="row">
+    <div id="Summary" class="col-sm-6">
+        @Html.Partial("_Loading")
+      
+    </div>
+    <div class="col-sm-6">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-title">
+                    <i class="ace-icon fa fa-signal"></i>
+                    Thống kê doanh thu theo thời gian
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div id="ChartInvoiceDayInMonth" style="max-width:700px">
+                        @Html.Partial("_Loading")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p></p>
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-title">
+                    Top sản phẩm bán chạy nhất
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div id="ChartProductSaleInMonth" style="max-width:500px">
+                        @Html.Partial("_Loading")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 top-5">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-title">
+                    Cảnh báo tồn kho
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div id="InventoryWarning">
+                        @Html.Partial("_Loading")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/assets/js/jquery.easypiechart.min.js"></script>
+    <script type="text/javascript">
+        $(function ()
+        {
+            $.get('@Url.Action("Summary", "SaleReport",new { area = "Sale", single = true, year = Year, month = Month })', function (html)
+            {
+                $("#Summary").html(html);
+            });
+            $.get('@Url.Action("ChartInvoiceDayInMonth", "SaleReport", new { area = "Sale", single = true, year = Year, month = Month })', function (html)
+            {
+                $("#ChartInvoiceDayInMonth").html(html);
+            });
+            $.get('@Url.Action("ChartProductSaleInMonth", "SaleReport", new { area = "Sale", single = true, year = Year, month = Month })', function (html)
+            {
+                $("#ChartProductSaleInMonth").html(html);
+            });
+            $.get('@Url.Action("BaoCaoKho_CanhBaoTonKho", "SaleReport", new { area = "Sale", WarehouseId = WarehouseId })', function (html)
+            {
+                $("#InventoryWarning").html(html);
+            });
+            $('.easy-pie-chart.percentage').each(function ()
+            {
+                var $box = $(this).closest('.infobox');
+                var barColor = $(this).data('color') || (!$box.hasClass('infobox-dark') ? $box.css('color') : 'rgba(255,255,255,0.95)');
+                var trackColor = barColor == 'rgba(255,255,255,0.95)' ? 'rgba(255,255,255,0.25)' : '#E2E2E2';
+                var size = parseInt($(this).data('size')) || 50;
+                $(this).easyPieChart({
+                    barColor: barColor,
+                    trackColor: trackColor,
+                    scaleColor: false,
+                    lineCap: 'butt',
+                    lineWidth: parseInt(size / 10),
+                    animate: /msie\s*(8|7|6)/.test(navigator.userAgent.toLowerCase()) ? false : 1000,
+                    size: size
+                });
+            });
+
+
+            $("#quarter").val(currentQuarter);
+
+            var single = true;
+
+            $("#single1").change(function ()
+            {
+                if ($(this).val() == 'true')
+                {
+                    $("#month").show();
+                    $("#quarter").hide();
+                    single = true;
+                }
+            });
+
+            $("#single2").change(function ()
+            {
+                if ($(this).val() == 'false')
+                {
+                    $("#month").hide();
+                    $("#quarter").show();
+                    single = false;
+                }
+            });
+
+            $("button[name='search']").click(function (e)
+            {
+                e.preventDefault();
+                ShowLoading();
+
+                var month = $("#month option:selected").val();
+                var quarter = $("#quarter option:selected").val();
+                var year = $("#year option:selected").val();
+                var manufacturer = $("#manufacturer option:selected").val();
+                var group = $("#group option:selected").val();
+                var WarehouseId = $("#warehouseList option:selected").val();
+                var done1 = 0, done2 = 0, done3 = 0;
+
+                $.get('@Url.Action("Summary", "SaleReport", new { area = "Sale" })/?single=' + single + '&year=' + year + '&month=' + month + '&quarter=' + quarter + '&manufacturer=' + manufacturer + '&group=' + group, function (html)
+                {
+                    $("#Summary").html(html);
+                    done1 = 1;
+                    if (done1 == 1 && done2 == 1 && done3 == 1)
+                    {
+                        HideLoading();
+                    }
+                });
+
+                $.get('@Url.Action("ChartInvoiceDayInMonth", "SaleReport", new { area = "Sale" })/?single=' + single + '&year=' + year + '&month=' + month + '&quarter=' + quarter + '&manufacturer=' + manufacturer + '&group=' + group, function (html)
+                {
+                    $("#ChartInvoiceDayInMonth").html(html);
+                    done2 = 1;
+                    if (done1 == 1 && done2 == 1 && done3 == 1)
+                    {
+                        HideLoading();
+                    }
+                });
+
+                $.get('@Url.Action("ChartProductSaleInMonth", "SaleReport", new { area = "Sale" })/?single=' + single + '&year=' + year + '&month=' + month + '&quarter=' + quarter + '&manufacturer=' + manufacturer + '&group=' + group, function (html)
+                {
+                    $("#ChartProductSaleInMonth").html(html);
+                    done3 = 1;
+                    if (done1 == 1 && done2 == 1 && done3 == 1)
+                    {
+                        HideLoading();
+                    }
+                });
+                $.get('@Url.Action("BaoCaoKho_CanhBaoTonKho", "SaleReport", new { area = "Sale" })?WarehouseId=' + WarehouseId, function (html)
+                {
+                    $("#InventoryWarning").html(html);
+                });
+                return false;
+            });
+        });
+    </script>
+}

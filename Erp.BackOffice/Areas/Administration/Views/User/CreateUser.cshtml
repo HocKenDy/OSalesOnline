@@ -1,0 +1,112 @@
+﻿@model CreateUserViewModel
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Areas.Administration.Models
+
+@{
+    ViewBag.Title = Wording.CreateUser;
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "User",
+        ActionName = "CreateUser",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_DatePicker()
+    @Html.ScriptTop_ChosenStyle()
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, "CreateUser", "User", null, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+        <h3 class="header smaller lighter blue">@Wording.PersonalInformation</h3>
+        <div class="top-20">
+            @Html.CustomTextboxFor(model => model.FirstName, null, null, WidthType.span12, true)
+
+            @Html.CustomTextboxFor(model => model.LastName, null, null, WidthType.span12, true)
+
+            @Html.DateInput(model => model.DateOfBirth, "dd/MM/yyyy", "99/99/9999", true)
+
+            @Html.CustomDropDownListFor(model => model.Sex, SelectListHelper.GetSelectList_Gender(null), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleDefault)
+            @*@Html.CustomRadioButtonListFor(model => model.Sex, new SelectList(new[]{
+                                                                                new SelectListItem{ Text="Nam", Value="True"},
+                                                                                new SelectListItem{ Text="Nữ", Value="False"},
+                                                                            }, "Value", "Text"), true)*@
+
+            @*@Html.ImagePickerFor(m => m.Avatar, m => m.AvatarString64)*@
+
+            @Html.CustomTextboxFor(model => model.Email, null, null, WidthType.span12, true)
+
+            @Html.HiddenFor(m => m.Status)
+
+            @*@Html.CustomTextboxFor(model => model.PlaceOfBirth, null, null, WidthType.span4, true)
+
+                @Html.CustomTextboxFor(model => model.IDCardNo, null, "999999999", WidthType.span4, true)
+
+                @Html.DatePicker(model => model.IDCardDate, "dd/MM/yyyy", null, true)
+
+                @Html.CustomTextboxFor(model => model.IDCardPlace, null, null, WidthType.span4, true)*@
+
+            @Html.CustomTextboxFor(model => model.Address, null, null, WidthType.span12, true)
+
+            @Html.CustomTextboxFor(model => model.Mobile, null, "99999999999", WidthType.span12, true)
+
+            @Html.CustomDropDownListFor(model => model.BranchId, SelectListHelper.GetSelectList_Branch(null, "- Chọn chi nhánh -"), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleDefault)
+            @*@Html.CustomTextboxFor(m => m.BankName, null, null, WidthType.span4, true)
+                @Html.CustomTextboxFor(m => m.BankOwnerName, null, null, WidthType.span4, true)
+                @Html.CustomTextboxFor(m => m.BankBranch, null, null, WidthType.span4, true)
+                @Html.CustomTextboxFor(m => m.BankUserNumber, null, null, WidthType.span4, true)*@
+        </div>
+            <h3 class="header smaller lighter blue">@Wording.LoginInformation</h3>
+            <div class="top-20">
+                @Html.CustomTextboxFor(model => model.UserName, null, null, WidthType.span12)
+            </div>
+
+            <div class="control-group form-group">
+                @Html.LabelFor(model => model.Password, new { @class = "control-label col-lg-5 col-md-4 col-sm-4" })
+                <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                    @Html.PasswordFor(model => model.Password, new { @class = "col-sm-4" })
+                    @Html.ValidationMessageFor(model => model.Password, null, new { @class = "help-inline" })
+                </div>
+            </div>
+
+            <div class="control-group form-group">
+                @Html.LabelFor(model => model.ConfirmPassword, new { @class = "control-label col-lg-5 col-md-4 col-sm-4" })
+                <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                    @Html.PasswordFor(model => model.ConfirmPassword, new { @class = "col-sm-4" })
+                    @Html.ValidationMessageFor(model => model.ConfirmPassword, null, new { @class = "help-inline" })
+                </div>
+            </div>
+
+            @Html.CustomDropDownListFor(model => model.UserTypeId, new SelectList(@Model.listUserType, "Id", "Name", @Model.UserTypeId), WidthType.span4, true, "Chọn bộ phận", DropdownListStyle.DropdownListStyleDefault)
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_DatePicker("dd/mm/yyyy")
+    @Html.ScriptBottom_ChosenStyle()
+    @Html.ScriptBottom_RequireEitherInput()
+    @Html.ScriptBottom_InputMask()
+
+    <script type="text/javascript">
+    </script>
+}

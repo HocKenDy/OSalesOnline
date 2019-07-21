@@ -1,0 +1,162 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@{
+    ViewBag.Title = "Báo cáo nhập xuất tồn thẻ ";
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "",
+        ActionName = "",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false,
+        HideClearButton = true,
+        SearchButtonText = "Lấy dữ liệu"
+    };
+
+    string BranchId = Request["branchId"] != null ? Request["branchId"] : "";
+    string WarehouseId = Request["warehouseList"] != null ? Request["warehouseList"] : "";
+    string StartDate = Request["startDate"] != null ? Request["startDate"] : "";
+    string EndDate = Request["endDate"] != null ? Request["endDate"] : "";
+
+    DateTime aDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    // Cộng thêm 1 tháng và trừ đi một ngày.
+    DateTime retDateTime = aDateTime.AddMonths(1).AddDays(-1);
+}
+
+<link href="~/assets/css/bootstrap-multiselect.min.css" rel="stylesheet" />
+<link href="~/assets/css/select2.min.css" rel="stylesheet" />
+<style type="text/css">
+    .widget-main.no-padding .table-bordered td:first-child, .widget-main.no-padding .table-bordered th:first-child {
+        border-left-width: 0px;
+    }
+
+    .widget-main.no-padding .table-bordered > thead > tr > th:last-child {
+        border-right-width: 0px !important;
+    }
+
+    .widget-main.no-padding .table-bordered > tbody > tr:last-child > td {
+        border-bottom-width: 0px !important;
+    }
+
+    .infobox-small {
+        height: 70px;
+    }
+
+        .infobox-small > .infobox-data {
+            max-width: 100%;
+        }
+</style>
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+    <p>
+        @Html.DropDownList("branchList", SelectListHelper.GetSelectList_Branch(BranchId, "-Chọn chi nhánh-"))
+
+        @Html.DropDownList("warehouseList", SelectListHelper.GetSelectList_Warehouse(WarehouseId, Common.CurrentUser.BranchId, "-Chọn kho-"))
+        <span class="inline">
+            <span class="input-daterange input-group">
+                @Html.TextBox("startDate", Request["startDate"] != null ? Request["etartDate"] : aDateTime.ToString("dd/MM/yyyy"), new { autocomplete = "off", placeholder = "Từ ngày" })
+                <span class="input-group-addon">
+                    <i class="fa fa-exchange"></i>
+                </span>
+                @Html.TextBox("endDate", Request["endDate"] != null ? Request["endDate"] : retDateTime.ToString("dd/MM/yyyy"), new { autocomplete = "off", placeholder = "Đến ngày" })
+            </span>
+        </span>
+    </p>
+}
+<div id="BaoCaoNhapXuat_TonTheoThe">
+    @Html.Partial("_Loading")
+</div>
+
+<div class="col-sm-6">
+    <div class="widget-box">
+        <div class="widget-header">
+            <h4 class="widget-title">
+                <i class="ace-icon fa fa-signal"></i>
+                Tỷ lệ nhập giữa kỳ theo thẻ
+            </h4>
+        </div>
+        <div class="widget-body">
+            <div class="widget-main">
+                <div id="ChartProductInboundOfCard" style="max-width:700px">
+                    @Html.Partial("_Loading")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-6">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-title">
+                    <i class="ace-icon fa fa-signal"></i>
+                    Tỷ lệ xuất giữa kỳ theo thẻ
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div id="ChartProductOutboundOfCard" style="max-width:700px">
+                        @Html.Partial("_Loading")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<script src="/Scripts/Chartjs-master/Chartjs.bundle.min.js"></script>
+<script src="/Scripts/Chartjs-master/globalConfig.js"></script>
+
+@section Scripts {
+    <script src="/assets/js/jquery.easypiechart.min.js"></script>
+    <script type="text/javascript">
+         $(function () {
+        ShowLoading();
+             $.get('@Url.Action("BaoCaoNhapXuat_TonTheoThe", "SaleReport", new { area = "Sale", branchId =  BranchId, StartDate = StartDate, EndDate = EndDate, WarehouseId = WarehouseId })' , function (html) {
+                $("#BaoCaoNhapXuat_TonTheoThe").html(html);
+                HideLoading();
+             });
+
+             $.get('@Url.Action("ChartProductInboundOfCard", "SaleReport", new { area = "Sale", branchId = BranchId, StartDate = StartDate, EndDate = EndDate })', function (html){
+                 $("#ChartProductInboundOfCard").html(html);
+                HideLoading();
+             });
+
+             $.get('@Url.Action("ChartProductOutboundOfCard", "SaleReport", new { area = "Sale", branchId = BranchId, StartDate = StartDate, EndDate = EndDate })', function (html){
+                 $("#ChartProductOutboundOfCard").html(html);
+                HideLoading();
+            });
+
+        $("button[name='search']").click(function (e) {
+            e.preventDefault();
+            ShowLoading();
+            var branchId = $("#branchList option:selected").val();
+            var warehouseId = $("#warehouseList option:selected").val();
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+
+
+            $.get('@Url.Action("BaoCaoNhapXuat_TonTheoThe", "SaleReport", new { area = "Sale"})/?branchId=' + branchId + '&StartDate=' + startDate + '&EndDate=' + endDate + '&WarehouseId=' + warehouseId, function (html) {
+                $("#BaoCaoNhapXuat_TonTheoThe").html(html);
+                HideLoading();
+            });
+            $.get('@Url.Action("ChartProductInboundOfCard", "SaleReport", new { area = "Sale" })/?branchId=' + branchId + '&StartDate=' + startDate + '&EndDate=' + endDate, function (html){
+                  $("#ChartProductInboundOfCard").html(html);
+                HideLoading();
+            });
+            $.get('@Url.Action("ChartProductOutboundOfCard", "SaleReport", new { area = "Sale" })/?branchId=' + branchId + '&StartDate=' + startDate + '&EndDate=' + endDate, function (html){
+                  $("#ChartProductOutboundOfCard").html(html);
+                HideLoading();
+            });
+
+            return false;
+        });
+      });
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_DatePicker("dd/MM/yyyy")
+}

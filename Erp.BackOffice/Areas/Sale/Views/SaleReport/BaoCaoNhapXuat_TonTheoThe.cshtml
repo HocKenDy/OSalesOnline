@@ -1,0 +1,46 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Helpers
+
+@model List<spBaoCaoNhapXuatTonTheViewModel>
+
+    <div class="table-responsive">
+        <div class="grid-mvc" data-lang="en" data-gridname="" data-selectable="true" data-multiplefilters="false">
+            <div class="grid-wrap">
+                <table id="cTable" class="table table-striped grid-table">
+                    <thead>
+                        <tr>
+                            <th class="grid-header" style="width:40px;"><div class="grid-header-title"><span>STT</span></div></th>
+                            <th class="grid-header" style="width:200px;"><div class="grid-header-title"><span>Mã loại thẻ</span></div></th>
+                            <th class="grid-header" style="width:400px;"><div class="grid-header-title"><span>Tên thẻ</span></div></th>
+                            <th class="grid-header" style="width:80px; "><div class="grid-header-title" style="text-align:center;"><span>Đơn vị</span></div></th>
+                            <th class="grid-header" style="width:100px;"><div class="grid-header-title" style="text-align:center;"><span>Đầu kỳ</span></div></th>
+                            <th class="grid-header" style="width:100px;"><div class="grid-header-title"style="text-align:center"><span>Nhập giữa kỳ</span></div></th>
+                            <th class="grid-header" style="width:100px;"><div class="grid-header-title"style="text-align:center;"><span>Xuất giữa kỳ</span></div></th>
+                            <th class="grid-header" style="width:100px;"><div class="grid-header-title"style="text-align:center;"><span>Cuối kỳ</span></div></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @{
+                            var stt = 0;
+                        }
+                        @foreach (var item in Model)
+                        {
+                            stt++;
+                            <tr class="grid-row">
+                                <td class="grid-cell" data-name="" style="width:40px; text-align:center">@stt</td>
+                                <td class="grid-cell" data-name="" style="width:200px;">@item.ProductCode</td>
+                                <td class="grid-cell" data-name="" style="width:400px;"><a onclick="OpenPopup('@Url.Action("Detail","Inventory",  new { Id = item.ProductId})', 'Lịch sử xuất/nhập thẻ', 500, 700)">@item.ProductName</a></td>
+                                <td class="grid-cell" data-name="" style="width:80px;text-align:center">@item.ProductUnit</td>
+                                <td class="grid-cell" data-name="" style="width:100px;text-align:right">@Common.PhanCachHangNgan2(item.First_Remain)</td>
+                                <td class="grid-cell" data-name="" style="width:100px;text-align:right">@Common.PhanCachHangNgan2(item.Center_InboundQuantity)</td>
+                                <td class="grid-cell" data-name="" style="width:100px;text-align:right">@Common.PhanCachHangNgan2(item.Center_OutboundQuantity)</td>
+                                <td class="grid-cell" data-name="" style="width:100px;text-align:right">@Common.PhanCachHangNgan2(item.Last_Remain)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>

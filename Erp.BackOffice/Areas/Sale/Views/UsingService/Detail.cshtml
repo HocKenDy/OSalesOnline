@@ -1,0 +1,196 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model IEnumerable<UsingServiceDetailViewModel>
+
+@{
+    ViewBag.Title = Wording.PageDetail_UsingService;
+
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "UsingService",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    string txtCheckCode = Request["txtCheckCode"];
+
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+
+<div class="col-sm-12 clearfix">
+    @using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Detail", "UsingService", null, FormMethod.Post, new { @class = "form-horizontal", id = "UsingService" }))
+    {
+        @Html.ValidationSummary(true)
+
+        <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+        <div class="col-sm-12">
+
+            @if (Model.Count() == 0)
+            {
+                <p class="text-danger">Không tìm thấy thông tin để xem.</p>
+            }
+
+        </div>
+
+        <div class="col-sm-12 clearfix">
+            <div class="table-responsive">
+                <table class="table table-bordered table-to-print">
+                    <thead>
+                        <tr>
+                            <th style="width:30px">Chọn</th>
+                            <th>Tên dịch vụ</th>
+                            <th class="qty_use" style="width:100px;">SL sử dụng</th>
+                            <th class="package_service" style="max-width:200px;">Thuộc gói DV</th>
+                            <th class="invoice_code" style="width:150px;">Mã hóa đơn</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int index = 0;}
+                        @foreach (var item in Model)
+                        {
+                            <tr class="service-@item.Id">
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="ace" value="@item.Id" name="using-service-item" />
+                                        <span class="lbl"></span>
+                                    </label>
+                                </td>
+                                <td>@item.ProductName</td>
+                                <td>1</td>
+                                <td>@item.PackageProductName</td>
+                                <td>@item.InvoiceCode</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        using (Html.BeginButtonContainer(pageSetting))
+        {
+            <a class="btn btn-mini btn-primary" onclick="printContent()">
+                <i class="ace-icon fa fa-edit"></i>
+                @Wording.PrintUsageVouchers
+            </a>
+            <label class="error-submit-label text-danger"></label>
+        }
+    }
+
+</div>
+
+<div id="print-content" style="display:none;">
+    <style>
+        .print-main-window {
+            width: 100%;
+            font-size: 11px;
+        }
+
+        .print-header h6 {
+            margin-bottom: 5px;
+        }
+
+        .print-header p {
+            margin-top: 0px;
+            margin-bottom: 5px;
+        }
+
+        .print-main-window h4 {
+            font-size: 20px;
+            margin: 10px 0px 15px;
+            text-align: center;
+        }
+
+        .print-detail table {
+            width: 100%;
+            border-spacing: 0px;
+        }
+
+            .print-detail table th, .print-detail table td {
+                border-right: 1px solid #9a9a9a;
+                border-bottom: 1px solid #9a9a9a;
+                padding: 0px 5px;
+            }
+
+            .print-detail table thead th {
+                border-top: 1px solid #9a9a9a;
+            }
+
+            .print-detail table thead tr th:first-child, .print-detail table tbody tr td:first-child {
+                border-left: 1px solid #9a9a9a;
+            }
+
+        .qty_use {
+            width: 60px !important;
+        }
+
+        .package_service {
+        }
+
+        .invoice_code {
+            width: 110px !important;
+        }
+    </style>
+    <div class="print-main-window">
+        <div class="print-header">
+            <h6>Thẩm Mỹ Viện Ngọc Hường</h6>
+            <p>Địa chỉ: <span>199 Phan Đăng Lưu, P.1, Q.Phú Nhuận, Tp.HCM</span> </p>
+            <p>Điện thoại: <span>(08)3 995 4456 - 3 995 4445</span></p>
+            <p>Email: <span>myvienngochuong@myvienngochuong.com</span> - Website: <span>myvienngochuong.com</span></p>
+        </div>
+        <h4>Phiếu sử dụng dịch vụ</h4>
+        <div class="print-detail"></div>
+        <div class="print-footer"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function printContent() {
+            $('#print-content .print-detail').html('');
+
+            var $table_print = $('.table-to-print').clone();
+            $table_print.find('tbody tr').each(function (index, tr) {
+                if ($(tr).find('input[type="checkbox"]').is(':checked') == false)
+                    $(tr).addClass('remove-item');
+            });
+            $table_print.find('tbody tr.remove-item').remove();
+            $table_print.find('tr th:first-child, tr td:first-child').remove();
+
+            $('#print-content .print-detail').html($table_print);
+            var content = $('#print-content').html();
+
+            var x = screen.width / 2 - 1000 / 2;
+            var y = screen.height / 2 - 400 / 2;
+            //window.open('/ProductInvoice/Print/22', '_blank', 'height=485,width=700,left=' + x + ',top=' + y);
+
+            var mywindow = window.open('', 'PRINT', 'height==400,width=1000,left=' + x + ',top=' + y);
+
+            mywindow.document.write('<html><head><title>' + document.title + '</title>');
+            mywindow.document.write('</head><body >');
+            mywindow.document.write(content);
+            //mywindow.document.write(document.getElementById(elem).innerHTML);
+            mywindow.document.write('</body></html>');
+
+            mywindow.document.close(); // necessary for IE >= 10
+            mywindow.focus(); // necessary for IE >= 10*/
+
+            mywindow.print();
+            //mywindow.close();
+
+            return false;
+        }
+    </script>
+}

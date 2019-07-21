@@ -1,0 +1,339 @@
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model RePayPointsViewModel
+
+@{
+    ViewBag.Title = Wording.PageDetail_RePayPoints;
+    Layout = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower().Equals("true") ? StringExtention.LAYOUT_POPUP : StringExtention.LAYOUT_ADMIN;
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = StringExtention.MODULE_REPAYPOINTS,
+        ActionName = StringExtention.ACTION_DETAIL,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    int index = 1;
+
+}
+
+@helper renderStatus(string status)
+{
+switch (status)
+{
+    case RePayPointsStatus.Pending:
+        <span class="label label-info pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_pending</span>
+    break;
+    case RePayPointsStatus.Inprogress:
+        <span class="label label-warning pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_inprogress</span>
+    break;
+    case RePayPointsStatus.Complete:
+        <span class="label label-success pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_complete</span>
+    break;
+    case RePayPointsStatus.Delete:
+        <span class="label label-danger pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_delete</span>
+    break;
+}
+}
+@helper renderCustomer(int? CustomerId, string CustomerName)
+{
+    <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new {area="Account", Id = CustomerId, IsPopup = true })', '', 600, 600)">@CustomerName</a>
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+
+<div class="row">
+    <div class="col-sm-7">
+        @if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+        {
+            <div class="alert alert-block alert-success">
+                <button class="close" data-dismiss="alert" type="button">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <i class="ace-icon fa fa-check green"></i>
+                @Html.Raw(ViewBag.SuccessMessage)
+            </div>
+        }
+
+        @if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+        {
+            <div class="alert alert-block alert-danger">
+                <button class="close" data-dismiss="alert" type="button">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <i class="ace-icon fa fa-warning red"></i>
+                @Html.Raw(ViewBag.FailedMessage)
+            </div>
+        }
+
+        <h4 class="green" style="margin-top:0px">
+            @renderStatus(Model.Status)
+            <span>Đơn hàng: @Model.Code (@Model.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm"))</span>
+        </h4>
+        @if (Model.IsDeleted == true)
+        {
+            <div class="alert alert-danger">
+                <p><i class="ace-icon fa fa-warning red"></i> @Model.ModifiedUserName đã hủy bỏ chứng từ lúc @Model.ModifiedDate.Value.ToString("HH:mm dd/MM/yyyy").</p>
+                <p>Lý do hủy: @Model.CancelReason</p>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="detail-th-orderno" style="width:30px;">STT</th>
+                        <th class="detail-th-product-name">Tên quà tặng</th>
+                        <th class="detail-th-quantity" style="width:100px;">Số lượng</th>
+                        <th class="detail-th-price" style="width:120px;">Điểm quy đổi</th>
+                        <th class="detail-th-total" style="width:120px;">Tổng điểm</th>
+                    </tr>
+                </thead>
+                <tbody class="detailList">
+                    @if (Model.DetailList != null)
+                    {
+                        foreach (var item in Model.DetailList)
+                        {
+                            <tr data-type="" data-id="">
+                                <td class="text-center">@(index++)</td>
+                                <td class="has-error">
+                                    @( item.GiftCode + " - " + item.GiftName)
+                                </td>
+                                <td class="text-right">@item.Quantity</td>
+                                <td class="text-right detail-product-price">@Common.PhanCachHangNgan(item.Point)</td>
+                                <td class="detail_item_total text-right">
+                                    @Common.PhanCachHangNgan(item.TotalPoint)
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="top-5">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title"><i class="fa fa-commenting-o"></i> Hoạt động</h5>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main no-padding">
+                        @{Html.RenderAction("ListByTarget", "Post", new { area = "Crm", TargetModule = "RePayPoints", TargetId = Model.Id });}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <div class="tabbable">
+            <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="myTab">
+                <li id="li-tab1" class="active"><a data-target="#tab1" data-toggle="tab" aria-expanded="true">Thông tin chi tiết</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active clearfix" id="tab1">
+                    <div class="detail-view">
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.BranchName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItem(renderCustomer(Model.CustomerId, Model.CustomerName), "CustomerName", Wording.CustomerName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.TotalPoint, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.WarehouseSourceName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.SaleName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Note, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <p></p>
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title">Chứng từ</h5>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <table class="table table-striped grid-table">
+                        <thead>
+                            <tr>
+                                <th class="grid-header" style="width:130px">Ngày chứng từ</th>
+                                <th class="grid-header" style="width:150px">Loại chứng từ</th>
+                                <th class="grid-header">Mã chứng từ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ListTransactionRelationship.Count > 0)
+                            {
+                                foreach (var item in Model.ListTransactionRelationship)
+                                {
+                                    string TransactionCode = item.TransactionA == Model.Code ? item.TransactionB : item.TransactionA;
+                                    string TransactionModule = item.TransactionA == Model.Code ? item.TransactionB_Module : item.TransactionA_Module;
+                                    string TransactionName = item.TransactionA == Model.Code ? item.TransactionB_Name : item.TransactionA_Name;
+                                    <tr class="grid-row">
+                                        <td>@item.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@TransactionName</td>
+                                        <td>
+                                            <a onclick="OpenPopup('/@TransactionModule/Detail/?TransactionCode=@(TransactionCode)&IsPopup=true', 'Thông tin chứng từ', 0, 0)">
+                                                @TransactionCode
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@using (Html.BeginButtonContainer(pageSetting))
+{
+    if (Model.IsDeleted != null && Model.IsDeleted == false)
+    {
+        if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Print", "RePayPoints", "Sale"))
+        {
+            <a href="@Url.Action("Print", "RePayPoints", new { id = Model.Id })" target="_blank" class="btn btn-white btn-success btn-sm">
+                <i class="ace-icon fa fa-print"></i>
+                In phiếu
+            </a>
+            <a class="btn btn-white btn-success btn-sm" href="@Url.Action("Print", "RePayPoints", new { id = Model.Id, ExportExcel = true })">
+                <i class="ace-icon fa fa-file-excel-o"></i>
+                Xuất excel
+            </a>
+        }
+        if (Model.AllowEdit)
+        {
+            if (Model.IsArchive == false)
+            {
+                if (Model.ProductOutboundViewModel != null)
+                {
+                    if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Archive", "RePayPoints", "Sale"))
+                    {
+                        using (Html.BeginForm("Archive", pageSetting.ModuleName, FormMethod.Post, new { @class = "inline" }))
+                        {
+                            @Html.HiddenFor(m => m.Id)
+                            <button class="btn btn-mini btn-success" type="submit" name="Submit" value="Save" onclick="return confirm('Bạn chắc chắn muốn thực hiện thao tác này?')">
+                                Ghi sổ
+                            </button>
+                        }
+                    }
+                }
+                else
+                {
+                    if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Create", "RePayPoints", "Sale"))
+                    {
+                        <a class="btn btn-primary btn-mini" href="@Url.Action("Create", "RePayPoints", new { Id = Model.Id })">
+                            <i class="ace-icon fa fa-edit "></i>
+                            Chỉnh sửa
+                        </a>
+                    }
+                    if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Create", "ProductOutbound", "Sale"))
+                    {
+                        <a class="btn btn-success btn-mini" href="@Url.Action("Create", "ProductOutbound", new { PayPointId = Model.Id })" target="_blank">
+                            <i class="ace-icon fa fa-sign-out "></i>
+                            Lập phiếu xuất kho
+                        </a>
+                    }
+                }
+                if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Delete", "RePayPoints", "Sale"))
+                {
+                    <div class="mini-popup inline">
+                        <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_huy" style="color: red !important;">
+                            <i class="ace-icon fa fa-trash"></i>
+                            Hủy đơn hàng
+                        </a>
+                        <div id="popup_huy" class="popover fade top">
+                            <div class="arrow" style="left: 50%;"></div>
+                            <h3 class="popover-title"><i class="ace-icon fa fa-bolt red"></i> Hủy đơn hàng</h3>
+                            <div class="popover-content">
+                                @using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Delete", "RePayPoints", null, FormMethod.Post, new { id = "ProductInvoice_Delete", @class = "form-horizontal clearfix" }))
+                                {
+                                    @Html.HiddenFor(m => m.Id)
+                                    @Html.CustomTextAreaFor(model => model.CancelReason, Wording.Note, WidthType.span12)
+                                    <p class="top-10">
+                                        <button id="btnDelete" class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save" onclick="return submitDelete();">
+                                            Đồng ý
+                                        </button>
+                                        <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_huy">Đóng</a>
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("UnArchive", "RePayPoints", "Sale"))
+                {
+                    using (Html.BeginForm("UnArchive", pageSetting.ModuleName, FormMethod.Post, new { @class = "inline" }))
+                    {
+                        @Html.HiddenFor(m => m.Id)
+                        <button class="btn btn-white btn-danger btn-sm" type="submit" name="Submit" value="Save" onclick="return confirm('Bạn chắc chắn muốn thực hiện thao tác này?')">
+                            Bỏ ghi sổ
+                        </button>
+                    }
+                }
+            }
+        }
+    }
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        function CheckIsval()
+        {
+            if ($('[name="DeleteAll-checkbox"]').is(':checked') == false)
+            {
+                alert("Phải chọn ít nhất 1 item.");
+                return false;
+            }
+            else
+            {
+                if (confirm('Bạn có chắc muốn xóa các item đã chọn ?'))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        $('[name="Delete"]').click(function ()
+        {
+            if (confirm('Bạn có chắc muốn xóa item ?'))
+            {
+                $(this).closest('tr').children('td').each(function (i, e)
+                {
+                    $(this).find("input.class-delete-all").prop("checked", true);
+                    return true;
+                })
+            }
+            else
+            {
+                return false;
+            }
+
+        })
+
+    </script>
+}

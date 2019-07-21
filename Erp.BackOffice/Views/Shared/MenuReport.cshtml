@@ -1,0 +1,129 @@
+﻿@model List<PageMenuViewModel>
+
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Areas.Administration.Models
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@{
+    ViewBag.Title = "Báo cáo";
+    bool isPopup = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower() == "true" ? true : false;
+    if (isPopup)
+    {
+        Layout = "~/Views/Shared/_PopupLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    }
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "SaleReport",
+        ActionName = "MenuReport",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+    int setRow = 0;
+}
+<style>
+    li {
+        list-style-type: none;
+    }
+</style>
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+
+<link href="@Url.Content("~/assets/css/Gridmvc.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"></script>
+
+@helper GridColumnName(string code, int id, bool isPopup)
+{
+    if (isPopup)
+    {
+        <a onclick="parent.selectBranchItem(@id)">@code</a>
+    }
+    else
+    {
+        code = string.IsNullOrEmpty(code) ? "No Title" : code;
+        @*<a href="@Url.Action("Detail", "Receipt", new { Id = id })">@name</a>*@
+        <a onclick="OpenPopup('@Url.Action("Detail", "Receipt", new { area = "Account", TransactionCode = code, IsPopup = true })', 'Thông tin chi tiết', 0, 500)">@code</a>
+        //name = string.IsNullOrEmpty(name) ? "No Title" : name;
+        //<a onclick="OpenPopup('@Url.Action("Detail", "Receipt", new { Id = id, IsPopup = true })', 'Chi tiết phiếu thu', 500, 500)">@name</a>
+    }
+}
+
+@helper GridColumnCategoryValue(object value)
+{
+    var attr = Erp.BackOffice.Helpers.Common.GetCategoryByValueOrId("value", value);
+    <span>@(attr != null ? attr.Name : "")</span>
+}
+
+@helper CheckDeleteColumns(int Id)
+{
+    <label>
+        <input class="ace class-delete-all" type="checkbox" name="DeleteId-checkbox" value="@Id">
+        <span class="lbl"></span>
+    </label>
+}
+
+@helper BuildCheckAll()
+{
+    <label>
+        <input class="ace" type="checkbox" name="checkAll" id="checkAll" />
+        <span class="lbl"></span>
+    </label>
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+<div class="clearfix">
+    @foreach (var item in Model.Where(x => x.ParentId == 1648).OrderBy(x => x.OrderNo))
+    {
+        <div style="min-height:450px; width:250px; float:left">
+            <h4 style="color: #ff0000;"><b>@item.Name</b></h4>
+            @foreach (var itemp in Model.Where(x => x.ParentId == item.Id).OrderBy(x => x.OrderNo))
+            {
+                <ul style="margin:0px">
+                    <li style="margin-bottom:10px">
+                        <a onclick="OpenPopup('@(itemp.PageUrl)?IsPopup=true', '@itemp.Name', 0, 0)" class="no-radius">
+                            <i class="@itemp.CssClassIcon"></i>
+                            @itemp.Name
+                        </a>
+                    </li>
+                </ul>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_DatePicker("dd/MM/yyyy")
+}

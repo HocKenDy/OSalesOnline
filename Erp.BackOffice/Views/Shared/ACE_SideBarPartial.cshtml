@@ -1,0 +1,86 @@
+﻿@model List<Erp.BackOffice.Areas.Administration.Models.MenuViewModel>
+
+<div id="sidebar" class="sidebar responsive ace-save-state sidebar-fixed">
+    <script type="text/javascript">
+        try { ace.settings.loadState('sidebar') } catch (e) { }
+    </script>
+
+    <!--Begin .nav-list menu-->
+    @renderMenu(Model)
+    <!--End .nav-list menu -->
+
+    <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+        <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+    </div>
+    @*<div class="alert alert-warning" style="margin:0px; padding:5px">
+        <a href="#" style="text-align:center; display:block">
+            <i class="ace-icon fa fa-question-circle"></i>
+            <span class="menu-text">Hướng dẫn sử dụng</span>
+        </a>
+    </div>*@
+</div>
+
+@helper renderMenu(List<Erp.BackOffice.Areas.Administration.Models.MenuViewModel> list)
+{
+    <ul class="nav nav-list">
+        @foreach (var item in list)
+        {
+            bool hasSubList = item.ListMenu != null && item.ListMenu.Count > 0;
+            <li class="@(item.IsActived ? "active open" : "")">
+                <a href="@item.Url" class="@(hasSubList ? "dropdown-toggle" : "") @(item.IsActived ? " active" : "")" @(item.IsNewTab == true ? "target=\"_blank\"" : "")>
+                    <i class="menu-icon @item.CssClassIcon"></i>
+                    <span class="menu-text">@item.Name </span>
+                    @if (hasSubList)
+                    {
+                        <b class="arrow fa fa-angle-down"></b>
+                    }
+                </a>
+
+                @if (hasSubList)
+                {
+                    @renderSubMenu(item.ListMenu)
+                }
+            </li>
+        }
+    </ul>
+}
+
+@helper renderSubMenu(List<Erp.BackOffice.Areas.Administration.Models.MenuViewModel> list)
+{
+    <ul class="submenu nav-show">
+        @foreach (var item in list)
+        {
+            bool hasSubList = item.ListMenu != null && item.ListMenu.Count > 0;
+            <li class="@(item.IsActived ? "active open" : "")">
+                <a href="@item.Url" class="@(hasSubList ? "dropdown-toggle" : "") @(item.IsActived ? " active" : "")" @(item.IsNewTab == true ? "target=\"_blank\"" : "")>
+                    <i class="menu-icon fa fa-caret-right"></i>
+                    @item.Name
+                    @if (hasSubList)
+                    {
+                        <b class="arrow fa fa-angle-down"></b>
+                    }
+                </a>
+
+                @if (hasSubList)
+                {
+                    @renderSubMenu2(item.ListMenu)
+                }
+            </li>
+        }
+    </ul>
+}
+
+@helper renderSubMenu2(List<Erp.BackOffice.Areas.Administration.Models.MenuViewModel> list)
+{
+    <ul class="submenu nav-show">
+        @foreach (var item in list)
+        {
+            <li class="@(item.IsActived ? "active" : "")">
+                <a href="@item.Url" class="@(item.IsActived ? "active" : "")" @(item.IsNewTab == true ? "target=\"_blank\"" : "")>
+                    <i class="menu-icon fa fa-caret-right"></i>
+                    @item.Name
+                </a>
+            </li>
+        }
+    </ul>
+}

@@ -1,0 +1,166 @@
+@model IEnumerable<RePayPointsViewModel>
+
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@{
+    ViewBag.Title = Wording.PageIndex_RePayPoints;
+    bool isPopup = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower() == "true" ? true : false;
+    Layout = isPopup ? StringExtention.LAYOUT_POPUP : StringExtention.LAYOUT_ADMIN;
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = StringExtention.MODULE_REPAYPOINTS,
+        ActionName = StringExtention.ACTION_INDEX,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+    int rowNumber = 0;
+    int numberOfItem = 30;
+    int currentPage = Request["grid-page"] != null ? Convert.ToInt32(Request["grid-page"]) : 1;
+}
+<style type="text/css">
+    .product-invoice-isdeleted {
+        text-decoration: line-through;
+    }
+</style>
+<link href="@Url.Content("~/assets/css/Gridmvc.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"></script>
+
+@helper GridColumnName(int id, string code, string note, string reason)
+{
+if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_DETAIL, StringExtention.MODULE_REPAYPOINTS, StringExtention.AREA_SALE))
+{
+        <a onclick="OpenPopup('@Url.Action(StringExtention.ACTION_DETAIL,  StringExtention.MODULE_REPAYPOINTS, new { area = StringExtention.AREA_SALE, Id = id, IsPopup = true })', '@Wording.Detail', 0, 0)">
+            @code
+        </a>
+}
+else
+{
+        <span>@code</span>
+
+}
+if (!string.IsNullOrEmpty(note) || !string.IsNullOrEmpty(reason))
+{
+    note = note + "; " + reason;
+        <span class="help-button" data-rel="tooltip" data-placement="bottom" data-original-title="@note">?</span>
+}
+}
+@helper GridColumnCustomerName(int? id, string name)
+{
+
+if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Detail", "Customer", "Account"))
+{
+        <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new { area = "Account", Id = id, IsPopup = true })', '@Wording.Detail', 600, 600)">
+            @name
+        </a>
+}
+else
+{
+        <span>@name</span>
+}
+
+}
+@helper GridColumnHtml(string obj)
+{
+    <p>
+        @(obj != null && obj.Length > 250 ? obj.Substring(0, 249) + ".v.v..." : obj)
+    </p>
+}
+ 
+@helper renderStatus(string status)
+{
+switch (status)
+{
+    case RePayPointsStatus.Pending:
+        <span class="label label-info pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_pending</span>
+    break;
+    case RePayPointsStatus.Inprogress:
+        <span class="label label-warning pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_inprogress</span>
+    break;
+    case RePayPointsStatus.Complete:
+        <span class="label label-success pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_complete</span>
+    break;
+    case RePayPointsStatus.Delete:
+        <span class="label label-danger pull-left" style="margin-right:5px">@Wording.OrderStatusDisplay_delete</span>
+    break;
+}
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+    <p>
+        @if (Erp.BackOffice.Filters.SecurityFilter.IsAdmin())
+        {
+            @Html.DropDownList("BranchId", SelectListHelper.GetSelectList_Branch(Request["BranchId"], "- Chi nhánh -"))
+        }
+        @Html.TextBox("txtCusName", Request["txtCusName"], new { autocomplete = "off", placeholder = "Tên khách hàng..." })
+        @Html.TextBox("txtCode", Request["txtCode"], new { autocomplete = "off", placeholder = "Mã đơn hàng..." })
+        <span class="input-daterange input-group">
+            @Html.TextBox("startDate", Request["startDate"] != null ? Request["startDate"] : "", new { autocomplete = "off", placeholder = "Từ ngày..." })
+            <span class="input-group-addon">
+                <i class="fa fa-exchange"></i>
+            </span>
+            @Html.TextBox("endDate", Request["endDate"] != null ? Request["endDate"] : "", new { autocomplete = "off", placeholder = "Đến ngày..." })
+        </span>
+        <span class="btn-group" style="float:right;">
+            <button type="button" onclick="search_input_week()" class="btn btn-white btn-info">Tuần</button>
+            <button type="button" onclick="search_input_month()" class="btn btn-white btn-info">Tháng</button>
+            <button type="button" onclick="search_input_quarter()" class="btn btn-white btn-info">Quý</button>
+        </span>
+    </p>
+}
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+
+
+@using (Html.BeginForm(StringExtention.ACTION_DELETE, pageSetting.ModuleName, FormMethod.Post))
+{
+    @Html.Grid(Model).Columns(columns =>
+{
+columns.Add().Titled("#").SetWidth(50).RenderValueAs(o =>
+{
+rowNumber++;
+return @<text> @(rowNumber + ((currentPage - 1) * numberOfItem)) </text>;
+});
+    columns.Add().Titled(Wording.Status).SetWidth(100).Sanitized(false).Encoded(false).RenderValueAs(n => renderStatus(n.Status));
+    columns.Add().Titled(Wording.BranchName).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => u.BranchName).SetWidth(100);
+    columns.Add().Titled(Wording.Code).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnName(u.Id, u.Code, u.Note, u.CancelReason)).SetWidth(100);
+    columns.Add().Titled(Wording.CustomerId).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnCustomerName(u.CustomerId, u.CustomerName));
+    columns.Add().Titled("Tổng điểm quy đổi").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => Common.PhanCachHangNgan2(u.TotalPoint)).Css("text-right").SetWidth(100);
+    columns.Add().Titled(Wording.WarehouseSource).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => u.WarehouseSourceName).SetWidth(100);
+    columns.Add(u => u.CreatedDate).Titled(Wording.CreatedDate).SetWidth(130).Format("{0:dd/MM/yyyy HH:mm}");
+    columns.Add(u => u.ModifiedDate).Titled(Wording.ModifiedDate).SetWidth(130).Sortable(true).Format("{0:dd/MM/yyyy HH:mm}");
+    columns.Add(u => u.IsArchive).Titled("TT ghi sổ").Sanitized(false).Encoded(false).RenderValueAs(n => (n.IsArchive == true ? "<span style=\"color:green\"><b>Đã ghi sổ</b></span>" : "<span style=\"color:red\"><b>Chưa ghi sổ</b></span>")).SetWidth(90).Sortable(true);
+}).WithPaging(20).SetRowCssClasses(item => (item.IsDeleted.HasValue && item.IsDeleted.Value ? "product-invoice-isdeleted" : ""))
+}
+
+@section Scripts {
+
+@Html.ScriptBottom_ValidationMvc()
+@Html.ScriptBottom_DatePicker("dd/MM/yyyy")
+}

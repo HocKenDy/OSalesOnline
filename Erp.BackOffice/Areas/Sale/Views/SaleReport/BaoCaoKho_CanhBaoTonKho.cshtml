@@ -1,0 +1,61 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@model  IQueryable<InventoryViewModel>
+@{
+    ViewBag.Title = "Cảnh báo tồn kho";
+    Layout = null;
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "SaleReport",
+        ActionName = "BaoCaoKho_CanhBaoTonKho",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false,
+        SearchButtonText = "Xem báo cáo"
+    };
+    var color_Inventory = Common.GetSetting("Color_Inventory");
+    var color_MinInventory = Common.GetSetting("Color_MinInventory");
+    var color_MinInventoryAlarms = Common.GetSetting("Color_MinInventoryAlarms");
+}
+
+<link href="@Url.Content("~/assets/css/Gridmvc.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"> </script>
+<style>
+    .inventory{
+        background-color:@color_Inventory !important;
+    }
+    .minInventory{
+        background-color:@color_MinInventory !important;
+    }
+    .minInventoryAlarms{
+        background-color:@color_MinInventoryAlarms !important;
+    }
+</style>
+
+@helper BuildProductName(int? Id, string Name)
+{
+    <a onclick="OpenPopup('@Url.Action("Detail","Inventory", new {area = "Sale", Id = Id })', '', 500, 700)">@Name</a>
+}
+<h4 class="red">CẢNH BÁO TỒN @ViewBag.WarehouseName</h4>
+<div class="table-responsive" style="max-width:1024px">
+    @Html.Grid(Model).Columns(columns =>
+{
+    columns.Add(u => u.ProductCode).Titled(Wording.ProductCode).SetWidth(100);
+    columns.Add().Titled(Wording.Name).Encoded(false).Sanitized(false).RenderValueAs(u => BuildProductName(u.ProductId, u.ProductName));
+    columns.Add().Titled(Wording.Quantity).SetWidth(100).Encoded(false).Sanitized(false).RenderValueAs(u => Erp.BackOffice.Helpers.Common.PhanCachHangNgan(u.Quantity)).Css("text-right");
+}).WithPaging(20).SetRowCssClasses(item => item.StatusInventory == "Inventory" ? "inventory" : item.StatusInventory == "MinInventory" ? "minInventory" : "minInventoryAlarms")
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function ()
+        {
+            $("table tbody").height($(window).height() - $("table tbody").position().top - 170);
+        });
+
+    </script>
+}

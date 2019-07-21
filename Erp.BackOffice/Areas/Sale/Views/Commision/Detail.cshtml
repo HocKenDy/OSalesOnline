@@ -1,0 +1,94 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model CommisionViewModel
+
+@{
+    ViewBag.Title = "Thông tin chiết khấu";
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Commision",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+<div class="detail-view">
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.Name)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.Code)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.PercentOfCommision)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.StartDate)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.EndDate)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.Note)
+    </div>
+</div>
+<p></p>
+ @using (Html.BeginButtonContainer(pageSetting))
+    {
+@Html.Button(Wording.Edit, ButtonType.aTag, ButtonColor.Primary, ButtonSize.Mini, true, IconType.Edit, IconSize.Default, false, new { @href = Url.Action("Edit",pageSetting.ModuleName, new { Id = Model.Id }) })
+    }
+<link href="@Url.Content("~/assets/css/Gridmvc.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"> </script>
+
+@*@{Html.RenderAction("SubList_CommisionBranch", "Commision", new { CommisionId = Model.Id});}*@
+
+@section Scripts {
+    <script type="text/javascript">
+        function CheckIsval() {
+            if ($('[name="DeleteAll-checkbox"]').is(':checked') == false) {
+                alert("Phải chọn ít nhất 1 item.");
+                return false;
+            }
+            else {
+                if (confirm('Bạn có chắc muốn xóa các item đã chọn ?')) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        $('[name="Delete"]').click(function () {
+            if (confirm('Bạn có chắc muốn xóa item ?')) {
+                $(this).closest('tr').children('td').each(function (i, e) {
+                    $(this).find("input.class-delete-all").prop("checked", true);
+                    return true;
+                })
+            }
+            else {
+                return false;
+            }
+
+        })
+
+        function selectBranchItem(branchId) {
+            ClosePopup();
+            ShowLoading();
+
+            $.post('@Url.Action("CreateCommision_Branch", "Commision")', {commisionId: @Model.Id, branchId: branchId}, function (rs) {
+                location.reload();
+            });
+        }
+    </script>
+}

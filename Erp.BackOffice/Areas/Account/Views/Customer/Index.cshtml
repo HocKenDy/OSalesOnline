@@ -1,0 +1,341 @@
+﻿@model IQueryable<CustomerViewModel>
+
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Account.Models
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@{
+    ViewBag.Title = Wording.PageIndex_Customer;
+    bool isPopup = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower() == "true" ? true : false;
+    if (isPopup)
+    {
+        Layout = "~/Views/Shared/_PopupLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    }
+
+    var jsCallback = Request["jsCallback"] == null ? "" : Request["jsCallback"].ToString();
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Customer",
+        ActionName = "Index",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false,
+    };
+
+}
+
+<link href="@Url.Content("~/assets/css/Gridmvc.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"></script>
+<style>
+    .vertical-middle {
+        vertical-align: middle !important;
+    }
+</style>
+@helper GridColumnCommand(int id, string name, string code)
+{
+
+if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Delete", "Customer", "Account"))
+{
+        <button name="Delete" value="@id" type="submit" title="Xóa" class="btn btn-minier btn-danger">
+            <i class="ace-icon fa fa-trash"></i>
+        </button>
+}
+}
+
+@helper GridColumnAddress(string p, string d, string w, string a)
+{
+    <span>@Common.getAllAddress(p, d, w, a)</span>
+}
+
+
+@helper GridColumnName(string name, int id, bool isPopup = false, string jsCallback = null)
+{
+name = string.IsNullOrEmpty(name) == false ? name : "No Title";
+if (!isPopup)
+{
+        @*<a name="Setting" onclick="OpenPopup('@Url.Action("Detail", "Customer", new { IsPopup= true, Id = id})', 'Chi tiết', 0,0)" >
+               @name
+            </a>*@
+        <a href="@Url.Action("Detail", "Customer", new { Id = id})">@name</a>
+}
+else
+{
+    if (!string.IsNullOrEmpty(jsCallback))
+    {
+            <a onclick="parent.@(jsCallback)(@id, '@name')">@name</a>
+    }
+    else
+    {
+            <a onclick="parent.selectLocationItem('@id', '@name','Customer')">@name</a>
+    }
+}
+}
+@helper GridColumnInfoCustomer(string name, string phone, string address, string wardName, string districtName, string provinceName)
+{
+    <p><b class="red" style="font-size: 14px;" title="Tên khách hàng"><i class="fa fa-user-secret" aria-hidden="true"></i> @name</b> -  <b style="font-size: 14px;" title="Điện thoại"><i class="fa fa-phone" aria-hidden="true"></i> @phone</b> </p>
+    <p title="Địa chỉ"><i class="fa fa-map-marker" aria-hidden="true"></i> @address - @wardName - @districtName - @provinceName</p>
+}
+@helper GridColumnInfoCard(string memberCardId, string memberCardTypeName)
+{
+memberCardId = string.IsNullOrEmpty(memberCardId) ? "No Title" : memberCardId;
+memberCardTypeName = string.IsNullOrEmpty(memberCardTypeName) ? "No Title" : memberCardTypeName;
+    <p title="Loại thẻ"><i class="fa fa-credit-card" aria-hidden="true"></i>  @memberCardTypeName</p>
+    <p title="Mã thẻ"><b class="blue"><i class="fa fa-barcode" aria-hidden="true"></i> @memberCardId </b></p>
+}
+@helper GridColumnDateCreateAndUpdate(DateTime? dateCreate, DateTime? dateUpdate)
+{
+    <p title="Ngày tạo"><b><i class="fa fa-calendar" aria-hidden="true"></i></b> @string.Format("{0: dd/MM/yyyy HH:mm}", dateCreate) </p>
+    <p title="Ngày cập nhật"><b><i class="fa fa-calendar" aria-hidden="true"></i></b>  @string.Format("{0: dd/MM/yyyy HH:mm}", dateUpdate) </p>
+}
+
+@helper GridColumnCompanyName(string name, int id, bool isPopup)
+{
+
+name = string.IsNullOrEmpty(name) ? "No Title" : name;
+    <span>@name</span>
+    @*<a onclick="OpenPopup('@Url.Action("Detail", "Customer", new { area = "Account", Id = id, isPopup = isPopup })', '@Wording.DetailCustomer', 600, 600)"><b>@name</b></a>*@
+}
+@helper GridColumnFrequency(DateTime? EndDateProductInvoice)
+{
+if (EndDateProductInvoice != null)
+{
+        <span>@Common.ConvertDayToYearMonthWeekDays(Common.CalculateTwoDates(EndDateProductInvoice.Value, DateTime.Now))</span>
+}
+}
+@helper CheckDeleteColumns(int Id)
+{
+    <label>
+        <input class="ace class-delete-all" type="checkbox" name="DeleteId-checkbox" value="@Id">
+        <span class="lbl"></span>
+    </label>
+}
+
+@helper BuildCheckAll()
+{
+    <label>
+        <input class="ace" type="checkbox" name="checkAll" id="checkAll" />
+        <span class="lbl"></span>
+    </label>
+}
+
+@*test By Hoc*@
+
+@helper GridColumnCommand(int id)
+{
+
+    <div class="tool pos-rel">
+        <a class="btn btn-minier bigger btn-primary dropdown-toggle" data-toggle="dropdown">
+            <i class="ace-icon fa fa-cog icon-only bigger-120"></i>
+        </a>
+        <ul style="margin-bottom:100px;" class="dropdown-menu dropdown-only-icon dropdown-yellow dropdown-caret dropdown-close">
+            @if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Detail", "Customer", "Account"))
+            {
+                <li>
+                    <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new { area = "Account", Id = id, IsPopup = true, infoDetailCustomer = InfoDetailCustomer.Details })', 'Thông tin chi tiết',0,0)">
+                        <span class="info">
+                            <i class="blue ace-icon fa fa-info bigger-120"></i>
+                            Thông tin chi tiết
+                        </span>
+                    </a>
+                </li>
+                <li>
+
+                    <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new { area = "Account", Id = id, IsPopup = true, infoDetailCustomer = InfoDetailCustomer.TransitionHistory })', 'Lịch sử giao dịch',0,0)">
+                        <span class="info">
+                            <i class="blue ace-icon fa fa-history bigger-120"></i>
+                            Lịch sử giao dịch
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new { area = "Account", Id = id, IsPopup = true, infoDetailCustomer = InfoDetailCustomer.RePayHistory })', 'Lịch sử trả điểm',0,0)">
+                        <span class="info">
+                            <i class="blue ace-icon fa fa-history bigger-120"></i>
+                            Lịch sử trả điểm
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new { area = "Account", Id = id, IsPopup = true, infoDetailCustomer = InfoDetailCustomer.Contact })', 'Thông tin liên hệ', 0,0)">
+                        <span class="info">
+                            <i class="blue ace-icon fa fa-user bigger-120"></i>
+                            Thông tin liên hệ
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="OpenPopup('@Url.Action("Detail", "Customer", new { area = "Account", Id = id, IsPopup = true, infoDetailCustomer = InfoDetailCustomer.InfoCar })', 'Thông tin xe', 0,0)">
+                        <span class="info">
+                            <i class="blue ace-icon fa fa-car bigger-120"></i>
+                            Thông tin xe
+                        </span>
+                    </a>
+                </li>
+            }
+            <li>
+                @if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Create", "CommisionCustomer", "Sale"))
+                {
+                    <a onclick="OpenPopup('@Url.Action("Create", "CommisionCustomer", new { area = "Sale", CustomerId = id, popup = true })', 'Cài đặt',0,0)">
+                        <span class="info">
+                            <i class="ace-icon fa fa-cog bigger-140"></i>
+                            Cài đặt chiếc khấu
+                        </span>
+                    </a>
+                }
+            </li>
+            <li>
+                @if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Edit", "Customer", "Account"))
+                {
+                    <a title="Cập nhật" onclick="OpenPopup('@Url.Action("Edit", "Customer", new { Id = id, IsPopup = true })', 'Chỉnh sửa', 0,0)">
+                        <span class="info">
+                            <i class="ace-icon fa fa-edit bigger-140"></i>
+                            Cập nhật
+                        </span>
+                    </a>
+                }
+            </li>
+        </ul>
+    </div>
+}
+@*end test by Hoc*@
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+    <input type="hidden" value="@Request["jsCallback"]" name="jsCallback" />
+    <p>
+        @Html.TextBox("txtCardCode", Request["txtCardCode"], new { autocomplete = "off", placeholder = "Mã thẻ..." })
+        @Html.TextBox("txtCode", Request["txtCode"], new { autocomplete = "off", placeholder = "Mã khách hàng..." })
+        @Html.TextBox("txtName", Request["txtName"], new { autocomplete = "off", placeholder = "Tên khách hàng..." })
+        @Html.TextBox("txtPhone", Request["txtPhone"], new { autocomplete = "off", placeholder = "Số điện thoại... " })
+        @Html.TextBox("txtLicensePlates", Request["txtLicensePlates"], new { autocomplete = "off", placeholder = "Biển kiểm soát..." })
+        @Html.DropDownList("CardTypeId", SelectListHelper.GetSelectList_MemberCardType(Request["CardTypeId"], "- Loại thẻ -"))
+        <select class="form-control" id="txtOption" name="txtOption">
+            <option @(Request["txtOption"] == null || Request["txtOption"] == "" ? "selected" : "") value=""> Lựa chọn khác </option>
+            <option @(Request["txtOption"] == "YES" ? "selected" : "") value="YES">Đã có thẻ</option>
+            <option @(Request["txtOption"] == "NO" ? "selected" : "") value="NO">Chưa có thẻ</option>
+        </select>
+
+    </p>
+}
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+<p>Tổng số: <b>@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.Count())</b></p>
+
+@if (!isPopup)
+{
+
+    using (Html.BeginForm("Delete", "Customer", FormMethod.Post))
+    {
+        @Html.Grid(Model).Columns(columns =>
+   {
+       columns.Add().Titled(BuildCheckAll().ToHtmlString()).SetWidth(20).Sanitized(false).Encoded(false).RenderValueAs(n => CheckDeleteColumns(n.Id)).Css("vertical-middle");
+       columns.Add().Titled("").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnCommand(u.Id)).SetWidth(30).Css("vertical-middle");
+       columns.Add().Titled("Mã thành viên").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => u.Code).SetWidth(80).Css("vertical-middle");
+       columns.Add().Titled("Thông tin thẻ").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnInfoCard(u.CardCode, u.MemberCardTypeName)).SetWidth(170);
+       columns.Add().Titled("Thông tin khách hàng").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnInfoCustomer(u.Name, u.Phone, u.Address, u.WardName, u.DistrictName, u.ProvinceName));
+       columns.Add().Titled(Wording.Point).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => Common.PhanCachHangNgan(u.Point)).SetWidth(80).Css("text-right vertical-middle");
+       columns.Add().Titled("Số lần đến").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => Common.PhanCachHangNgan(Common.GetCountInvoiceOfCustomerById(u.Id))).SetWidth(80).Css("text-right vertical-middle");
+       columns.Add().Titled("Đơn hàng cuối -> nay").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnFrequency(u.EndDateProductInvoice)).SetWidth(130).Css("text-center vertical-middle");
+       columns.Add().Titled("Ngày tạo/cập nhật").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnDateCreateAndUpdate(u.CreatedDate, u.ModifiedDate)).SetWidth(135).Sortable(true);
+       columns.Add(u => u.Id).Titled(Wording.Delete).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnCommand(u.Id, u.Name, u.Code)).SetWidth(30).Css("text-center vertical-middle");
+   }).WithPaging(20)
+    }
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <a class="btn btn-info btn-mini" onclick="OpenPopup('@Url.Action("Create", pageSetting.ModuleName, new {IsPopup = true })', 'Thêm khách hàng', 800, 600)">
+            <i class="ace-icon fa fa-plus"></i>
+            @Resources.Wording.CreateNew
+        </a>
+        if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Import", "Customer", "Account"))
+        {
+            <a class="btn btn-info btn-xs" href="@Url.Action("Import", pageSetting.ModuleName)">
+                <i class="ace-icon fa fa-upload"></i>
+                @Wording.Import
+            </a>
+        }
+        @Html.ButtonExportExcel(Url.Action("ExportExcel", pageSetting.ModuleName), new List<string> { "txtCode", "txtName" })
+    }
+
+}
+else
+{
+    @Html.Grid(Model).Columns(columns =>
+        {
+            columns.Add(m => m.Code).Titled(Wording.Code).Sortable(false);
+            columns.Add().Titled(Wording.Name).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnName(u.Name, u.Id, true, jsCallback));
+        }).WithPaging(10)
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $("#txtCardCode").val("");
+        $("#txtCardCode").focus();
+
+        function CheckIsval()
+        {
+            if ($('[name="DeleteId-checkbox"]').is(':checked') == false)
+            {
+                alert("Phải chọn ít nhất 1 item.");
+                return false;
+            }
+            else
+            {
+                if (confirm('Bạn có chắc muốn xóa các item đã chọn ?'))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        $('[name="Delete"]').click(function ()
+        {
+            if (confirm('Bạn có chắc muốn xóa item ?'))
+            {
+                $(this).closest('tr').children('td').each(function (i, e)
+                {
+                    $(this).find("input.class-delete-all").prop("checked", true);
+                    return true;
+                })
+            }
+            else
+            {
+                return false;
+            }
+
+        })
+
+    </script>
+}

@@ -1,0 +1,124 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@model  string
+
+<canvas id="product-sale-chartOutboundOfCard"></canvas>
+<script type="text/javascript">
+    function createNewDatasetOut(arrayDataOut, labelOut, borderColorValueOut, borderWidthOut) {
+        var objectDatasetOut = {
+            labelOut: labelOut,
+            backgroundColorOut: [],
+            borderColorOut: borderColorValueOut,
+            borderWidthOut: borderWidthOut,
+            dataOut: []
+        };
+
+        var arrBGColorOut = Object.keys(window.chartColors).map(function (key, index) {
+            return window.chartColors[key];
+        });
+
+        for (var i in arrayDataOut) {
+            objectDatasetOut.backgroundColorOut.push(colorRenderOut(arrBGColorOut[i]).alpha(0.8).rgbString());
+            objectDatasetOut.dataOut.push(arrayDataOut[i]);
+        }
+
+        return objectDatasetOut;
+
+    };
+    var colorRenderOut = Chart.helpers.color;
+
+    var responseDataOut = [];
+
+    @if(!string.IsNullOrEmpty(ViewBag.jsonOut))
+    {
+        @Html.Raw("responseDataOut = " + ViewBag.jsonOut + ";");
+    }
+
+    //nếu không có dữ liệu thì tạo dữ liệu rỗng
+    if (responseDataOut.length == 0) {
+        responseDataOut.push({ label: 'Chưa có dữ liệu', data: 100 });
+       
+    }
+    var totalDataOut = 0;
+    var arrayLabelOut = [];
+    var dataPushToDatasetOut = [];
+    
+    for (var i in responseDataOut) {
+        totalDataOut += responseDataOut[i].data;
+    }
+    for (var i in responseDataOut) {
+        var percent = Math.round((responseDataOut[i].data / totalDataOut) * 100);
+
+        arrayLabelOut.push(responseDataOut[i].label + ' (' + percent + '%' + ')');
+        dataPushToDatasetOut.push(responseDataOut[i].data);
+    }
+
+    var arrayDatasetOut = [];
+    var newDatasetOut = createNewDatasetOut(dataPushToDatasetOut, 'Tỷ lệ xuất giữa kỳ theo thẻ', window.chartColors.blue, 0);
+    arrayDatasetOut.push(newDatasetOut);
+
+    var pieChartOutboundCardData = {
+        labels: arrayLabelOut,
+        datasets: []
+    };
+
+    $(document).ready(function () {
+        //Chart.defaults.global.hover.mode = 'nearest';
+        var ctx = document.getElementById("product-sale-chartOutboundOfCard").getContext("2d");
+     
+        //legend: là các chú thích theo màu
+
+        var productOutboundChart = new Chart(ctx, {  
+            type: 'pie',
+            data: pieChartOutboundCardData,
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'left',
+                },
+                title: {
+                    display: false,
+                    text: 'Tỷ lệ xuất giữa kỳ theo thẻ'
+                },
+                animation: {
+                    duration: 1000,
+                    enabled: true,
+                },
+                tooltips: {
+                    enabled: true,
+                    mode: 'single',
+                    callbacks: {
+                        title: function (tooltipItemsOut, dataOut) {
+                            return dataOut.labels[tooltipItemsOut[0].index];
+                        },
+                        label: function (tooltipItemOut, dataOut) {
+                            var multiLabelOut = [];
+                            var productNameOut = responseDataOut[tooltipItemOut.index].label2;
+                            multiLabelOut.push("Tên thẻ: " + productNameOut.substring(0, 60));
+                            var valueOut = dataOut.datasets[tooltipItemOut.datasetIndex].data[tooltipItem.index];
+                            var valueFormatOut = "SL xuất giữa kỳ: " + Number(valueOut).toFixed(0).toString().replace(/\d(?=(?:\d{3})+(?!\d))/g, '$&.');// + 'k / ' + Number(totalData/1000).toFixed(0).toString().replace(/\d(?=(?:\d{3})+(?!\d))/g,'$&.') + 'k';
+                            multiLabelOut.push(valueFormatOut);
+                            return multiLabelOut;
+                        }
+                    }
+                }
+            }
+        });
+        console.log("productTop");
+
+        console.log(productOutboundChart);
+             setTimeout(function() {
+                 for (var i in arrayDatasetOut) {
+                     pieChartOutboundCardData.datasets.push(arrayDatasetOut[i]);
+                }
+                 productOutboundChart.update();
+                //console.log('updated')
+        }, 500);
+        console.log("pieChart");
+        console.log(pieChartOutboundCardData);
+     });
+</script>

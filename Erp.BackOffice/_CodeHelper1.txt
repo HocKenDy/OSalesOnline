@@ -1,0 +1,134 @@
+﻿<div class="row">
+    <div class="col-sm-7">
+    </div>
+    <div class="col-sm-5">
+	</div>
+</div>
+========================================= widget-box ==================================
+<div class="widget-box">
+    <div class="widget-header">
+        <h5 class="widget-title"></h5>
+    </div>
+    <div class="widget-body">
+        <div class="widget-main">
+        </div>
+    </div>
+</div>
+
+
+========================================= widget-box 2 ==================================
+<div class="widget-box widget-color-blue top-5" style="opacity: 1;">
+    <div class="widget-header">
+        <h5 class="widget-title bigger lighter" style="color:white;">
+            <i class="ace-icon fa fa-list-alt"></i>
+            THÔNG TIN ƯU ĐÃI
+        </h5>
+        <div class="widget-toolbar">
+            <a href="#" data-action="collapse">
+                <i class="ace-icon fa fa-chevron-up"></i>
+            </a>
+        </div>
+    </div>
+    <div class="widget-body" style="display: block;">
+        <div class="widget-main clearfix">
+        
+        </div>
+    </div>
+</div>
+========================================= tabbable ==================================
+<div class="tabbable">
+    <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="tab">
+        <li class="active">
+            <a data-toggle="tab" href="#tab1"></a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#tab2"></a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="tab1" class="tab-pane in active">
+        </div>
+        <div id="tab2" class="tab-pane">
+        </div>
+    </div>
+</div>
+========================================= tabbable ==================================
+<div class="widget-container-col ui-sortable" id="widget-container-col-10" style="min-height: 108px;">
+    <div class="widget-box ui-sortable-handle" id="widget-box-10" style="opacity: 1;">
+        <div class="widget-header widget-header-small">
+            <h5 class="widget-title smaller"><i class="fa fa-bars"></i> </h5>
+
+            <div class="widget-toolbar no-border">
+                <ul class="nav nav-tabs" id="myTab">
+                    <li class="active">
+                        <a data-toggle="tab" href="#home" aria-expanded="true"><i class="fa fa-spinner"></i> </a>
+                    </li>
+
+                    <li class="">
+                        <a data-toggle="tab" href="#profile" aria-expanded="false"><i class="fa fa-tasks"></i> </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="widget-body">
+            <div class="widget-main padding-6">
+                <div class="tab-content">
+                    <div id="home" class="tab-pane active">
+                       
+
+                    </div>
+
+                    <div id="profile" class="tab-pane">
+                      
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+====================================== modal =======================================
+<div class="modal" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="modalPaymentLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalPaymentLabel"></h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+                    <i class="ace-icon fa fa-save"></i>
+                    @Wording.Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Buttons -->
+<button type="button" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+<!-- Links -->
+<a data-toggle="modal" href="#myModal">Open Modal</a>
+
+<!-- Other elements -->
+<p data-toggle="modal" data-target="#myModal">Open Modal</p>
+
+<!-- max money -->
+ function textMaxPrice(obj, maxPrice, Payment, evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            var max = parseInt(maxPrice) - parseInt(Payment);
+            var text = obj.value.toString().replace(/\D/g, '');
+            if (parseInt(text)>max) {
+                alert("Nhập số tiền tối đa: " + max);
+                obj.value = max;
+                return false;
+            }
+            else {
+                return true;
+            }
+        }

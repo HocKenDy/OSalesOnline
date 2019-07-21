@@ -1,0 +1,38 @@
+﻿@using Erp.BackOffice.Helpers;
+@model Erp.BackOffice.Sale.Models.RePayPointsDetailViewModel
+
+<tr role="@Model.OrderNo" id="product_item_@Model.OrderNo" data-id="@Model.OrderNo" data-giftid="@Model.GiftId">
+    <td class="text-center">
+        @(Model.OrderNo + 1)
+    </td>
+    <td>
+        <div class="profile-picture" style="padding:0">
+            <a href="@(string.IsNullOrEmpty(Model.Images) ? "/assets/css/images/noimage.gif" : Model.Images)" class="image-link">
+                <img class="imageClass" style="padding-bottom: 4px;" src="@(string.IsNullOrEmpty(Model.Images) ? "/assets/css/images/noimage.gif" :  Model.Images)" />
+            </a>
+        </div>
+    </td>
+    <td>
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].GiftId", Model.GiftId, new { @class = "detail_item_giftId" })
+        @Model.GiftCode - @Model.GiftName
+    </td>
+    <td>
+        @Model.Unit
+    </td>
+    <td>
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].Quantity", Model.Quantity, new { style = "width:50px", @class = "detail_item_qty", autocomplete = "off", data_quantity_inventory = Model.QuantityInInventory })
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].Point", Model.Point, new { @class = "detail_item_points" })
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].TotalPoint", Model.TotalPoint, new { @class = "detail_item_totalpoints" })
+     </td>
+    <td class="detail_item_point_text text-right">
+        @Common.PhanCachHangNgan(Model.Point)
+    </td>
+    <td class="detail_item_total_point_text text-right">
+        @Common.PhanCachHangNgan(Model.TotalPoint)
+    </td>
+    <td class="text-center">
+        <a class="btn-delete-item">
+            <i class="ace-icon fa fa-trash red bigger-120" style="cursor:pointer"></i>
+        </a>
+    </td>
+</tr>

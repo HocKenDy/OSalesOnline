@@ -1,0 +1,282 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Account.Models
+@using GridMvc.Html
+@model CustomerViewModel
+
+@{
+    //Model.Type = GridColumnCategoryValue(Model.Type, "ContractType").ToString();
+    //Model.InfoPartyAViewModel.Position = GridColumnCategoryValue(Model.InfoPartyAViewModel.Position, "position").ToString();
+    ViewBag.Title = "Chi tiết khách hàng";
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Customer",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+
+}
+@{
+    var ser = ViewBag.AccumulatedPointFromSer;
+    var pro = ViewBag.AccumulatedPointFromPro;
+}
+
+
+<input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+
+
+@if (ViewBag.InfoDetail == InfoDetailCustomer.Details || ViewBag.InfoDetail == null)
+{
+    <div class="col-sm-8">
+        <div class="col-sm-12 no-padding">
+            <div class="tabbable">
+                <div class="widget-box">
+                    <div class="widget-header" style="text-align:center;">
+                        <h5 class="widget-title blue ace-icon fa fa-info bigger-120"> Thông tin chi tiết</h5>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <div class="detail-view">
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Code, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Name, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Phone, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Email, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Note, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Birthday, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.GenderName, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Address, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.WardName, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.DistrictName, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.ProvinceName, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.MemberCardTypeName, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.Point, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+
+                                <div class="row control-group">
+                                    <div class="col-sm-3 control-label"><label>Điểm tích lũy từ DV</label></div><div class="col-sm-9 control-value" style="">@ser</div>
+                                </div>
+                                <div class="row control-group">
+                                    <div class="col-sm-3 control-label"><label>Điểm tích lũy từ SP</label></div><div class="col-sm-9 control-value" style="">@pro</div>
+                                </div>
+
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.PaidPoint, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                                <div class="row control-group">
+                                    @Html.DetailViewItemFor2(model => model.RemainingPoint, null, null, "col-sm-3", "col-sm-9")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="row" style="text-align:center">
+            <div class="col-xs-12">
+                <div class="widget-box">
+                    <div class="widget-body">
+                        <div class="widget-main" style="background: #f7f7f7;">
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <img id="avatar" alt="" style="width:130px;height:130px;border-radius:100%;border:1px solid #ccc" />
+                                </div>
+                                <div class="col-sm-7">
+                                    <div style="color:#337ab7;border-bottom:3px solid" class="top-20"><h3><b>@Model.Name</b></h3></div>
+                                    <div style="color:#337ab7">Mã KH: @Model.Code</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row top-10">
+            <div class="col-xs-12">
+                <div class="widget-box">
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <div class="row">
+                                <div class="alert alert-warning top-10">
+                                    <p>
+                                        <b>
+                                            MÃ THẺ:
+                                            @if (string.IsNullOrEmpty(Model.CardCode))
+                                            {
+                                            <span class="red">chưa cấp thẻ</span>
+                                            }
+                                            else
+                                            {
+                                           // <span class="blue">@Model.CardCode</span><a style="margin-left:20px" onclick="OpenPopup('@Url.Action("Detail", "MemberCard", new { area = "Sale", IsPopup = true, Id = Model.MemberCardId })', 'Chi tiết thẻ', 0, 0)"> <i class="fa fa-search"></i> xem chi tiết</a>
+                                            }
+                                        </b>
+                                    </p>
+                                    <p><b>NGÀY CẤP THẺ: <span class="green">@string.Format("{0: dd/MM/yyyy HH:mm}", Model.DateOfIssue)</span></b></p>
+                                    @if (string.IsNullOrEmpty(Model.CardCode))
+                                    {
+                                    <p class="top-10">
+                                        <a class="btn btn-sm btn-white btn-primary" onclick="OpenPopup('@Url.Action("Create", "MemberCard", new { area = "Sale", IsPopup = true, CustomerId = Model.Id })', 'Cấp thẻ', 0, 0)">
+                                            <i class="ace-icon fa fa-credit-card"></i>
+                                            Cấp thẻ
+                                        </a>
+                                    </p>
+                                    }
+                                    else
+                                    {
+                                    <p class="top-10">
+                                        <img src="@("/files/membercardtype/" + Model.MemberCardTypeImage)" style="max-width:100%" />
+                                    </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (ViewBag.InfoDetail == InfoDetailCustomer.TransitionHistory)
+{
+    <div class="col-sm-12 no-padding">
+        <div class="tabbable">
+            <div class="widget-box">
+                <div class="widget-header" style="text-align:center;">
+                    <h5 class="widget-title blue ace-icon fa fa-history bigger-120"> Lịch sử giao dịch</h5>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <div>
+                            @{Html.RenderAction("IndexByCustomer", "ProductInvoice", new { area = "Sale", CustomerId = Model.Id });}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                                }
+@if (ViewBag.InfoDetail == InfoDetailCustomer.Contact)
+{
+    <div class="col-sm-12 no-padding">
+        <div class="tabbable">
+            <div class="widget-box">
+                <div class="widget-header" style="text-align:center;">
+                    <h5 class="widget-title blue ace-icon fa fa-user bigger-120"> Thông tin liên hệ</h5>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <div>
+                            @{Html.RenderAction("ContactList", "Contact", new { area = "Account", CustomerId = Model.Id });}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                                }
+@if (ViewBag.InfoDetail == InfoDetailCustomer.InfoCar)
+{
+    <div class="col-sm-12 no-padding">
+        <div class="tabbable">
+            <div class="widget-box">
+                <div class="widget-header" style="text-align:center;">
+                    <h5 class="widget-title blue ace-icon fa fa-car bigger-120"> Thông tin xe</h5>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <div>
+                            @{Html.RenderAction("Index", "Cars", new { area = "Sale", CustomerId = Model.Id });}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                                }
+@if (ViewBag.InfoDetail == InfoDetailCustomer.RePayHistory)
+{
+    <div class="col-sm-12 no-padding">
+        <div class="tabbable">
+            <div class="widget-box">
+                <div class="widget-header" style="text-align:center;">
+                    <h5 class="widget-title blue ace-icon fa fa-history bigger-120"> Lịch sử trả điểm</h5>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <div class="">
+                            @{Html.RenderAction("IndexByCustomer", "RePayPoints", new { area = "Sale", CustomerId = Model.Id });}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                                }
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        //truyền từ action create của controller qua khi thực hiện submit và return về lại view create, để nhận biết là được gọi theo dạng popup
+        var closePopup = '@ViewBag.closePopup';
+        $(document).ready(function ()
+        {
+            //nếu là được gọi theo dạng popup từ form khác thì chạy đoạn code bên dưới
+            if (closePopup != '')
+            {
+                var option = '<option value="@Model.Id" >@Model.Name</option>';
+                //tên funtion có thể khác theo từng công việc riêng (đây chỉ là mẫu khi thêm mới sẽ gọi lại)
+                window.parent.ClosePopupAndAppendSelectInfoPartyA(option);
+            }
+        });
+        function deleteCar(id)
+        {
+            if (confirm('Bạn có chắc muốn xóa xe?'))
+            {
+                ShowLoading();
+                $.post('/Cars/DeleteJS', { id: id }, function (res)
+                {
+                    if (res == 'success')
+                    {
+                        location.reload();
+                    }
+                    else
+                    {
+                        alertPopup('Xóa lỗi', '', 'error');
+                    }
+                });
+            }
+        };
+    </script>
+}

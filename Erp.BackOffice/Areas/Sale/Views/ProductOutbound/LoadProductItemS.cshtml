@@ -1,0 +1,24 @@
+﻿@model Erp.BackOffice.Sale.Models.ProductOutboundDetailViewModel
+
+<tr class="detail_item" role="@(Model.OrderNo + 1)" id="product_item_@Model.OrderNo" data-id="@Model.OrderNo" data-productid="@Model.ProductId" style="background: #62A8D1; color:#fff; font-weight:bold">
+    <td class="text-center">
+        <span>@(Model.OrderNo + 1)</span>
+    </td>
+    <td class="has-error ">
+        @Model.ProductCode - @Model.ProductName
+    </td>
+    <td class="has-error">
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].ProductId", Model.ProductId, new { @class = "detail_item_id" })
+        @Html.Hidden("DetailList[" + Model.OrderNo + "].Unit", Model.ProductId, new { @class= "detail_item_unit" })
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].Quantity", Model.Quantity, new { style = "width:50px", @class = "detail_item_qty", autocomplete = "off", type="number",min = "0", data_quantity_inventory = Model.QuantityInInventory })
+    </td>
+    <td class="has-error">
+        @Html.TextBox("DetailList[" + Model.OrderNo + "].Price", Model.Price, new { style = "width:100%", @class = "detail_item_price", autocomplete = "off" })
+    </td>
+    <td class="detail_item_total">@Model.Price</td>
+    <td class="text-center">
+        <a class="btn-delete-item">
+            <i class="ace-icon fa fa-trash red bigger-120" style="cursor:pointer"></i>
+        </a>
+    </td>
+</tr> 

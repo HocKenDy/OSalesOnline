@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Erp.BackOffice", "Erp.BackOffice\Erp.BackOffice.csproj", "{A6C9CE1F-B05C-4573-B1D9-1A235261D789}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Erp.Domain", "Erp.Domain\Erp.Domain.csproj", "{78D2D0EC-638B-4F8A-AAA9-627602B7BD81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Erp.Domain.Account", "Erp.Domain.Account\Erp.Domain.Account.csproj", "{2912E5ED-9F93-4266-95D5-42E40630F577}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Erp.Domain.Crm", "Erp.Domain.Crm\Erp.Domain.Crm.csproj", "{E28F06E9-6D96-4511-A9B5-E703286F543E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Erp.Domain.Sale", "Erp.Domain.Sale\Erp.Domain.Sale.csproj", "{E2AEA58B-AEBD-4A21-BE4D-EF9BBA03A907}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "qts.webapp.backend.domain", "qts.webapp.backend.domain\qts.webapp.backend.domain.csproj", "{CB156CA3-368A-4F56-8DF9-C06E1044FDCC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6C9CE1F-B05C-4573-B1D9-1A235261D789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6C9CE1F-B05C-4573-B1D9-1A235261D789}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6C9CE1F-B05C-4573-B1D9-1A235261D789}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6C9CE1F-B05C-4573-B1D9-1A235261D789}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78D2D0EC-638B-4F8A-AAA9-627602B7BD81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78D2D0EC-638B-4F8A-AAA9-627602B7BD81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78D2D0EC-638B-4F8A-AAA9-627602B7BD81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78D2D0EC-638B-4F8A-AAA9-627602B7BD81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2912E5ED-9F93-4266-95D5-42E40630F577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2912E5ED-9F93-4266-95D5-42E40630F577}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2912E5ED-9F93-4266-95D5-42E40630F577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2912E5ED-9F93-4266-95D5-42E40630F577}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E28F06E9-6D96-4511-A9B5-E703286F543E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E28F06E9-6D96-4511-A9B5-E703286F543E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E28F06E9-6D96-4511-A9B5-E703286F543E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E28F06E9-6D96-4511-A9B5-E703286F543E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2AEA58B-AEBD-4A21-BE4D-EF9BBA03A907}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2AEA58B-AEBD-4A21-BE4D-EF9BBA03A907}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2AEA58B-AEBD-4A21-BE4D-EF9BBA03A907}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2AEA58B-AEBD-4A21-BE4D-EF9BBA03A907}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB156CA3-368A-4F56-8DF9-C06E1044FDCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB156CA3-368A-4F56-8DF9-C06E1044FDCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB156CA3-368A-4F56-8DF9-C06E1044FDCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB156CA3-368A-4F56-8DF9-C06E1044FDCC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

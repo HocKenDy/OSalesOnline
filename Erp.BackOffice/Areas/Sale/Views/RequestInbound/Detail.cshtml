@@ -1,0 +1,604 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Account.Models
+@using Erp.Domain.Entities
+@model RequestInboundViewModel
+
+@{
+    ViewBag.Title = "Quy trình xử lý yêu cầu nhập kho";
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+
+    IEnumerable<SelectListItem> staffList = (IEnumerable<SelectListItem>)ViewBag.staffList;
+
+    IEnumerable<ProductViewModel> productList = (IEnumerable<ProductViewModel>)ViewBag.productList;
+
+    ProductInboundViewModel productInbound = (ProductInboundViewModel)ViewBag.productInbound;
+    ProductOutboundViewModel productOutbound = (ProductOutboundViewModel)ViewBag.productOutbound;
+    User user = (User)ViewBag.User;
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "RequestInbound",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+    <style>
+        .tab-content {
+            border: 0px solid #C5D0DC;
+            padding: 0px 0px;
+            border-left: 0px solid #c5d0dc;
+            border-right: 0px solid #c5d0dc;
+            border-bottom: 0px solid #c5d0dc;
+        }
+
+        .header {
+            border-bottom: 0px solid #CCC !important;
+        }
+    </style>
+}
+
+@helper GridColumnStatusName(string status)
+{
+    switch (status)
+    {
+        case "new":
+            <span class="label label-info pull-left" style="margin-right:5px">@Wording.RequestInboundStatus_new</span>
+            break;
+        case "inprogress":
+        <span class="label label-warning pull-left" style="margin-right:5px">@Wording.RequestInboundStatus_inprogress</span>
+            break;
+        case "wait_shipping":
+        <span class="label label-warning pull-left" style="margin-right:5px">@Wording.RequestInboundStatus_wait_shipping</span>
+            break;
+        case "shipping":
+        <span class="label label-warning pull-left" style="margin-right:5px">@Wording.RequestInboundStatus_shipping</span>
+            break;
+        case "inbound_complete":
+        <span class="label label-success pull-left" style="margin-right:5px">@Wording.RequestInboundStatus_inbound_complete</span>
+            break;
+        case "cancel":
+        <span class="label label-danger pull-left" style="margin-right:5px">@Wording.RequestInboundStatus_cancel</span>
+            break;
+        case "refure":
+        <span class="label label-danger">@Wording.RequestInboundStatus_refure</span>
+            break;
+    }
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.CreatedUserName)
+    @Html.HiddenFor(model => model.Status)
+    @Html.HiddenFor(model => model.Id)
+    <div class="row">
+        <div class="col-sm-8">
+            <div id="fuelux-wizard-container" class="no-steps-container">
+                <div id="winzardtitle">
+                    <ul class="steps" style="margin-left: 0">
+                        <li data-step="1" class="" id="step1">
+                            <span class="step"><i class="ace-icon fa fa-cubes"></i></span>
+                            <span class="title">1. Yêu cầu</span>
+                        </li>
+                        @if (Model.Status == "refure")
+                       {
+                        <li data-step="2" class="" id="step2">
+                            <span class="step"><i class="ace-icon fa fa-ban"></i></span>
+                            <span class="title">2. Yêu cầu đã bị từ chối</span>
+                        </li>
+                       }
+                       else if (Model.Status == "cancel")
+                       {
+                        <li data-step="2" class="" id="step2">
+                            <span class="step"><i class="ace-icon fa fa-times"></i></span>
+                            <span class="title">2. Đã hủy đơn yêu cầu</span>
+                        </li>
+                       }
+                       else
+                       {
+                        <li data-step="2" class="" id="step2">
+                            <span class="step"><i class="ace-icon fa fa-hourglass-end"></i></span>
+                            <span class="title">2. Đang xử lý</span>
+                        </li>
+
+                        <li data-step="3" class="" id="step3">
+                            <span class="step"><i class="ace-icon fa fa-superpowers"></i></span>
+                            <span class="title">3. Chờ giao hàng</span>
+                        </li>
+                        <li data-step="4" class="" id="step4">
+                            <span class="step"><i class="ace-icon fa fa-truck"></i></span>
+                            <span class="title">4. Đang giao hàng</span>
+                        </li>
+                        <li data-step="5" class="" id="step5">
+                            <span class="step"><i class="ace-icon fa fa-university"></i></span>
+                            <span class="title">5. Đã nhập kho</span>
+                        </li>
+                       }
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane active clearfix" id="content1">
+                        <div class="table-responsive top-15">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="detail-th-orderno">STT</th>
+                                        <th class="" style="width:60px">Ảnh</th>
+                                        <th class="detail-th-product-name">Tên sản phẩm</th>
+
+
+                                        <th class="detail-th-quantity">Số lượng</th>
+                                        <th class="detail-th-price">Đơn giá</th>
+                                        <th class="detail-th-total">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="detailList">
+                                    @foreach (var i in Model.GroupProduct)
+                                    {
+                                        if (!string.IsNullOrEmpty(i.ProductGroup))
+                                        {
+                                            var count = Model.DetailList.Where(x => x.ProductGroup == i.ProductGroup).ToList();
+                                            decimal? subTotal1 = count.Sum(x => (x.Quantity) * (x.Price));
+                                            var thanh_tien1 = subTotal1;
+                                    <tr data-type="" data-id="" style="background-color:#eee; font-weight:bold">
+                                        <td colspan="3">@i.ProductGroup : @i.ProductGroupName</td>
+                                        <td class="text-right">@Common.PhanCachHangNgan(count.Sum(x => x.Quantity))</td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right">@Common.PhanCachHangNgan(thanh_tien1)</td>
+                                    </tr>
+                                        }
+                                        int index = 0;
+                                        foreach (var item in Model.DetailList.Where(x => x.ProductGroup == i.ProductGroup))
+                                        {
+                                            index++;
+                                            decimal? subTotal = (item.Quantity * item.Price.Value);
+                                    <tr data-type="" data-id="">
+                                        <td class="text-center">@(index)</td>
+                                        <td class="text-center" style="padding:3px !important">
+                                            <img src="@item.Image_Name" title="@item.ProductName" id="" style="width:60px;height:70px" />
+                                        </td>
+                                        <td class="has-error">
+                                            <p><b>@item.CategoryCode</b></p><p>
+                                                @(item.ProductCode) - @(item.ProductName)
+                                            </p>
+                                        </td>
+
+                                        <td class="text-right">@item.Quantity</td>
+                                        <td class="text-right detail-product-price">@Common.PhanCachHangNgan(item.Price)</td>
+
+                                        <td class="detail_item_total text-right">
+                                            @Common.PhanCachHangNgan(subTotal)
+                                        </td>
+                                    </tr>
+                                        }
+
+                                    }
+                                    <tr data-type="" data-id="" style="background-color:#eee; font-weight:bold">
+                                        <td colspan="3"></td>
+                                        <td class="text-right">@Common.PhanCachHangNgan(Model.DetailList.Sum(x => x.Quantity))</td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right">@Common.PhanCachHangNgan(Model.DetailList.Sum(x => (x.Quantity)*(x.Price)))</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane clearfix" id="content2">
+
+                    </div>
+
+                    <div class="tab-pane" id="content3">
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-sm-4" style="border-left: 1px solid #dedede !important;">
+            @if (Model.Status=="refure")
+            {
+                <div class="widget-box transparent ui-sortable-handle" id="widget-box-12">
+                    <div class="widget-header">
+                        <h4 class="widget-title lighter" style="color:#428BCA">
+                            <i class="ace-icon fa fa-ban"></i>
+                            Yêu cầu bị từ chối (@Model.ModifiedDate.Value.ToString("dd/MM/yyyy HH:mm"))
+                        </h4>
+
+                        <div class="widget-toolbar no-border">
+                            @*<a href="#" data-rel="tooltip" title="" data-placement="bottom" data-original-title="In phiếu nhập kho">
+                                <i class="ace-icon fa fa-print"></i>
+                            </a>
+
+                            <a href="#" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Xem chi tiết phiếu nhập kho">
+                                <i class="ace-icon fa fa-eye"></i>
+                            </a>*@
+
+                            <a href="#" data-action="collapse" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Thu gọn thông tin">
+                                <i class="ace-icon fa fa-chevron-up"></i>
+                            </a>
+
+                            <a href="#" data-action="close" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Tắt thông tin">
+                                <i class="ace-icon fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="widget-body">
+                        <div class="widget-main padding-6 no-padding-left no-padding-right">
+                            <div class="top-15" style="margin-left:30px">
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-comments-o"></i> Lý do:</span> @Model.CancelReason</p>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+            @if (productInbound != null && productInbound.Id>0)
+            {
+                <div class="widget-box transparent ui-sortable-handle" id="widget-box-12">
+                    <div class="widget-header">
+                        <h4 class="widget-title lighter" style="color:#428BCA">
+                            <i class="ace-icon fa  fa-arrow-circle-o-down"></i>
+                            Phiếu nhập: <span style="color:#DD5A43">@productInbound.Code</span>  (@productInbound.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm"))
+                        </h4>
+
+                        <div class="widget-toolbar no-border">
+                            <a onclick="OpenPopup('/ProductInbound/Detail/?Id=@(Model.InboundId)&IsPopup=true', 'Thông tin phiếu nhập', 500, 500)" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Xem chi tiết phiếu nhập kho">
+                                <i class="ace-icon fa fa-eye"></i>
+                            </a>
+                            <a href="@Url.Action("Print", "ProductInbound", new { area = "Sale", Id = productInbound.Id })" target="_blank" data-rel="tooltip" title="" data-placement="bottom" data-original-title="In phiếu nhập kho">
+                                <i class="ace-icon fa fa-print"></i>
+                            </a>
+                            <a href="#" data-action="collapse" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Thu gọn thông tin phiếu nhập kho">
+                                <i class="ace-icon fa fa-chevron-up"></i>
+                            </a>
+
+                            <a href="#" data-action="close" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Tắt thông tin phiếu nhập kho">
+                                <i class="ace-icon fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="widget-body">
+                        <div class="widget-main padding-6 no-padding-left no-padding-right">
+                            <div class="top-15"style="margin-left:30px">
+                               
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-user"></i> Người lập phiếu:</span> @productInbound.CreatedUserName</p>
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-money"></i> Tổng tiền phiếu nhập:</span> <span style="color:#DD5A43;font-weight:bold">@Common.PhanCachHangNgan2(productInbound.TotalAmount)</span></p>
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-comments-o"></i> Ghi chú:</span> @productInbound.Note</p>
+                                 <p></p>
+                              
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+            @if (productOutbound.Id != null&&productOutbound.Id>0&&!string.IsNullOrEmpty(Model.ShipName))
+            {
+                <div class="widget-box transparent ui-sortable-handle" id="widget-box-12">
+                    <div class="widget-header">
+                        <h4 class="widget-title lighter" style="color:#428BCA">
+                            <i class="ace-icon fa  fa-truck"></i>
+                            Giao hàng cho đơn vị vận chuyển (@Model.ModifiedDate.Value.ToString("dd/MM/yyyy HH:mm"))
+                        </h4>
+
+                        <div class="widget-toolbar no-border">
+                            @*<a href="#" data-rel="tooltip" title="" data-placement="bottom" data-original-title="In phiếu yêu cầu nhập kho">
+                                <i class="ace-icon fa fa-print"></i>
+                            </a>
+
+                            <a href="#" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Xem chi tiết phiếu yêu cầu nhập kho">
+                                <i class="ace-icon fa fa-eye"></i>
+                            </a>*@
+
+                            <a href="#" data-action="collapse" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Thu gọn thông tin giao hàng">
+                                <i class="ace-icon fa fa-chevron-up"></i>
+                            </a>
+
+                            <a href="#" data-action="close" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Tắt thông tin giao hàng">
+                                <i class="ace-icon fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="widget-body">
+                        <div class="widget-main padding-6 no-padding-left no-padding-right">
+                            <div class="top-15" style="margin-left:30px">
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-address-card-o"></i> Tên đơn vị vận chuyển:</span> @Model.ShipName</p>
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-phone"></i> SĐT liên hệ:</span> @Model.ShipPhone</p>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+            @if (productOutbound != null && productOutbound.Id>0)
+            {
+                <div class="widget-box transparent ui-sortable-handle" id="widget-box-12">
+                    <div class="widget-header">
+                        <h4 class="widget-title lighter" style="color:#428BCA">
+                            <i class="ace-icon fa  fa-arrow-circle-o-up"></i>
+                            Phiếu xuất: <span style="color:#DD5A43">@productOutbound.Code</span> (@productOutbound.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm"))
+                        </h4>
+
+                        <div class="widget-toolbar no-border">
+                            <a onclick="OpenPopup('/ProductOutbound/Detail/?Id=@(Model.OutboundId)&IsPopup=true', 'Thông tin phiếu xuất', 500, 500)" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Xem chi tiết phiếu xuất">
+                                <i class="ace-icon fa fa-eye"></i>
+                            </a>
+                            <a href="@Url.Action("Print","ProductOutbound", new {area="Sale", Id = productOutbound.Id })" target="_blank" data-rel="tooltip" title="" data-placement="bottom" data-original-title="In phiếu xuất">
+                                <i class="ace-icon fa fa-print"></i>
+                            </a>
+
+                           
+
+                            <a href="#" data-action="collapse" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Thu gọn thông tin phiếu xuất">
+                                <i class="ace-icon fa fa-chevron-up"></i>
+                            </a>
+
+                            <a href="#" data-action="close" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Tắt thông tin phiếu xuất">
+                                <i class="ace-icon fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="widget-body">
+                        <div class="widget-main padding-6 no-padding-left no-padding-right">
+                            <div class="top-15" style="margin-left:30px">
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-university"></i> Kho nguồn:</span> @productOutbound.WarehouseSourceName</p>
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-home"></i> Chi nhánh:</span> @productOutbound.BranchName</p>
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-user"></i> Người lập phiếu:</span> @productOutbound.CreatedUserName</p>
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-money"></i> Tổng tiền phiếu xuất: </span><span style="color:#DD5A43;font-weight:bold">@Common.PhanCachHangNgan2(productOutbound.TotalAmount)</span></p>
+                                <p><span style="font-weight:bold"><i class="ace-icon fa fa-comments-o"></i> Ghi chú:</span> @productOutbound.Note</p>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+
+            <div class="widget-box transparent ui-sortable-handle" id="widget-box-12">
+                <div class="widget-header">
+                    <h4 class="widget-title lighter" style="color:#428BCA">
+                        <i class="ace-icon fa fa-recycle"></i>
+                        Yêu cầu: <span style="color:#DD5A43">@Model.Code</span> (@Model.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm"))
+                    </h4>
+
+                    <div class="widget-toolbar no-border">
+                        <a href="@Url.Action("Print", "RequestInbound", new { area = "Sale", Id = Model.Id })" target="_blank" data-rel="tooltip" title="" data-placement="bottom" data-original-title="In phiếu yêu cầu nhập kho">
+                            <i class="ace-icon fa fa-print"></i>
+                        </a>
+
+                        @*<a href="#" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Xem chi tiết phiếu yêu cầu nhập kho">
+                            <i class="ace-icon fa fa-eye"></i>
+                        </a>*@
+
+                        <a href="#" data-action="collapse" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Thu gọn thông tin phiếu yêu cầu">
+                            <i class="ace-icon fa fa-chevron-up"></i>
+                        </a>
+
+                        <a href="#" data-action="close" data-rel="tooltip" title="" data-placement="bottom" data-original-title="Tắt thông tin phiếu yêu cầu">
+                            <i class="ace-icon fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="widget-body">
+                    <div class="widget-main padding-6 no-padding-left no-padding-right">
+                        <div class="top-15" style="margin-left:30px">
+                            <p><span style="font-weight:bold"><i class="ace-icon fa fa-university"></i> Kho yêu cầu:</span> @Model.WarehouseDestinationName</p>
+                            <p><span style="font-weight:bold"><i class="ace-icon fa fa-home"></i> Chi nhánh:</span> @Model.BranchName</p>
+                            <p><span style="font-weight:bold"><i class="ace-icon fa fa-user"></i> Người lập phiếu:</span> @Model.CreatedUserName</p>
+                            <p><span style="font-weight:bold"><i class="ace-icon fa fa-money"></i> Tổng tiền: </span><span style="color:#DD5A43;font-weight:bold">@Common.PhanCachHangNgan2(Model.TotalAmount)</span></p>
+                            <p><span style="font-weight:bold"><i class="ace-icon fa fa-comments-o"></i> Ghi chú:</span> @Model.Note</p>
+                            <p></p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @using (Html.BeginButtonContainer(pageSetting))
+    {
+    if (Model.Status == "new")
+    {
+        if (Model.CreatedUserId == WebSecurity.CurrentUserId)
+        { 
+            if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Cancel", "RequestInbound", "Sale"))
+            {
+                <a class="btn btn-white btn-sm btn-danger" href="@Url.Action("Cancel", "RequestInbound", new { Id = Model.Id })">
+                    <i class="glyphicon glyphicon-remove "></i>
+                    @Wording.RequestInboundStatus_cancel
+                </a>
+            }
+        }
+        if(user.UserTypeId==1||user.BranchId!=Model.BranchId)
+        { 
+            if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Refure", "RequestInbound", "Sale"))
+            {
+                <a name="Edit" class="btn btn-white btn-sm btn-danger"
+                   onclick="OpenPopup('@Url.Action("Refure", "RequestInbound", new { Id = Model.Id })', '@Wording.Reason', 500, 300)">
+                    <i class="fa fa-ban"></i>
+                    @Wording.StatusSalaryAdvance_Refure
+                </a>
+            }
+        }
+
+    }
+     if(user.UserTypeId==1||user.BranchId!=Model.BranchId)
+        { 
+            if (Model.Status == "new" || Model.Status == "inprogress")
+            {
+                    if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("CreateFromRequest", "ProductOutbound", "Sale"))
+                    {
+                        <a class="btn btn-white btn-sm btn-success"
+                           href="@Url.Action("CreateFromRequest", "ProductOutbound", new { RequestInboundId = Model.Id })">
+                            @if (Model.Status == "new")
+                            {
+                                <i class="fa fa-hourglass-end"></i>
+                                @Wording.RequestInboundStatus_inprogress
+                            }
+                            else
+                            {
+                                <i class="fa fa-plus"></i>
+                                @Wording.CreateOutbound
+                            }
+                        </a>
+                    }
+            }
+            if (Model.Status == "wait_shipping")
+            {
+                if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Shipping", "RequestInbound", "Sale"))
+                {
+                    <a name="Edit" class="btn btn-white btn-sm btn-success"
+                       onclick="OpenPopup('@Url.Action("Shipping", "RequestInbound", new { Id = Model.Id })', 'Thông tin đơn vị vận chuyển hàng', 500, 300)">
+                        <i class="fa fa-truck"></i>
+                        @Wording.RequestInboundStatus_shipping
+                    </a>
+                    }
+                 }
+     }
+    if (Model.Status == "shipping")
+    {
+        if (user.BranchId == Model.BranchId)
+        { 
+            if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("CreateFromOutbound", "ProductInbound", "Sale"))
+            {
+                <a class="btn btn-primary btn-white btn-sm" onclick="OpenPopup('@Url.Action("CreateFromOutbound", "ProductInbound", new {area="Sale",Id=Model.Id, IsPopup = true })', '', 500, 500)">
+                    <i class="ace-icon fa fa-university "></i>
+                    Nhập kho
+                </a>
+            }
+        }
+    }
+    if (Model.Status == "cancel")
+    {
+         if (user.BranchId == Model.BranchId)
+        { 
+            if (Erp.BackOffice.Filters.SecurityFilter.AccessRight("Create", "RequestInbound", "Sale"))
+            {
+                    <a class="btn btn-primary btn-white btn-sm" href="@Url.Action("Create", "RequestInbound" , new { id=Model.Id })">
+                        <i class="ace-icon fa fa-edit "></i>
+                        Chỉnh sửa
+                    </a>
+                }
+            }
+        }
+       
+    }
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#ReceiptViewModel_Amount').numberFormat();
+            $('.create_payment').show();
+            var modelNextDayPayment = '@DateTime.Now.AddDays(30).ToString("dd/MM/yyyy")';
+            $('#NextPaymentDate').val(modelNextDayPayment);
+            $('#AmountRemain').val('0');
+
+            $('#mask-ReceiptViewModel_Amount').focus(function(){
+                $(this).select();
+            });
+
+            $('#mask-ReceiptViewModel_Amount').blur(function () {
+
+                var totalAmount = @Model.TotalAmount;
+                var amount = parseFloat($('#ReceiptViewModel_Amount').val());
+                if (amount < totalAmount) {
+                    $('.NextPaymentDate-container').show();
+                    $('#AmountRemain').val(currencyFormat(totalAmount - amount));
+                }
+                else
+                    $('.NextPaymentDate-container').hide();
+            });
+        });
+
+        //mở, đóng trang chọn ca làm việc
+        function addShifts() {
+            //var materialSelected = $("#MaterialId").find("option:selected");
+            $("#PanelShifts").removeClass("hidden");
+            $("#PanelShifts").show();
+            $('[name="WorkSchedules_Shifts"]').removeClass("hidden");
+            $('[name="WorkSchedules_Shifts"]').show();
+            $('.create_payment').hide();
+        }
+        function AllowClose() {
+            $("#PanelShifts").addClass("hidden");
+            $('[name="WorkSchedules_Shifts"]').addClass("hidden");
+            $('.create_payment').show();
+        }
+        function ClosePopupAndRedirectToURL(url) {
+            ClosePopup(true);
+            location.href = url;
+        }
+        function ClosePopupAndDoSomething() {
+            ClosePopup(true);
+            ShowLoading();
+        }
+        $(document).ready(function () {
+            $('[data-rel="tooltip"]').tooltip({ container: 'body' });
+        });
+        //var step = 1;
+        if ($('#Status').val() == 'new') {
+            groupStep(1);
+        }
+        else if ($('#Status').val() == 'inprogress'||$('#Status').val() == 'refure'||$('#Status').val() == 'cancel') {
+            groupStep(2); 
+        }
+        else if ($('#Status').val() == 'wait_shipping') {
+            groupStep(3);
+        }
+        else if ($('#Status').val() == 'shipping') {
+            groupStep(4);
+        }
+        else if ($('#Status').val() == 'inbound_complete') {
+            groupStep(5);
+        }
+        function groupStep(i) {
+            ShowLoading();
+            var n = i - 1;
+            var m = i + 1;
+            for (var u = i; u > 0; u--) {
+                //$('#step' + u).removeClass('active');
+                $('#step' + u).addClass('active');
+                //$('#content' + u).removeClass('active');
+            }
+            //$('#step' + i).addClass('active');
+            //$('#content' + i).addClass('active');
+            HideLoading();
+        }
+        //function loadOutbound() {
+          
+        //    ShowLoading();
+        //    var Id = $('input[name="Id"]').val();
+        //    //var aDateTime = $('input[name="aDateTime"]').val();
+        //    //var retDateTime = $('input[name="retDateTime"]').val();
+        //    $.get('/ProductOutbound/CreateFromRequest', { RequestInboundId: Id }, function (res) {
+        //        var $html_response = $('<div>' + res + '</div>');
+        //        $('#content2').html($html_response.find('.box').html());
+        //        $tr_template = $html_response.find('.box #Model tr:first-child');
+              
+        //    });
+        //    $('#content2').addClass('active');
+        //    $('#content1').removeClass('active');
+        //    HideLoading();
+        //}
+    </script>
+}

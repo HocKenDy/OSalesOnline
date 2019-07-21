@@ -1,0 +1,62 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model CarLineViewModel
+
+@{
+    ViewBag.Title = Wording.PageCreate_CarLine;
+    Layout = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower().Equals("true") ? StringExtention.LAYOUT_POPUP : StringExtention.LAYOUT_ADMIN;
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = StringExtention.MODULE_CARLINE,
+        ActionName = StringExtention.ACTION_CREATE,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+    @Html.ScriptTop_DatePicker()
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, pageSetting.ActionName, pageSetting.ModuleName, null, FormMethod.Post, new { @class = "form-horizontal", showButton = true }))
+{
+    @Html.ValidationSummary(true)
+
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+    @Html.CustomDropDownListFor(model => model.ManufacturerCar, SelectListHelper.GetSelectList_Category("ManufacturerCar", Model.ManufacturerCar, string.Format("- {0} -", Wording.ManufacturerCar)), WidthType.span12)
+    @Html.CustomTextboxFor(model => model.Name, null, null, WidthType.span12)
+    @Html.CustomTextAreaFor(model => model.Note, null, WidthType.span12)
+
+
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+
+        });
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_DatePicker(StringExtention.FORMAT_DATE)
+    @Html.ScriptBottom_ChosenStyle()
+}

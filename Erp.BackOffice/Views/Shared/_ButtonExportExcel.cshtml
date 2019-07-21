@@ -1,0 +1,49 @@
+﻿@{
+    List<string> arraySearch = (List<string>)ViewData["arraySearch"];
+    string urlPost = ViewData["urlPost"].ToString();
+    var jsValue = "";
+    var dataPost = "";
+    if (arraySearch != null && arraySearch.Count() > 0)
+    {
+        foreach (var item in arraySearch)
+        {
+            jsValue += string.Format("var {0} = $('#{0}').val();\n\t", item);
+            dataPost += string.Format("{0}: {0},\n", item);
+        }
+    }
+}
+<button class="btn btn-success btn-mini" type="button" value="Export" onclick="exportExcel()">
+    <i class="ace-icon fa fa-file-excel-o"></i>
+    Xuất excel
+</button>
+<script>
+    function exportExcel() {
+      @Html.Raw(jsValue)
+        postExportExcel('@urlPost',
+        {
+                @Html.Raw(dataPost)
+        });
+    }
+    function postExportExcel(path, params, method) {
+        method = method || "post"; // Set method to post by default if not specified.
+
+        // The rest of this code assumes you are not using a library.
+        // It can be made less wordy if you use one.
+        var form = document.createElement("form");
+        form.setAttribute("method", method);
+        form.setAttribute("action", path);
+        form.setAttribute("target", "_blank");
+
+        for (var key in params) {
+            if (params.hasOwnProperty(key)) {
+                var hiddenField = document.createElement("input");
+                hiddenField.setAttribute("type", "hidden");
+                hiddenField.setAttribute("name", key);
+                hiddenField.setAttribute("value", params[key]);
+                form.appendChild(hiddenField);
+            }
+        }
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>

@@ -1,0 +1,173 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Account.Models
+@model List<ProductViewModel>
+@{
+    Layout = null;
+}
+
+<div class="product-search-box">
+    <input id="product_barcode" type="text" placeholder="[F3] Mã quà..." autocomplete="off" />
+    <select id="productSelectList" name="productSelectList" style="width:400px">
+        <option value="">- Tìm quà -</option>
+        @foreach (var item in Model.OrderBy(x => x.Name).ToList())
+            {
+       
+            <option value="@item.Id" data-tagertpoint="@item.TargetPoint" data-point="@item.Point" data-redemptionpoints="@item.RedemptionPoints"  data-value="@item.Id | @(string.IsNullOrEmpty(item.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + item.Image_Name) | @(item.Code + " - " + item.Name +string.Format(" - Điểm quy đổi: {0}", Common.PhanCachHangNgan(item.RedemptionPoints) +string.Format(" - Tồn: {0}", Common.PhanCachHangNgan(item.QuantityTotalInventory))))" data-images="@(string.IsNullOrEmpty(item.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + item.Image_Name)" data-code="@item.Code" data-barcode="@item.Barcode" data-product-type="@item.CategoryCode" data-price="@(item.PriceOutbound)" data-unit="@item.Unit" data-quantity-inventory="@item.QuantityTotalInventory.Value">@item.Name</option>
+        }
+    </select>
+</div>
+<link href="/Scripts/RadCombobox_v1/RadComboBoxLite.css" rel="stylesheet" />
+<script src="/Scripts/RadCombobox_v1/rabCombobox.js"></script>
+<script>
+
+    $(document).ready(function ()
+    {
+        $('#productSelectList').radComboBox({
+            colTitle: 'ID, Hình, Tên quà',
+            colValue: 1,
+            colImage: 2,
+            colHide: '1',
+            colSize: '0px,50px,',
+            colClass: ',,',
+            //width: 600,
+            height: 500,
+            boxSearch: true,
+            colSearch: 2
+        });
+        //Hiển thị giá và tính thành tiền khi chọn sản phẩm
+        $('#productSelectList').on('change', function ()
+        {
+
+            var $this = $(this);
+            var selected = $this.find("option:selected");
+
+            if (selected.val() == '')// || $('#product_item_' + selected.val()).length > 0)
+                return;
+        
+            var item = false;
+            $('.detailList tr').each(function (index, elem)
+            {
+                if ($(elem).data('giftid') == selected.val())
+                {
+                    //var $qty = $('#DetailList_' + index + '__Quantity');
+                    //var qtyCal = parseInt($qty.val()) + 1;
+                    //if (parseInt(selected.data("quantity-inventory")) <= qtyCal)
+                    //{
+                    //    $qty.val(selected.data("quantity-inventory"));
+                    //}
+                    //else
+                    //{
+                    //    $qty.val(qtyCal);
+                    //}
+
+                    item = true;
+                }
+            });
+            if (item)
+            {
+                return;
+            }
+            var OrderNo = $('.detailList tr').length;
+            var GiftId = selected.val();
+            var GiftName = selected.text();
+            var RedemptionPoints = selected.data("redemptionpoints");
+            var QuantityInInventory = selected.data("quantity-inventory");
+            var Unit = selected.data("unit");
+            var Images = selected.data("images");
+            var GiftCode = selected.data("code");
+            if (checkPoint(RedemptionPoints))
+            {
+                return;
+            }
+            var formdata = {
+                OrderNo: OrderNo,
+                GiftId: GiftId,
+                GiftName: GiftName,
+                GiftCode: GiftCode,
+                Quantity: 1,
+                QuantityInInventory: QuantityInInventory,
+                Unit: Unit,
+                Images: Images,
+                Point: RedemptionPoints
+            };
+            console.log(formdata);
+            //Thêm dòng mới
+            ClickEventHandler(true, "/RePayPoints/LoadProductItem", ".detailList", formdata, function ()
+            {
+                $('#ProductItemCount').val($('#listOrderDetail .detailList tr').length);
+                $('#DetailList_' + OrderNo + '__Quantity').numberOnly();
+                $("#DetailList_" + OrderNo + "__Quantity").focus().select();
+
+                calcTotalPoint();
+
+                $('.image-link').magnificPopup({
+                    type: 'image',
+                    mainClass: 'mfp-with-zoom', // this class is for CSS animation below
+
+                    zoom: {
+                        enabled: true, // By default it's false, so don't forget to enable it
+
+                        duration: 300, // duration of the effect, in milliseconds
+                        easing: 'ease-in-out', // CSS transition easing function
+
+                        // The "opener" function should return the element from which popup will be zoomed in
+                        // and to which popup will be scaled down
+                        // By defailt it looks for an image tag:
+                        opener: function (openerElement)
+                        {
+                            // openerElement is the element on which popup was initialized, in this case its <a> tag
+                            // you don't need to add "opener" option if this code matches your needs, it's defailt one.
+                            return openerElement.is('img') ? openerElement : openerElement.find('img');
+                        }
+                    }
+
+                });
+            });
+        });
+        $('#product_barcode').keypress(function (e)
+        {
+            if (e.which == 13)
+            {
+                e.preventDefault();
+                $('#product_barcode').trigger('change');
+            }
+        });
+
+        $(window).keydown(function (e)
+        {
+            if (e.which == 114)
+            {
+                e.preventDefault();
+                $("#product_barcode").focus();
+            }
+        });
+
+        //khi nhập barcode
+        $('#product_barcode').change(function ()
+        {
+            var $this = $(this);
+            if ($this.val() != '')
+            {
+
+                var barcode = $this.val();
+                //đặt lại giá trị rỗng
+                $this.val('').focus();
+
+                var valueSearch = searchProductByBarCodeContain(barcode);
+                if (valueSearch == undefined)
+                {
+                    alert('Không tìm thấy sản phẩm với mã code trên!');
+                    return;
+                }
+
+                $('#productSelectList').val(valueSearch).trigger("change");
+
+                //kết thúc các lệnh của sự kiện
+            }
+        });
+
+    });
+
+</script>

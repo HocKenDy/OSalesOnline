@@ -1,0 +1,846 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rowspan / Colspan</title>
+    <link href="../dist/css/tableexport.min.css" rel="stylesheet">
+    <link href="./examples.css" rel="stylesheet">
+</head>
+<body>
+<noscript>
+    <iframe src="//www.googletagmanager.com/ns.html?id=GTM-TL44T9" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+</noscript>
+
+<iframe src="./default.html" frameborder="0" width="100%" scrolling="no" onload="this.height=screen.height/3;"></iframe>
+
+<main>
+    <h1>Rowspan / Colspan</h1>
+
+    <table id="rowspan-colspan-table-1">
+        <tbody>
+        <tr style="background: lightblue">
+            <td rowspan="3" colspan="3">
+                [0, 0-2] [1, 0-2]
+            </td>
+            <td>[0, 3]</td>
+        </tr>
+        <tr style="background: lightgoldenrodyellow">
+            <td>[1, 3]</td>
+        </tr>
+        <tr style="background: lightgreen">
+            <td>[2, 3]</td>
+        </tr>
+        <tr style="background: lightcoral">
+            <td>[2, 0]</td>
+            <td>[2, 1]</td>
+            <td>[2, 2]</td>
+            <td>[2, 3]</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<br>
+
+<main>
+    <h1>Rowspan</h1>
+    <table id="rowspan-colspan-table-2">
+        <tbody>
+        <tr>
+            <td rowspan="2">
+
+                2016-11-15
+
+            </td>
+            <td>会员卡</td>
+            <td rowspan="3">办卡</td>
+            <td rowspan="2">两年卡</td>
+            <td>李欢</td>
+            <td rowspan="4">12345678901</td>
+            <td rowspan="2">刷卡支付</td>
+            <td>1000</td>
+        </tr>
+        <tr>
+            <td>现金</td>
+            <td>1980</td>
+            <td>1980</td>
+        </tr>
+        <tr>
+            <td rowspan="1">2016-11-15</td>
+            <td rowspan="1">会员卡</td>
+            <td rowspan="1">两年卡</td>
+            <td rowspan="1">Treating myself</td>
+            <td rowspan="1">13858060001</td>
+            <td>刷卡支付</td>
+        </tr>
+        <tr>
+            <td rowspan="1">2016-11-15</td>
+            <td rowspan="1">会员卡</td>
+            <td rowspan="1">两年卡</td>
+            <td rowspan="1">Treating myself</td>
+            <td rowspan="1">13858060001</td>
+            <td>刷卡支付</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<br>
+
+<main>
+    <h1>Colspan</h1>
+    <table id="rowspan-colspan-table-3">
+        <thead>
+            <tr>
+                <th>NO.</th>
+                <th colspan="2">span 2 column</th>
+                <th colspan="3">span 3 column</th>
+                <th colspan="1">Phong 8</th>
+                <th colspan="1">span 1 column</th>
+                <th colspan="1">bbbb</th>
+                <th colspan="3">span 3 column</th>
+            </tr>
+            <tr>
+                <th>title a</th>
+                <th>title b</th>
+                <th>title c</th>
+                <th>title d</th>
+                <th>title e</th>
+                <th>title f</th>
+                <th>title h</th>
+                <th>title i</th>
+                <th>title j</th>
+                <th>title k</th>
+                <th>title l</th>
+                <th>title n</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>刷卡支付</td>
+            <td>07-20-2017</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>1000</td>
+            <td>1001</td>
+            <td>1002</td>
+        </tr>
+        <tr>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>刷卡支付</td>
+            <td>1000</td>
+            <td>1001</td>
+            <td>1002</td>
+        </tr>
+        <tr>
+            <td colspan="12">会员卡</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<main>
+    <div class="col-md-12" style="overflow-x:auto;">
+        <div class="append-table" style="width:3000px">
+            <div id="table-export_wrapper" class="dataTables_wrapper no-footer">
+                <div class="dt-buttons">
+                    <a class="dt-button buttons-excel buttons-html5" id="customXLSButton"  href="#"><span>Excel</span></a>
+                </div>
+                <table class="table table-bordered" id="table-export" style="width:100%">
+                    <thead>
+                        <tr role="row"><th rowspan="3" colspan="1">Số HĐ</th><th rowspan="3" colspan="1">Họ và tên</th><th rowspan="3" colspan="1">Ngày sinh</th><th rowspan="3"    colspan="1" >Giới tính</th><th rowspan="3" colspan="1">Số điện thoại</th><th rowspan="3"  colspan="1">Trường</th><th rowspan="3"    colspan="1">Ngày ký hợp đồng</th><th rowspan="3"    colspan="1" >Ngày hết hạn</th><th colspan="3" rowspan="2" style="width: 207px;">Phòng đang ở</th><th colspan="7" style="width: 630px;" rowspan="1">Hợp đồng mới</th><th colspan="5" style="width: 400px;" rowspan="1">Thanh lý hợp đồng</th><th colspan="9" style="width: 580px;" rowspan="1">Hồ sơ sinh viên</th><th colspan="8" style="width: 700px;" rowspan="1">Thông tin bổ sung</th><th colspan="2" style="width: 100px;" rowspan="1">Báo cáo sở</th><th colspan="4" style="width: 300px;" rowspan="1">Tình trạng sinh viên</th></tr>
+                        <tr role="row"><th colspan="5" rowspan="1">Số tiền</th><th colspan="2" rowspan="1">Thời gian hợp đồng</th><th colspan="4" rowspan="1">Số tiền</th><th rowspan="2"   colspan="1" >Ngày ra</th><th rowspan="2" colspan="1">Đơn</th><th rowspan="2"   colspan="1">Thẻ</th><th rowspan="2" colspan="1">CMND</th><th rowspan="2"   colspan="1">Ảnh</th><th rowspan="2"    colspan="1">Bản cam kết</th><th rowspan="2"    colspan="1">Hợp đồng</th><th rowspan="2"    colspan="1">Phiếu khai báo nhân khẩu</th><th rowspan="2"    colspan="1">Bảng khai nhân khẩu</th><th rowspan="2"    colspan="1">Phiếu thu thập thông tin</th><th rowspan="2"   colspan="1">CMND</th><th rowspan="2"   colspan="1" >Ngày cấp</th><th rowspan="2"   colspan="1" >Nơi cấp</th><th rowspan="2"    colspan="1">HKTT</th><th rowspan="2"   colspan="1">Tôn giáo</th><th rowspan="2"   colspan="1">Quốc tịch</th><th colspan="2" rowspan="1">Thông tin người thân</th><th rowspan="2"   colspan="1">Có</th><th rowspan="2"   colspan="1"  >Không</th><th rowspan="2"   colspan="1">Đang ở</th><th rowspan="2"   colspan="1">Mới vào</th><th rowspan="2"   colspan="1">Mới ra</th><th rowspan="2"   colspan="1">Đã ra</th></tr>
+                        <tr role="row"><th rowspan="1" colspan="1">Loại phòng</th><th rowspan="1" colspan="1">Phòng</th><th    rowspan="1" colspan="1">Tòa nhà</th><th   rowspan="1" colspan="1" >Số tháng</th><th   rowspan="1" colspan="1">Thuê nhà</th><th   rowspan="1" colspan="1">Nộp bổ xung</th><th   rowspan="1" colspan="1">Đặt cọc</th><th rowspan="1" colspan="1">Tổng tiền</th><th   rowspan="1" colspan="1">Từ ngày</th><th   rowspan="1" colspan="1">Đến ngày</th><th   rowspan="1" colspan="1">Thuê nhà</th><th   rowspan="1" colspan="1">Nộp bổ xung</th><th   rowspan="1" colspan="1" >Đặt cọc</th><th   rowspan="1" colspan="1" >Tổng tiền</th><th   rowspan="1" colspan="1">Họ và tên</th><th   rowspan="1" colspan="1" >Số ĐT</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr data-studenid="1" role="row" class="odd">
+                            <td class="sorting_1">HD000018</td>
+                            <td title="Nguyen Van An" class="line-clamp-1">Nguyen Van An</td>
+                            <td>01/01/1998</td>
+                            <td>Nam</td>
+                            <td></td>
+                            <td title="Bệnh Viện K" class="line-clamp-1">Bệnh Viện K</td>
+                            <td>01/08/2017</td>
+                            <td>31/08/2017</td>
+
+                            <td>Phòng 8</td>
+                            <td>201</td>
+                            <td>DN1</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Có</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Có</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>323</td>
+                            <td></td>
+                            <td></td>
+                            <td>   AN GIANG</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Có</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-studenid="2" role="row" class="even">
+                            <td class="sorting_1">HD000019</td>
+                            <td title="Lê Phương Thảo" class="line-clamp-1">Lê Phương Thảo</td>
+                            <td>27/11/1993</td>
+                            <td>Nữ</td>
+                            <td></td>
+                            <td class="line-clamp-1"></td>
+                            <td>01/08/2017</td>
+                            <td>31/07/2017</td>
+
+                            <td>Phòng 8</td>
+                            <td>222</td>
+                            <td>DN2</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Có</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>11111111</td>
+                            <td></td>
+                            <td></td>
+                            <td>   NAM ĐỊNH</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Có</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-studenid="3" role="row" class="odd">
+                            <td class="sorting_1">HD000020</td>
+                            <td title="Hoàng Thu Hương" class="line-clamp-1">Hoàng Thu Hương</td>
+                            <td>23/04/1998</td>
+                            <td>Nữ</td>
+                            <td></td>
+                            <td title="Cao đẳng Truyền hình" class="line-clamp-1">Cao đẳng Truyền hình</td>
+                            <td>01/08/2017</td>
+                            <td>31/08/2017</td>
+
+                            <td>Phòng 4</td>
+                            <td>801</td>
+                            <td>DN2</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Có</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>163050996</td>
+                            <td></td>
+                            <td></td>
+                            <td>   BẮC GIANG</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Không</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-studenid="4" role="row" class="even">
+                            <td class="sorting_1">HD000021</td>
+                            <td title="Nguyễn Văn Phúc" class="line-clamp-1">Nguyễn Văn Phúc</td>
+                            <td>01/01/1994</td>
+                            <td>Nam</td>
+                            <td></td>
+                            <td title="CĐ Công nghệ GTVT" class="line-clamp-1">CĐ Công nghệ GTVT</td>
+                            <td>01/08/2017</td>
+                            <td>30/09/2017</td>
+
+                            <td>Phòng 8</td>
+                            <td>201</td>
+                            <td>DN1</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Có</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>1222</td>
+                            <td></td>
+                            <td></td>
+                            <td>   AN GIANG</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Không</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-studenid="5" role="row" class="odd">
+                            <td class="sorting_1">HD000022</td>
+                            <td title="Nguyễn Trần Đăng Khoa" class="line-clamp-1">Nguyễn Trần Đăng Khoa</td>
+                            <td>01/01/1998</td>
+                            <td>Nam</td>
+                            <td></td>
+                            <td title="Bệnh Viện K" class="line-clamp-1">Bệnh Viện K</td>
+                            <td>01/08/2017</td>
+                            <td>31/12/2017</td>
+
+                            <td>Phòng 8</td>
+                            <td>201</td>
+                            <td>DN1</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>Không</td>
+                            <td>123456</td>
+                            <td></td>
+                            <td></td>
+                            <td>   AN GIANG</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Không</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<main style="margin:30px 0px">
+    <a class="dt-button buttons-excel buttons-html5" id="customXLSButton2" href="#"><span>Excel</span></a>
+    <table class="table table-bordered" id="table-export2" style="width:100%">
+        <thead>
+            <tr>
+                <th rowspan="3" style="width: 85px;">Số HĐ</th>
+                <th rowspan="3" style="min-width:100px">Họ và tên</th>
+                <th rowspan="3" style="width: 85px;">Ngày sinh</th>
+                <th rowspan="3" style="width: 50px;">Giới tính</th>
+                <th rowspan="3" style="width: 93px;">Số điện thoại</th>
+                <th rowspan="3" style="min-width:100px">Trường</th>
+                <th rowspan="3" style="width: 85px;">Ngày ký hợp đồng</th>
+                <th rowspan="3" style="width: 85px;">Ngày hết hạn</th>
+                <th colspan="3" rowspan="2" style="width: 207px;">Phòng đang ở</th>
+                <!-- mục hợp đồng mới -->
+                <th colspan="7" style="width: 630px;">Hợp đồng mới</th>
+            </tr>
+            <tr>
+                <!-- mục hợp đồng mới -->
+                <th colspan="5">Số tiền</th>
+                <th colspan="2">Thời gian hợp đồng</th>
+            </tr>
+            <tr>
+                <th style="width: 80px;">Loại phòng</th>
+                <th>Phòng</th>
+                <th style="width: 67px;">Tòa nhà</th>
+                <!-- mục hợp đồng mới -->
+                <th>Số tháng</th>
+                <th>Thuê nhà</th>
+                <th>Nộp bổ xung</th>
+                <th>Đặt cọc</th>
+                <th>Tổng tiền</th>
+                <th>Từ ngày</th>
+                <th>Đến ngày</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr data-studenid="1">
+                <td>HD000018</td>
+                <td title="Nguyen Van An" class="line-clamp-1">Nguyen Van An</td>
+                <td>01/01/1998</td>
+                <td>Nam</td>
+                <td></td>
+                <td title="Bệnh Viện K" class="line-clamp-1">Bệnh Viện K</td>
+                <td>01/08/2017</td>
+                <td>31/08/2017</td>
+
+                <td>Phòng 8</td>
+                <td>201</td>
+                <td>DN1</td>
+
+                <!-- mục hợp đồng mới -->
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr data-studenid="2">
+                <td>HD000019</td>
+                <td title="Lê Phương Thảo" class="line-clamp-1">Lê Phương Thảo</td>
+                <td>27/11/1993</td>
+                <td>Nữ</td>
+                <td></td>
+                <td class="line-clamp-1"></td>
+                <td>01/08/2017</td>
+                <td>31/07/2017</td>
+
+                <td>Phòng 8</td>
+                <td>222</td>
+                <td>DN2</td>
+
+                <!-- mục hợp đồng mới -->
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr data-studenid="3">
+                <td>HD000020</td>
+                <td title="Hoàng Thu Hương" class="line-clamp-1">Hoàng Thu Hương</td>
+                <td>23/04/1998</td>
+                <td>Nữ</td>
+                <td></td>
+                <td title="Cao đẳng Truyền hình" class="line-clamp-1">Cao đẳng Truyền hình</td>
+                <td>01/08/2017</td>
+                <td>31/08/2017</td>
+
+                <td>Phòng 4</td>
+                <td>801</td>
+                <td>DN2</td>
+
+                <!-- mục hợp đồng mới -->
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr data-studenid="4">
+                <td>HD000021</td>
+                <td title="Nguyễn Văn Phúc" class="line-clamp-1">Nguyễn Văn Phúc</td>
+                <td>01/01/1994</td>
+                <td>Nam</td>
+                <td></td>
+                <td title="CĐ Công nghệ GTVT" class="line-clamp-1">CĐ Công nghệ GTVT</td>
+                <td>01/08/2017</td>
+                <td>30/09/2017</td>
+
+                <td>Phòng 8</td>
+                <td>201</td>
+                <td>DN1</td>
+
+                <!-- mục hợp đồng mới -->
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr data-studenid="5">
+                <td>HD000022</td>
+                <td title="Nguyễn Trần Đăng Khoa" class="line-clamp-1">Nguyễn Trần Đăng Khoa</td>
+                <td>01/01/1998</td>
+                <td>Nam</td>
+                <td></td>
+                <td title="Bệnh Viện K" class="line-clamp-1">Bệnh Viện K</td>
+                <td>01/08/2017</td>
+                <td>31/12/2017</td>
+
+                <td>Phòng 8</td>
+                <td>201</td>
+                <td>DN1</td>
+
+                <!-- mục hợp đồng mới -->
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+
+<script type="text/javascript" src="../plugin/jquery.min.js"></script>
+<script type="text/javascript" src="../plugin/xlsx.core.min.js"></script>
+<script type="text/javascript" src="../plugin/Blob.js"></script>
+<script type="text/javascript" src="../plugin/FileSaver.js"></script>
+<script type="text/javascript" src="../dist/js/tableexport.js"></script>
+<!--<script type="text/javascript" src="../assets/js/analytics.js"></script>-->
+<script>
+
+    //var RowColSpan1 = document.getElementById('rowspan-colspan-table-1');
+    //new TableExport(RowColSpan1, {
+    //    formats: ['xlsx', 'xls', 'csv', 'txt']
+    //});
+    // **** jQuery **************************
+    //    $(RowColSpan1).tableExport({
+    //        formats: ['xlsx', 'xls', 'csv', 'txt']
+    //    });
+    // **************************************
+
+
+    //var RowColSpan2 = document.getElementById('rowspan-colspan-table-2');
+    //new TableExport(RowColSpan2, {
+    //    formats: ['xlsx', 'xls', 'csv', 'txt']
+    //});
+    // **** jQuery **************************
+    //    $(RowColSpan2).tableExport({
+    //        formats: ['xlsx', 'xls', 'csv', 'txt']
+    //    });
+    // **************************************
+
+
+    //var RowColSpan3 = document.getElementById('rowspan-colspan-table-3');
+    //new TableExport(RowColSpan3, {
+    //    headers: true,
+    //    formats: ['xlsx', 'xls', 'csv', 'txt']
+    //});
+    // **** jQuery **************************
+    //    $(RowColSpan3).tableExport({
+    //        formats: ['xlsx', 'xls', 'csv', 'txt']
+    //    });
+    // **************************************
+
+
+    // --------------------------------------------------------------------------- demo 1
+    var instance = new TableExport(document.getElementById('table-export'), {
+        formats: ['xlsx', 'csv'],
+        exportButtons: false
+    });
+    // **** jQuery **************************
+    //    $(ExportButtons).tableExport({
+    //        formats: ['xls'],
+    //        exportButtons: false
+    //    });
+    // **************************************
+
+    var XLSX = instance.CONSTANTS.FORMAT.XLSX;
+
+    //                                          // "id"  // format
+    var exportDataXLSX = instance.getExportData()['table-export'][XLSX];
+
+    var XLSXbutton = document.getElementById('customXLSButton');
+    XLSXbutton.addEventListener('click', function (e) {
+        //                   // data             // mime                 // name                 // extension
+        //instance.export2file(exportDataXLSX.data, exportDataXLSX.mimeType, exportDataXLSX.filename, exportDataXLSX.fileExtension, exportDataXLSX.merges);
+        instance.export2file(dataExcel, exportDataXLSX.mimeType, exportDataXLSX.filename, exportDataXLSX.fileExtension, mergesExcel);
+    });
+
+    // --------------------------------------------------------------------------- demo 2
+    var $trData = $('#table-export tr:lt(3)').clone();
+    console.log('tr-1: th', $trData.eq(0).find('th').length);
+    console.log('tr-2: th', $trData.eq(1).find('th').length);
+    console.log('tr-3: th', $trData.eq(2).find('th').length);
+    var dataExcel = [], mergesExcel = [];
+
+    $trData.each(function (rowIndex, tr) {
+        if (dataExcel[rowIndex] == undefined)
+            dataExcel.push([]);
+
+        //lấy mảng theo dòng hiện tại trong mảng data  
+        var rowData = dataExcel[rowIndex], rowMerges = {};
+
+        //nếu dòng đang sét có số phần tử bằng với dòng đầu tiên thì return luôn, không cần duyệt qua nữa do đã xử lý trước đó ở (và trong quá trình xử lý trước đó có thể các ô của dòng này đã được xóa đi)
+        if (rowData.length == dataExcel[0].length && rowIndex != 0)
+            return;
+
+        //đánh dấu số dòng sẽ insert dữ liệu đồng bộ theo cột (phụ thuộc theo rowspan của các cột đang sét, lấy rowspan lớn nhất)
+        var maxRowAppend = 1;
+        $(tr).find('td, th').each(function (colIndex, col) {
+            var sC = rowData.length;
+
+            if (rowData.length == 33) // 11, 18, 23, 33
+                return;
+
+            var $col = $(col), flagMerge = false;
+            rowData.push({ "v": $col.text(), "t": "" });
+
+            var colspan = $col.attr('colspan') != undefined ? parseInt($col.attr('colspan')) : 1;
+            if (colspan != 1) {
+                for (var span = 1; span < colspan; span++) {
+                    rowData.push(null);
+                }
+                flagMerge = true;
+            }
+            var rowspan = $col.attr('rowspan') != undefined ? parseInt($col.attr('rowspan')) : 1;
+            if (rowspan != 1) {
+                flagMerge = true;
+            }
+
+            if (flagMerge == true) {
+                var eR = $col.attr('rowspan') != undefined ? rowspan - 1 : rowIndex;
+                var eC = $col.attr('colspan') != undefined ? colspan - 1 + sC : sC;
+                mergesExcel.push({ "s": { "r": rowIndex, "c": sC }, "e": { "r": eR, "c": eC } });
+            }
+
+            maxRowAppend = rowspan > maxRowAppend ? rowspan : maxRowAppend;
+            var arrAppendNULL = [];
+
+            for (var Rspan = 1; Rspan < maxRowAppend; Rspan++) {
+                if (dataExcel[rowIndex + Rspan] == undefined)
+                    dataExcel.push([]);
+
+                var nextRow = dataExcel[rowIndex + Rspan];
+
+                if (Rspan < rowspan) {
+                    for (var Cspan = 1; Cspan <= colspan; Cspan++) {
+                        nextRow.push(null);
+                    }
+                } else {
+                    var lengthOfPrevRow = dataExcel[rowIndex].length;
+                    var lengthOfNextRow = nextRow.length;
+
+                    if (lengthOfNextRow < lengthOfPrevRow) {
+                        var $cellsInNextRow = $trData.eq(rowIndex + Rspan).find('td, th');
+
+                        for (var i_CellNextRow = lengthOfNextRow; i_CellNextRow < lengthOfPrevRow;) {
+
+                            var checkCellAppendNULL = arrAppendNULL.find(function (obj) { return obj.rowIndex == (rowIndex + Rspan) && obj.colIndex == i_CellNextRow; });
+                            if (checkCellAppendNULL != undefined) {
+                                nextRow.push(null);
+                                i_CellNextRow++;
+                            } else {
+                                var $firstCell = $trData.eq(rowIndex + Rspan).find('td, th').eq(0);
+                                var colSpanFirstCell = $firstCell.attr('colspan') != undefined ? parseInt($firstCell.attr('colspan')) : 1;
+                                for (var i_colSpanFirstCell = 1; i_colSpanFirstCell <= colSpanFirstCell; i_colSpanFirstCell++){
+                                    if (i_colSpanFirstCell == 1) {
+                                        nextRow.push({ "v": $firstCell.text(), "t": "" });
+                                    } else {
+                                        nextRow.push(null);
+                                    }
+                                    i_CellNextRow++;
+                                }
+
+                                var rowSpanFirstCell = $firstCell.attr('rowspan') != undefined ? parseInt($firstCell.attr('rowspan')) : 1;
+                                if (rowSpanFirstCell > 1) {
+                                    arrAppendNULL.push({ 'rowIndex': rowIndex + Rspan + 1, 'colIndex': i_CellNextRow - 1 });
+                                }
+
+                                $trData.eq(rowIndex + Rspan).find('td, th').eq(0).remove();
+
+                                if (colSpanFirstCell > 1 || rowSpanFirstCell > 1) {
+                                    var sC = i_CellNextRow - colSpanFirstCell;
+                                    var sR = rowIndex + Rspan;
+                                    var eR = (rowSpanFirstCell - 1) + sR;
+                                    var eC = sC + (colSpanFirstCell - 1);
+                                    mergesExcel.push({ "s": { "r": sR, "c": sC }, "e": { "r": eR, "c": eC } });
+                                }
+
+                            } //end else of [if (checkCellAppendNULL != undefined)]
+                        }//end for (var i_CellNextRow = lengthOfNextRow;
+                    }//end if (lengthOfNextRow < lengthOfPrevRow)
+                }//end else of [if (Rspan < rowspan)]
+            }//end for (var Rspan = 1;
+            
+        });
+       
+    });
+    console.log($trData);
+    console.log('afetr tr-1: th', $trData.eq(0).find('th').length);
+    console.log('afetr tr-2: th', $trData.eq(1).find('th').length);
+    console.log('afetr tr-3: th', $trData.eq(2).find('th').length);
+    console.log(dataExcel);
+    console.log(mergesExcel);
+
+    var data0 = [
+        [
+            { "v": "Số HĐ", "t": "" }, { "v": "Họ và tên", "t": "" }, { "v": "Ngày sinh", "t": "" }, { "v": "Giới tính", "t": "" },
+            { "v": "Số điện thoại", "t": "" }, { "v": "Trường", "t": "" }, { "v": "Ngày ký hợp đồng", "t": "" },
+            { "v": "Ngày hết hạn", "t": "" }, { "v": "Phòng đang ở", "t": "" }, null, null, { "v": "Hợp đồng mới", "t": "" }
+        ]
+        , [
+            null, null, null, null, null, null, null, null, { "v": "Số tiền", "t": "" }, null, null, null, null, { "v": "Thời gian hợp đồng", "t": "" }]
+        , [
+            null, null, null, null, null, null, null, null, { "v": "Loại phòng", "t": "" }, { "v": "Phòng", "t": "" },
+            { "v": "Tòa nhà", "t": "" }, { "v": "Số tháng", "t": "" }, { "v": "Thuê nhà", "t": "" }, { "v": "Nộp bổ xung", "t": "" },
+            { "v": "Đặt cọc", "t": "" }, { "v": "Tổng tiền", "t": "" }, { "v": "Từ ngày", "t": "" }, { "v": "Đến ngày", "t": "" }
+        ]
+        , [{ "v": "HD000018", "t": "" }, { "v": "Nguyen Van An", "t": "" }, { "v": "01/01/1998", "t": "" }, { "v": "Nam", "t": "" }, { "v": "", "t": "" }, { "v": "Bệnh Viện K", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/08/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "201", "t": "" }, { "v": "DN1", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000019", "t": "" }, { "v": "Lê Phương Thảo", "t": "" }, { "v": "27/11/1993", "t": "" }, { "v": "Nữ", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/07/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "222", "t": "" }, { "v": "DN2", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000020", "t": "" }, { "v": "Hoàng Thu Hương", "t": "" }, { "v": "23/04/1998", "t": "" }, { "v": "Nữ", "t": "" }, { "v": "", "t": "" }, { "v": "Cao đẳng Truyền hình", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/08/2017", "t": "" }, { "v": "Phòng 4", "t": "" }, { "v": "801", "t": "" }, { "v": "DN2", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000021", "t": "" }, { "v": "Nguyễn Văn Phúc", "t": "" }, { "v": "01/01/1994", "t": "" }, { "v": "Nam", "t": "" }, { "v": "", "t": "" }, { "v": "CĐ Công nghệ GTVT", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "30/09/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "201", "t": "" }, { "v": "DN1", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000022", "t": "" }, { "v": "Nguyễn Trần Đăng Khoa", "t": "" }, { "v": "01/01/1998", "t": "" }, { "v": "Nam", "t": "" }, { "v": "", "t": "" }, { "v": "Bệnh Viện K", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/12/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "201", "t": "" }, { "v": "DN1", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+    ];
+
+    var data2 = [
+        [
+            { "v": "Số HĐ", "t": "" }, { "v": "Họ và tên", "t": "" }, { "v": "Ngày sinh", "t": "" }, { "v": "Giới tính", "t": "" },
+            { "v": "Số điện thoại", "t": "" }, { "v": "Trường", "t": "" }, { "v": "Ngày ký hợp đồng", "t": "" },
+            { "v": "Ngày hết hạn", "t": "" }, { "v": "Phòng đang ở", "t": "" }, null, null, { "v": "Hợp đồng mới", "t": "" },
+            null, null, null, null, null, null
+        ],
+        [
+            null, null, null, null, null, null, null, null, null, null, null, { "v": "Số tiền", "t": "" }, null, null, null, null,
+            { "v": "Thời gian hợp đồng", "t": "" }, null
+        ],
+        [
+            null, null, null, null, null, null, null, null, { "v": "Loại phòng", "t": "" }, { "v": "Phòng", "t": "" },
+            { "v": "Tòa nhà", "t": "" }, { "v": "Số tháng", "t": "" }, { "v": "Thuê nhà", "t": "" }, { "v": "Nộp bổ xung", "t": "" },
+            { "v": "Đặt cọc", "t": "" }, { "v": "Tổng tiền", "t": "" }, { "v": "Từ ngày", "t": "" }, { "v": "Đến ngày", "t": "" }
+        ]
+        , [{ "v": "HD000018", "t": "" }, { "v": "Nguyen Van An", "t": "" }, { "v": "01/01/1998", "t": "" }, { "v": "Nam", "t": "" }, { "v": "", "t": "" }, { "v": "Bệnh Viện K", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/08/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "201", "t": "" }, { "v": "DN1", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000019", "t": "" }, { "v": "Lê Phương Thảo", "t": "" }, { "v": "27/11/1993", "t": "" }, { "v": "Nữ", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/07/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "222", "t": "" }, { "v": "DN2", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000020", "t": "" }, { "v": "Hoàng Thu Hương", "t": "" }, { "v": "23/04/1998", "t": "" }, { "v": "Nữ", "t": "" }, { "v": "", "t": "" }, { "v": "Cao đẳng Truyền hình", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/08/2017", "t": "" }, { "v": "Phòng 4", "t": "" }, { "v": "801", "t": "" }, { "v": "DN2", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000021", "t": "" }, { "v": "Nguyễn Văn Phúc", "t": "" }, { "v": "01/01/1994", "t": "" }, { "v": "Nam", "t": "" }, { "v": "", "t": "" }, { "v": "CĐ Công nghệ GTVT", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "30/09/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "201", "t": "" }, { "v": "DN1", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+        , [{ "v": "HD000022", "t": "" }, { "v": "Nguyễn Trần Đăng Khoa", "t": "" }, { "v": "01/01/1998", "t": "" }, { "v": "Nam", "t": "" }, { "v": "", "t": "" }, { "v": "Bệnh Viện K", "t": "" }, { "v": "01/08/2017", "t": "" }, { "v": "31/12/2017", "t": "" }, { "v": "Phòng 8", "t": "" }, { "v": "201", "t": "" }, { "v": "DN1", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }, { "v": "", "t": "" }]
+    ];
+    var merges2 = [
+          { "s": { "r": 0, "c": 0 }, "e": { "r": 2, "c": 0 } }
+        , { "s": { "r": 0, "c": 1 }, "e": { "r": 2, "c": 1 } }
+        , { "s": { "r": 0, "c": 2 }, "e": { "r": 2, "c": 2 } }
+        , { "s": { "r": 0, "c": 3 }, "e": { "r": 2, "c": 3 } }
+        , { "s": { "r": 0, "c": 4 }, "e": { "r": 2, "c": 4 } }
+        , { "s": { "r": 0, "c": 5 }, "e": { "r": 2, "c": 5 } }
+        , { "s": { "r": 0, "c": 6 }, "e": { "r": 2, "c": 6 } }
+        , { "s": { "r": 0, "c": 7 }, "e": { "r": 2, "c": 7 } }
+        , { "s": { "r": 0, "c": 8 }, "e": { "r": 1, "c": 10 } } // Phòng đang ở
+        , { "s": { "r": 0, "c": 11 }, "e": { "r": 0, "c": 17 } } // Hợp đồng mới
+        , { "s": { "r": 1, "c": 11 }, "e": { "r": 1, "c": 15 } } // Số tiền | 2 - 6
+        , { "s": { "r": 1, "c": 16 }, "e": { "r": 1, "c": 17 } } // Thời gian hợp đồng | 7-8
+    ];
+
+    var instance2 = new TableExport(document.getElementById('table-export2'), {
+        formats: ['xlsx', 'csv'],
+        exportButtons: false
+    });
+   
+    var XLSX2 = instance2.CONSTANTS.FORMAT.XLSX;
+
+    //                                          // "id"  // format
+    var exportDataXLSX2 = instance2.getExportData()['table-export2'][XLSX2];
+
+    var XLSXbutton2 = document.getElementById('customXLSButton2');
+    XLSXbutton2.addEventListener('click', function (e) {
+        //                   // data             // mime                 // name                 // extension
+        instance2.export2file(dataExcel, exportDataXLSX2.mimeType, exportDataXLSX2.filename, exportDataXLSX2.fileExtension, mergesExcel);
+    });
+
+    
+</script>
+
+</body>
+</html>

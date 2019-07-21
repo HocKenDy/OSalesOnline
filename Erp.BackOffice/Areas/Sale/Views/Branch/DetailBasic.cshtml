@@ -1,0 +1,45 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+
+@model Erp.BackOffice.Sale.Models.BranchViewModel
+@{
+    ViewBag.Title = Wording.PageDetailBranch;
+    Layout = "~/Views/Shared/_PopupLayout.cshtml";
+}
+<div class="widget-box">
+    <div class="widget-header">
+        <h4 class="smaller">@ViewBag.Title : @Model.Name</h4>
+    </div>
+    <div class="widget-body">
+        <div class="widget-main clearfix">
+            <div class="col-sm-12">
+                <div class="detail-view col-xs-12 top-10">
+                    @*<div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Name, null, null, "col-xs-3", "col-xs-9")
+                        </div>*@
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.Code, null, null, "col-xs-3", "col-xs-9")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.Phone, null, null, "col-xs-3", "col-xs-9")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.Email, null, null, "col-xs-3", "col-xs-9")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.ProvinceName, null, null, "col-xs-3", "col-xs-9")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.DistrictName, null, null, "col-xs-3", "col-xs-9")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.WardName, null, null, "col-xs-3", "col-xs-9")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.Address, null, null, "col-xs-3", "col-xs-9")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,199 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Account.Models
+@model List<ProductViewModel>
+@{
+    Layout = null;
+}
+
+<div class="product-search-box">
+    <input id="product_barcode" type="text" placeholder="[F3] Mã sản phẩm..." autocomplete="off" />
+    <select id="productSelectList" name="productSelectList" style="width:400px">
+        <option value="">- Tìm sản phẩm -</option>
+        @foreach (var item in Model.OrderBy(x => x.Code).ToList())
+        {
+            <option value="@item.Id" data-tagertpoint="@item.TargetPoint" data-type="@item.Type" data-point="@item.Point" data-selected="0" data-value="@item.Id | @(string.IsNullOrEmpty(item.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + item.Image_Name) | @(item.Code + " - " + item.Name + (item.Type == ProductType.Product ? string.Format(" - Giá bán: {0}", Common.PhanCachHangNgan(item.PriceOutbound)) + string.Format(" - Tồn: {0}", Common.PhanCachHangNgan(item.QuantityTotalInventory)) : string.Format(" - Giá dịch vụ: {0}", Common.PhanCachHangNgan(item.PriceOutbound))))" data-images="@(string.IsNullOrEmpty(item.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + item.Image_Name)" data-code="@item.Code" data-barcode="@item.Barcode" data-categorycode="@item.CategoryCode" data-price="@(item.PriceOutbound)" data-unit="@item.Unit" data-quantity-inventory="@item.QuantityTotalInventory">@item.Name</option>
+        }
+    </select>
+</div>
+<link href="/Scripts/RadCombobox_v1/RadComboBoxLite.css" rel="stylesheet" />
+<script src="/Scripts/RadCombobox_v1/rabCombobox.js"></script>
+<script>
+
+    $(document).ready(function ()
+    {
+        $('#productSelectList').radComboBox({
+            colTitle: 'ID, Hình, Tên sản phẩm',
+            colValue: 1,
+            colImage: 2,
+            colHide: '1',
+            colSize: '0px,50px,',
+            colClass: ',,',
+            //width: 600,
+            height: 500,
+            boxSearch: true,
+            colSearch: 2
+        });
+        //Hiển thị giá và tính thành tiền khi chọn sản phẩm
+        $('#productSelectList').on('change', function ()
+        {
+
+            var $this = $(this);
+            var selected = $this.find("option:selected");
+
+            if (selected.val() == '')// || $('#product_item_' + selected.val()).length > 0)
+                return;
+            var item = false;
+            $('.detailList tr').each(function (index, elem)
+            {
+                if ($(elem).data('productid') == selected.val())
+                {
+                    var $qty = $('#DetailList_' + index + '__Quantity');
+                    var $type = $('#DetailList_' + index + '__ProductType');
+                    var qtyCal = parseInt($qty.val()) + 1;
+                    if (parseInt(selected.data("quantity-inventory")) <= qtyCal && $type.val() == "product")
+                    {
+                        $qty.val(selected.data("quantity-inventory"));
+                    }
+                    else
+                    {
+                        $qty.val(qtyCal);
+                    }
+                    calcAmountItem(index);
+                    calcTotalAmount();
+                    item = true;
+                }
+            });
+            if (item) {
+                return;
+            }
+            var OrderNo = $('.detailList tr').length;
+            var ProductId = selected.val();
+            var ProductName = selected.text();
+            var Unit = selected.data("unit");
+            var Quantity = 1;
+            var Price = selected.data("price");
+            var CategoryCode = selected.data("categorycode");
+            var ProductType = selected.data("type");
+            var ProductCode = selected.data("code");
+            var QuantityInventory = selected.data("quantity-inventory");
+            var CustomerId = $('#CustomerId').val();
+            var Pack = selected.data("pack");
+            var TaxInvoice = selected.data("taxinvoice");
+            var ProductTargetPoint = selected.data("tagertpoint");
+            var ProductPoint = selected.data("point");
+            var Images = selected.data("images");
+            var formdata = {
+                OrderNo: OrderNo,
+                ProductId: ProductId,
+                ProductName: ProductName,
+                Unit: Unit,
+                Quantity: Quantity,
+                Price: Price,
+                ProductType: ProductType,
+                CategoryCode: CategoryCode,
+                ProductCode: ProductCode,
+                QuantityInventory: QuantityInventory,
+                CustomerId: CustomerId,
+                Pack: Pack,
+                TaxInvoice: TaxInvoice,
+                ProductTargetPoint: ProductTargetPoint,
+                ProductPoint: ProductPoint,
+                Images: Images
+            };
+            console.log("Hi"+formdata);
+            //Thêm dòng mới
+            ClickEventHandler(true, "/ProductInvoice/LoadProductItem", ".detailList", formdata, function ()
+            {
+                $('#ProductItemCount').val($('#listOrderDetail .detailList tr').length);
+                //LoadGiaBan(OrderNo, ProductId, Quantity, true);
+                calcTotalAmount();
+
+                $('#DetailList_' + OrderNo + '__Quantity').numberOnly();
+                $('#DetailList_' + OrderNo + '__Price').numberFormat();
+                $('#DetailList_' + OrderNo + '__PriceCapital').numberFormat();
+                $('#DetailList_' + OrderNo + '__DisCountAmount1').numberFormat();
+                $('#DetailList_' + OrderNo + '__Amount').numberFormat();
+                $('#DetailList_' + OrderNo + '__DisCount').numberOnly();
+                $('#DetailList_' + OrderNo + '__TaxInvoice').numberOnly();
+                $('#DetailList_' + OrderNo + '__QuantityInvoice').numberOnly();
+                if ($('#DetailList_' + OrderNo + '__DisCount').val() > 0)
+                {
+                    $('#DetailList_' + OrderNo + '__DisCount').val();
+                }
+                else
+                {
+                    $('#DetailList_' + OrderNo + '__DisCount').val($("#InputDiscount").val()).trigger("change");
+                }
+
+                $("#DetailList_" + OrderNo + "__Quantity").focus().select();
+                $('.image-link').magnificPopup({
+                    type: 'image',
+                    mainClass: 'mfp-with-zoom', // this class is for CSS animation below
+
+                    zoom: {
+                        enabled: true, // By default it's false, so don't forget to enable it
+
+                        duration: 300, // duration of the effect, in milliseconds
+                        easing: 'ease-in-out', // CSS transition easing function
+
+                        // The "opener" function should return the element from which popup will be zoomed in
+                        // and to which popup will be scaled down
+                        // By defailt it looks for an image tag:
+                        opener: function (openerElement)
+                        {
+                            // openerElement is the element on which popup was initialized, in this case its <a> tag
+                            // you don't need to add "opener" option if this code matches your needs, it's defailt one.
+                            return openerElement.is('img') ? openerElement : openerElement.find('img');
+                        }
+                    }
+
+                });
+            });
+        });
+        $('#product_barcode').keypress(function (e)
+        {
+            if (e.which == 13)
+            {
+                e.preventDefault();
+                $('#product_barcode').trigger('change');
+            }
+        });
+
+        $(window).keydown(function (e)
+        {
+            if (e.which == 114)
+            {
+                e.preventDefault();
+                $("#product_barcode").focus();
+            }
+        });
+
+        //khi nhập barcode
+        $('#product_barcode').change(function ()
+        {
+            var $this = $(this);
+            if ($this.val() != '')
+            {
+
+                var barcode = $this.val();
+                //đặt lại giá trị rỗng
+                $this.val('').focus();
+
+                var valueSearch = searchProductByBarCodeContain(barcode);
+                if (valueSearch == undefined)
+                {
+                    alert('Không tìm thấy sản phẩm với mã code trên!');
+                    return;
+                }
+
+                $('#productSelectList').val(valueSearch).trigger("change");
+
+                //kết thúc các lệnh của sự kiện
+            }
+        });
+        
+    });
+
+</script>

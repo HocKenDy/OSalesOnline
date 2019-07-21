@@ -1,0 +1,227 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+
+@model Erp.BackOffice.Sale.Models.ConfigsViewModel
+
+@{
+    ViewBag.Title = "Cài đặt chung";
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Configs",
+        ActionName = "Index",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+
+    <style type="text/css">
+        table input {
+            padding: 2px 5px !important;
+        }
+
+        table select {
+            height: 25px;
+            font-size: 12px;
+        }
+    </style>
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@helper renderItem(Erp.BackOffice.Areas.Administration.Models.SettingViewModel item)
+{
+    <tr>
+        <td style="padding-top:11px">@item.Note <span class="help-button" data-rel="tooltip" data-placement="bottom" data-original-title="@item.Key">?</span></td>
+        <td>
+            @if (!string.IsNullOrEmpty(item.Value) && item.Value.ToLower() == "true")
+            {
+                <label>
+                    <input class="ace chk" type="checkbox" id="Value_@item.Id" name="Value_@item.Id" data-value="true" checked="checked" />
+                    <span class="lbl"></span>
+                </label>
+            }
+            else if (!string.IsNullOrEmpty(item.Value) && item.Value.ToLower() == "false")
+            {
+                <label>
+                    <input class="ace chk" type="checkbox" id="Value_@item.Id" name="Value_@item.Id" data-value="false" />
+                    <span class="lbl"></span>
+                </label>
+            }
+            else
+            {
+                @Html.TextBox("Value_" + item.Id, item.Value, new { @class="txt", style = "width:100%", data_value = item.Value })
+            }
+        </td>
+        <td>
+            <a class="btn btn-success btn-mini" style="height:25px" onclick="updateSetting(@item.Id)">
+                <i class="fa fa-save"></i>
+                Lưu
+            </a>
+        </td>
+    </tr>
+}
+
+<div class="tabbable">
+    <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="tab">
+        <li class="active">
+            <a data-toggle="tab" href="#tab1">Dữ liệu phiếu in</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#tab2">Cài đặt bán hàng</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#tab3">Tiếp đầu ngữ mã chứng từ</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#tab4">STT mã chứng từ</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#tab5">Nhập tay mã chứng từ</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="tab1" class="tab-pane in active">
+            <table class="table table-bordered" style="max-width:1000px">
+                <thead>
+                    <tr>
+                        <td style="width:35%"><b>Tiêu đề</b></td>
+                        <td style="width:55%"><b>Giá trị</b></td>
+                        <td style="width:10%"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ListTemplatePrint)
+                    {
+                        @renderItem(item)
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="tab2" class="tab-pane">
+            <table class="table table-bordered" style="max-width:1000px">
+                <thead>
+                    <tr>
+                        <td style="width:35%"><b>Tiêu đề</b></td>
+                        <td style="width:55%"><b>Giá trị</b></td>
+                        <td style="width:10%"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ListSaleSetting)
+                    {
+                        @renderItem(item)
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="tab3" class="tab-pane">
+            <table class="table table-bordered" style="max-width:1000px">
+                <thead>
+                    <tr>
+                        <td style="width:35%"><b>Tiêu đề</b></td>
+                        <td style="width:55%"><b>Giá trị</b></td>
+                        <td style="width:10%"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ListSaleSetting_Prefix)
+                    {
+                        @renderItem(item)
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="tab4" class="tab-pane">
+            <table class="table table-bordered" style="max-width:1000px">
+                <thead>
+                    <tr>
+                        <td style="width:35%"><b>Tiêu đề</b></td>
+                        <td style="width:55%"><b>Giá trị</b></td>
+                        <td style="width:10%"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ListSaleSetting_OrderNo)
+                    {
+                        @renderItem(item)
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="tab5" class="tab-pane">
+            <table class="table table-bordered" style="max-width:1000px">
+                <thead>
+                    <tr>
+                        <td style="width:35%"><b>Tiêu đề</b></td>
+                        <td style="width:55%"><b>Giá trị</b></td>
+                        <td style="width:10%"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ListSaleSetting_Manual)
+                    {
+                        @renderItem(item)
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        function updateSetting(Id) {
+            var Value = $("#Value_" + Id).data("value");
+
+            ShowLoading();
+            var url = "/Setting/Update";
+
+            $.post(url, {
+                Id: Id,
+                Value: Value
+            },
+            function (res) {
+                if (res == 'success') {
+                    //location.reload();
+                    alertPopup('Lưu thành công!', '', 'success');
+                    HideLoading();
+                } else {
+                    alertPopup('Lưu không thành công!', 'Xin hãy kiểm tra lại.', 'error');
+                    HideLoading();
+                }
+            });
+        }
+
+        $(function () {
+            $('[data-rel=tooltip]').tooltip({ container: 'body' });
+
+            $(".chk").change(function () {
+                if($(this).prop("checked"))
+                {
+                    $(this).data("value", "true");
+                }
+                else
+                {
+                    $(this).data("value", "false");
+                }
+            });
+
+            $(".txt").change(function () {
+                $(this).data("value", $(this).val());
+            });
+        });
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+}

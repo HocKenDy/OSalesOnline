@@ -1,0 +1,129 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@model string
+<canvas id="product-sale-chartInboundOfCard"></canvas>
+
+<script type="text/javascript">
+    function createNewDataset(arrayData, label, borderColorValue, borderWidth) {
+        var objectDataset = {
+            label: label,
+            backgroundColor: [],
+            borderColor: borderColorValue,
+            borderWidth: borderWidth,
+            data: []
+        };
+
+        var arrBGColor = Object.keys(window.chartColors).map(function (key, index) {
+            return window.chartColors[key];
+        });
+
+        for (var i in arrayData) {
+            objectDataset.backgroundColor.push(colorRender(arrBGColor[i]).alpha(0.8).rgbString());
+            objectDataset.data.push(arrayData[i]);
+        }
+
+        return objectDataset;
+    };
+
+    var colorRender = Chart.helpers.color;
+
+    var responseData = [];
+
+    @if(!string.IsNullOrEmpty(ViewBag.json))
+    {
+        @Html.Raw("responseData = " + ViewBag.json + ";");
+    }
+
+    //nếu không có dữ liệu thì tạo dữ liệu rỗng
+    if (responseData.length == 0) {
+        responseData.push({ label: 'Chưa có dữ liệu', data: 100 });
+    }
+
+    var totalData = 0;
+    var arrayLabel = [];
+    var dataPushToDataset = [];
+
+    for (var i in responseData) {
+        totalData += responseData[i].data;
+    }
+
+    for (var i in responseData) {
+        var percent = Math.round((responseData[i].data / totalData) * 100);
+
+        arrayLabel.push(responseData[i].label + ' (' + percent + '%' + ')');
+        dataPushToDataset.push(responseData[i].data);
+    }
+
+    var arrayDataset = [];
+    var newDataset = createNewDataset(dataPushToDataset, 'Tỷ lệ nhập giữa kỳ theo thẻ', window.chartColors.blue, 0);
+    arrayDataset.push(newDataset);
+
+    var pieChartInboundCardData = {
+        labels: arrayLabel,
+        datasets: []
+    };
+
+    $(document).ready(function () {
+        //Chart.defaults.global.hover.mode = 'nearest';
+        var ctx = document.getElementById("product-sale-chartInboundOfCard").getContext("2d");
+
+        //legend: là các chú thích theo màu
+
+        var productInboundPie = new Chart(ctx, {
+            type: 'pie',
+            data: pieChartInboundCardData,
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'left',
+                },
+                title: {
+                    display: false,
+                    text: 'Tỷ lệ nhập giữa kỳ theo thẻ'
+                },
+                animation: {
+                    duration: 1000,
+                    enabled: true,
+                },
+                tooltips: {
+                    enabled: true,
+                    mode: 'single',
+                    callbacks: {
+                        title: function (tooltipItems, data) {
+                            return data.labels[tooltipItems[0].index];
+                        },
+                        label: function (tooltipItem, data) {
+                            var multiLabel = [];
+                            var productName = responseData[tooltipItem.index].label2;
+                            multiLabel.push("Tên thẻ: " + productName.substring(0, 60));
+                            var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            var valueFormat = "SL nhập giữa kỳ: " + Number(value).toFixed(0).toString().replace(/\d(?=(?:\d{3})+(?!\d))/g, '$&.');// + 'k / ' + Number(totalData/1000).toFixed(0).toString().replace(/\d(?=(?:\d{3})+(?!\d))/g,'$&.') + 'k';
+                            multiLabel.push(valueFormat);
+                            return multiLabel;
+                        }
+                    }
+                }
+            }
+        });
+        console.log("productTopINbound");
+
+        console.log(productInboundPie);
+        setTimeout(function () {
+            for (var i in arrayDataset) {
+                pieChartInboundCardData.datasets.push(arrayDataset[i]);
+            }
+            productInboundPie.update();
+            //console.log('updated')
+        }, 500);
+        console.log("pieChartInt");
+        console.log(pieChartInboundCardData);
+    });
+
+</script>
+
+
+

@@ -1,0 +1,156 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using GridMvc.Html
+@model ProductViewModel
+
+@{
+    ViewBag.Title = Wording.PageDetail_Card;
+
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Gift",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+@section HeadOfPage {
+    <link href="~/Scripts/magnific_popup/magnific-popup.css" rel="stylesheet" />
+    <style>
+        .main-content-popup {
+            margin-bottom: 50px;
+        }
+
+        .mfp-with-zoom .mfp-container,
+        .mfp-with-zoom.mfp-bg {
+            opacity: 0;
+            -webkit-backface-visibility: hidden;
+            /* ideally, transition speed should match zoom duration */
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        .mfp-with-zoom.mfp-ready .mfp-container {
+            opacity: 1;
+        }
+
+        .mfp-with-zoom.mfp-ready.mfp-bg {
+            opacity: 0.8;
+        }
+
+        .mfp-with-zoom.mfp-removing .mfp-container,
+        .mfp-with-zoom.mfp-removing.mfp-bg {
+            opacity: 0;
+        }
+
+        /*css*/
+        .profile-picture {
+            text-align: center;
+            max-width: 250px;
+            max-height: 175px;
+        }
+
+        .imageClass {
+            max-width: 100%;
+            max-height: 140px;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-sm-7">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title">Thông tin quà tặng</h5>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="detail-view">
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Code, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Name, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Unit, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.PriceInbound, true, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.PriceOutbound, true, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.MinInventory, true, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.MinInventoryAlarms, true, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.RedemptionPoints, true, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Description, null, null, "col-sm-3 col-xs-5", "col-sm-9 col-xs-7")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title">Hình ảnh</h5>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="profile-picture">
+                        <a href="@(string.IsNullOrEmpty(Model.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + Model.Image_Name)" class="image-link">
+                            <img class="imageClass" src="@(string.IsNullOrEmpty(Model.Image_Name) ? "/assets/css/images/noimage.gif" : "/files/product/" + Model.Image_Name)" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script src="~/Scripts/magnific_popup/jquery.magnific-popup.min.js"></script>
+    <script type="text/javascript">
+        $('.image-link').magnificPopup({
+            type: 'image',
+            mainClass: 'mfp-with-zoom', // this class is for CSS animation below
+
+            zoom: {
+                enabled: true, // By default it's false, so don't forget to enable it
+
+                duration: 300, // duration of the effect, in milliseconds
+                easing: 'ease-in-out', // CSS transition easing function
+
+                // The "opener" function should return the element from which popup will be zoomed in
+                // and to which popup will be scaled down
+                // By defailt it looks for an image tag:
+                opener: function (openerElement)
+                {
+                    // openerElement is the element on which popup was initialized, in this case its <a> tag
+                    // you don't need to add "opener" option if this code matches your needs, it's defailt one.
+                    return openerElement.is('img') ? openerElement : openerElement.find('img');
+                }
+            }
+
+        });
+
+    </script>
+}

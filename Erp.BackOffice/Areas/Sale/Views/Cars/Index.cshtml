@@ -1,0 +1,183 @@
+@model IEnumerable<CarsViewModel>
+
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@{
+    ViewBag.Title = Wording.PageIndex_Cars;
+    //bool isPopup = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower() == "true" ? true : false;
+    //Layout = isPopup ? StringExtention.LAYOUT_POPUP : StringExtention.LAYOUT_ADMIN;
+    Layout = null;
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Cars",
+        ActionName = StringExtention.ACTION_INDEX,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+    int rowNumber = 0;
+    int numberOfItem = 20;
+    int currentPage = Request["grid-page"] != null ? Convert.ToInt32(Request["grid-page"]) : 1;
+}
+
+<link href="@Url.Content("~/assets/css/Gridmvc.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"> </script>
+
+@helper GridColumnCommand(int id)
+{
+    <p>
+        @if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_EDIT, "Cars", StringExtention.AREA_SALE))
+        {
+            <button type="button" class="btn btn-mini btn-success" onclick="OpenPopup('@Url.Action(StringExtention.ACTION_EDIT, "Cars", new { Id = id, IsPopup=true })', '@Wording.Edit', 0, 0)">
+                <i class="ace-icon fa fa-edit"></i>
+            </button>
+        }
+        @if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_DELETE, "Cars", StringExtention.AREA_SALE))
+        {
+            <button name="Delete" value="Delete" type="button" class="btn btn-mini btn-danger" onclick="deleteCar(@id)">
+                <i class="ace-icon fa fa-trash bigger-120"></i>
+            </button>
+        }
+    </p>
+}
+
+@helper GridColumnName(string name, int id, bool isPopup)
+{
+name = string.IsNullOrEmpty(name) == false ? name : "No Title";
+if (!isPopup)
+{
+    if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_DETAIL, "Cars", StringExtention.AREA_SALE))
+    {
+            <a onclick="OpenPopup('@Url.Action(StringExtention.ACTION_DETAIL,  "Cars", new { area = StringExtention.AREA_SALE, Id = id, IsPopup = true })', 'Chi tiết', 0, 0)">
+                @name
+            </a>
+    }
+    else
+    {
+            <span>@name</span>
+    }
+}
+else
+{
+        <a onclick="parent.selectItemCars(@id, '@name')">
+            @name
+        </a>
+}
+}
+@helper GridColumnHtml(string obj)
+{
+    <p>
+        @(obj != null && obj.Length > 250 ? obj.Substring(0, 249) + ".v.v..." : obj)
+    </p>
+}
+
+@helper GridColumnCategoryValue(object value)
+{
+var attr = Common.GetCategoryByValueOrId("value", value);
+    <span>@(attr != null ? attr.Name : "")</span>
+}
+
+@helper CheckDeleteColumns(int Id)
+{
+    <label>
+        <input class="ace class-delete-all" type="checkbox" name="DeleteId-checkbox" value="@Id">
+        <span class="lbl"></span>
+    </label>
+}
+
+@helper BuildCheckAll()
+{
+    <label>
+        <input class="ace" type="checkbox" name="checkAll" id="checkAll" />
+        <span class="lbl"></span>
+    </label>
+}
+
+@*@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+}*@
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+<p>
+    <a class="" onclick="OpenPopup('/Cars/Create?IsPopup=true&CustomerId=@ViewBag.CustomerId', 'Tạo mới liên hệ', 0, 0)">
+        <i class="fa fa-plus-circle green"></i> <b>@Wording.PageCreate_Cars</b>
+    </a>
+</p>
+
+@using (Html.BeginForm(StringExtention.ACTION_DELETE, pageSetting.ModuleName, FormMethod.Post))
+{
+    @Html.Grid(Model).Columns(columns =>
+        {
+            //columns.Add().Titled(BuildCheckAll().ToHtmlString()).SetWidth(20).Sanitized(false).Encoded(false).RenderValueAs(n => CheckDeleteColumns(n.Id));
+            columns.Add().Titled("STT").SetWidth(15).RenderValueAs(o =>
+            {
+                rowNumber++;
+                return @<text> @(rowNumber + ((currentPage - 1) * numberOfItem)) </text>;
+            });
+            columns.Add().Titled("Biển kiểm soát").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnName(u.Plate, u.Id, false)).SetWidth(150);
+            columns.Add(u => u.Manufacturer).Titled("Hãng sản xuất").SetWidth(100);
+            columns.Add(u => u.CarLineName).Titled("Dòng xe").SetWidth(100);
+            columns.Add(u => u.Color).Titled("Màu sơn").SetWidth(100);
+            columns.Add(u => u.Frames).Titled("Số khung").SetWidth(100);
+            columns.Add(u => u.Number).Titled("Số máy").SetWidth(100) ;
+            columns.Add(u => u.Note).Titled("Ghi chú");
+            columns.Add(u => u.Id).Titled(Wording.Action).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnCommand(u.Id)).SetWidth(20);
+        }).WithPaging(20)
+
+    @*using (Html.BeginButtonContainer(pageSetting))
+    {
+       
+        if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_DELETE, "Cars", StringExtention.AREA_SALE))
+        {
+            <button name="DeleteAll" value="DeleteAll" type="submit" class="btn btn-mini btn-danger" onclick="return CheckIsval();">
+                <i class="ace-icon fa fa-trash bigger-120"></i>
+                @Wording.Delete
+            </button>
+        }
+    }*@
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        function deleteCar(id) {
+            if (confirm('Bạn có chắc muốn xóa xe?')) {
+                ShowLoading();
+                $.post('/Cars/DeleteJS', { id: id }, function (res) {
+                    if (res == 'success') {
+                        location.reload();
+                    }
+                    else {
+                        alertPopup('Xóa lỗi', '', 'error');
+                    }
+                });
+            }
+        };
+    </script>
+}

@@ -1,0 +1,82 @@
+﻿@model IEnumerable<ProductInvoiceViewModel>
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Helpers
+@using GridMvc.Html
+
+@{
+    Layout = null;
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "ProductInvoice",
+        ActionName = "Index",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+    int rowNumber = 0;
+    int numberOfItem = 20;
+    int currentPage = Request["grid-page"] != null ? Convert.ToInt32(Request["grid-page"]) : 1;
+}
+
+<style type="text/css">
+    .product-invoice-isdeleted {
+        text-decoration: line-through;
+    }
+</style>
+
+@helper GridColumnName(string name, int id, string note, string reason)
+{
+    name = string.IsNullOrEmpty(name) ? "No Title" : name;
+        <a href="@Url.Action("Detail", "ProductInvoice", new { Id = id })">@name</a>
+
+    if (!string.IsNullOrEmpty(note) || !string.IsNullOrEmpty(reason))
+    {
+        note = note + "; " + reason;
+            <span class="help-button" data-rel="tooltip" data-placement="bottom" data-original-title="@note">?</span>
+    }
+}
+
+@helper GridColumnStatusName(string status)
+{
+    switch (status)
+    {
+        case "pending":
+                <span class="label label-info">@Wording.OrderStatusDisplay_pending</span>
+            break;
+        case "inprogress":
+                <span class="label label-warning">@Wording.OrderStatusDisplay_inprogress</span>
+            break;
+        case "shipping":
+                <span class="label label-warning">@Wording.OrderStatusDisplay_shipping</span>
+            break;
+        case "complete":
+                <span class="label label-success">@Wording.OrderStatusDisplay_complete</span>
+            break;
+        case "delete":
+                <span class="label label-danger">@Wording.OrderStatusDisplay_delete</span>
+            break;
+    }
+}
+<div class="table-responsive">
+    @Html.Grid(Model).Columns(columns =>
+{
+    columns.Add().Titled("#").SetWidth(50).RenderValueAs(o =>
+    {
+        rowNumber++;
+        return @<text> @(rowNumber + ((currentPage - 1) * numberOfItem)) </text>;
+    });
+
+    columns.Add().Titled(Wording.Status).SetWidth(100).Sanitized(false).Encoded(false).RenderValueAs(n => GridColumnStatusName(n.Status));
+    columns.Add(u => u.CreatedDate).Titled(Wording.CreatedDate).SetWidth(130).Format("{0:dd/MM/yyyy HH:mm}");
+    columns.Add().Titled("Mã đơn hàng").Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnName(u.Code, u.Id, u.Note, u.CancelReason)).SetWidth(140);
+    columns.Add(u => u.TotalAmount).Titled(Wording.TotalAmount).Sortable(true).RenderValueAs(n => Common.PhanCachHangNgan(n.TotalAmount)).Css("text-right");
+    //columns.Add().Titled(Wording.Customer).RenderValueAs(n => n.CustomerName);
+    columns.Add().Titled(Wording.AccumulatedPoint).RenderValueAs(n => Common.PhanCachHangNgan(n.AccumulatedPoint)).SetWidth(100).Css("text-right");
+    columns.Add().Titled(Wording.UsePoint).RenderValueAs(n => Common.PhanCachHangNgan(n.UsePoint)).SetWidth(100).Css("text-right");
+    columns.Add().Titled("Tần suất").RenderValueAs(n => Common.ConvertDayToYearMonthWeekDays(n.Frequency)).SetWidth(100).Css("text-right");
+    //columns.Add(u => u.ModifiedDate).Titled(Wording.ModifiedDate).SetWidth(130).Sortable(true).Format("{0:dd/MM/yyyy HH:mm}");
+    //columns.Add(u => u.IsArchive).Titled("TT ghi sổ").Sanitized(false).Encoded(false).RenderValueAs(n => (n.IsArchive ? "<span style=\"color:green\"><b>Đã ghi sổ</b></span>" : "<span style=\"color:red\"><b>Chưa ghi sổ</b></span>")).SetWidth(90).Sortable(true);
+}).WithPaging(20).SetRowCssClasses(item => (item.IsDeleted.HasValue && item.IsDeleted.Value ? "product-invoice-isdeleted" : ""))
+</div>

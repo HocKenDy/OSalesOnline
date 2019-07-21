@@ -1,0 +1,137 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using Erp.Domain.Sale.Entities
+
+@model ProductViewModel
+
+@{
+    ViewBag.Title = "Lịch sử xuất/nhập kho";
+
+    Layout = "~/Views/Shared/_PopupLayout.cshtml";
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Inventory",
+        ActionName = "ProductInventoryDetail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false,
+
+
+    };
+
+    IEnumerable<vwProductInboundDetail> inboundDetails = (IEnumerable<vwProductInboundDetail>)ViewBag.inboundDetails;
+    IEnumerable<vwProductOutboundDetail> outboundDetails = (IEnumerable<vwProductOutboundDetail>)ViewBag.outboundDetails;
+    int? id = @Model.Id;
+   
+
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@*@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}*@
+
+
+<h4 class="green" style="margin-top:0px">@Model.Code - @Model.Name</h4>
+
+
+<ul class="nav nav-tabs" id="myTab">
+    <li id="li-tab1" class="active"><a data-target="#tab1" data-toggle="tab" aria-expanded="true">Thông tin @(Model.Type == ProductType.Product? "sản phẩm":(Model.Type == ProductType.Card?"thẻ":"quà tặng"))</a></li>
+    <li id="li-tab2"><a data-target="#tab2" data-toggle="tab" aria-expanded="true">Lịch sử nhập kho</a></li>
+    <li id="li-tab3" class=""><a data-target="#tab3" data-toggle="tab" aria-expanded="false">Lịch sử xuất kho</a></li>
+
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+        <div id="InfoProduct">
+            @Html.Partial("_Loading")
+
+        </div>
+    </div>
+    <div class="tab-pane" id="tab2">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>@Wording.OrderNo</th>
+                        <th>@Wording.CreatedDate</th>
+                        <th>@Wording.ProductInboundCode</th>
+                        <th>@Wording.Quantity</th>
+                        <th>@Wording.Destination</th>
+                        <th>@Wording.Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int index = 0; }
+                    @foreach (var item in inboundDetails)
+                    {
+                    <tr>
+                        <td>@(++index)</td>
+                        <td style="width: 130px;">@item.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.ProductInboundCode</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.WarehouseDestinationName</td>
+                        <td>@item.Note</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane" id="tab3">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>@Wording.OrderNo</th>
+                        <th>@Wording.CreatedDate</th>
+                        <th>@Wording.ProductOutboundCode</th>
+                        <th>@Wording.Quantity</th>
+                        <th>@Wording.Source</th>
+                        <th>@Wording.Destination</th>
+                        <th>@Wording.Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{index = 0; }
+                    @foreach (var item in outboundDetails)
+                    {
+                    <tr>
+                        <td>@(++index)</td>
+                        <td>@item.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.ProductOutboundCode</td>
+                        <td style="text-align:right;">@Common.PhanCachHangNgan(item.Quantity)</td>
+                        <td>@item.WarehouseSourceName</td>
+                        <td>@(string.IsNullOrEmpty(item.WarehouseDestinationName) == true ? item.PurchaseOrderCode : item.WarehouseDestinationName)</td>
+                        <td>@item.Note</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+<script type="text/javascript">
+    $(function () {
+       
+        $.get('@Url.Action("InfoProduct", "Product", new { area = "Sale", Id = id})', function (html) {
+            $("#InfoProduct").html(html);
+        });
+   
+    });
+</script>
+}

@@ -1,0 +1,225 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model PhysicalInventoryViewModel
+
+@{
+    ViewBag.Title = "Chi tiết kiểm kê kho";
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "PhysicalInventory",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+
+    int n = 0;
+    var groupList = Model.DetailList.GroupBy(x => new { x.CategoryCode }, (key, group) => new
+    {
+        CategoryCode = key.CategoryCode,
+        ProductList = group.ToList()
+    });
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+    <style type="text/css">
+        .mini-popup {
+            position: relative;
+            display: inline;
+        }
+
+        #popup_huy {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            width: 400px;
+            height: 160px;
+            max-width: inherit;
+            top: inherit;
+        }
+
+        #popup_archive {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            width: 390px;
+            height: 235px;
+            max-width: inherit;
+            top: inherit;
+        }
+    </style>
+
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+@if (Model.IsExchange == true)
+{
+    <div class="alert alert-block alert-success">
+        <i class="ace-icon fa fa-warning"></i>
+        Đã xử lý chênh lệch
+    </div>
+}
+<div class="row">
+    <div class="col-sm-7">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style="width:30px;">STT</th>
+                        <th>Tên sản phẩm</th>
+                        <th style="width:150px;">SL hệ thống</th>
+                        <th style="width:150px;">SL thực tế</th>
+                        <th style="width:150px;">SL chênh lệch</th>
+                    </tr>
+                </thead>
+                <tbody id="detailList">
+                    @foreach (var g in groupList)
+                    {
+                        <tr style="background:#eee"><td colspan="5"><b>@g.CategoryCode</b></td></tr>
+                        foreach (var item in g.ProductList)
+                        {
+                            n++;
+                            <tr style="@(item.QuantityDiff < 0 ? "background-color:#D15B47; color:#fff" : "")">
+                                <td>@n</td>
+                                <td>@item.ProductCode - @item.ProductName</td>
+                                <td class="text-right">@Common.PhanCachHangNgan(item.QuantityInInventory)</td>
+                                <td class="text-right">@Common.PhanCachHangNgan(item.QuantityRemaining)</td>
+                                <td class="text-right">@Common.PhanCachHangNgan(item.QuantityDiff)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-5">
+        <div class="tabbable">
+            <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="tabInvoice">
+                <li class="active"><a data-toggle="tab" href="#tab1">Thông tin chi tiết</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="detail-view">
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.Code, null, null, "col-xs-4", "col-xs-8")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.CreatedDate, null, null, "col-xs-4", "col-xs-8")
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.WarehouseName, null, null, "col-xs-4", "col-xs-8")
+                    </div>
+                    <div class="row control-group">
+                        <div class="col-xs-4 control-label"><label for="ProductInboundCode">Mã phiếu nhập</label></div><div class="col-xs-8 control-value"><a target="_blank" href="/ProductInbound/Detail/?TransactionCode=@Model.ProductInboundCode">@Model.ProductInboundCode</a></div>
+                    </div>
+                    <div class="row control-group">
+                        <div class="col-xs-4 control-label"><label for="ProductOutboundCode">Mã phiếu xuất</label></div><div class="col-xs-8 control-value"><a target="_blank" href="/ProductOutbound/Detail/?TransactionCode=@Model.ProductOutboundCode">@Model.ProductOutboundCode</a></div>
+                    </div>
+                    <div class="row control-group">
+                        @Html.DetailViewItemFor2(model => model.Note, null, null, "col-xs-4", "col-xs-8")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginButtonContainer(pageSetting))
+{
+    <a href="@Url.Action("Print", new { Id = Model.Id })" target="_blank" class="btn btn-primary btn-white btn-sm"><i class="fa fa-print"></i> In phiếu</a>
+    if (Model.IsExchange == false)
+    {
+        using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Exchange", "PhysicalInventory", null, FormMethod.Post, new { id = "Exchange", @class = "inline" }))
+        {
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(m => m.Id)
+            <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Exchange" onclick="return confirm('Bạn muốn tiếp tục thao tác xử lý chênh lệch tồn kho?');">
+                <i class="ace-icon fa fa-check"></i>
+                Xử lý chênh lệch
+            </button>
+        }
+        <div class="mini-popup">
+            <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_huy" style="color: red !important;">
+                <i class="ace-icon fa fa-trash"></i>
+                Hủy phiếu kiểm kê
+            </a>
+            <div id="popup_huy" class="popover fade top">
+                <div class="arrow" style="left: 50%;"></div>
+                <h3 class="popover-title"><i class="ace-icon fa fa-bolt red"></i> Hủy phiếu kiểm kê</h3>
+                <div class="popover-content">
+                    @using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Delete", "PhysicalInventory", null, FormMethod.Post, new { @class = "form-horizontal clearfix" }))
+                    {
+                        @Html.HiddenFor(m => m.Id)
+                        @Html.CustomTextAreaFor(model => model.CancelReason, Wording.Note, WidthType.span12)
+                        <p class="top-10">
+                            <button id="btnDelete" class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save" onclick="return submitDelete();">
+                                Đồng ý
+                            </button>
+                            <a class="btn btn-white btn-sm no-border" data-toggle="collapse" data-target="#popup_huy">Đóng</a>
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @*using (Html.BeginForm_AceStyle((string)ViewBag.Title, "CheckData", "PhysicalInventory", null, FormMethod.Post, new { id = "CheckData", @class = "inline" }))
+            {
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(m => m.Id)
+                <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="CheckData">
+                    <i class="ace-icon fa fa-check"></i>
+                    Kiểm tra dữ liệu
+                </button>
+            }*@
+    }
+}
+
+@section Scripts {
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+
+    <script type="text/javascript">
+        $(function ()
+        {
+
+        });
+        function submitDelete()
+        {
+            if (confirm('Bạn chắc chắn muốn thực hiện thao tác này?'))
+            {
+                if ($("#CancelReason").val() == '')
+                {
+                    alert("Vui lòng nhập lý do hủy!");
+                    $("#CancelReason").focus();
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+    </script>
+
+}

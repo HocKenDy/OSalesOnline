@@ -1,0 +1,67 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Crm.Models
+
+@model CampaignViewModel
+
+@{
+    ViewBag.Title = "Thông tin chiến dịch";
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+}
+<div class="page-header">
+    <h1>
+        @ViewBag.Title
+    </h1>
+</div>
+
+<p>@Html.Button(Wording.Edit, ButtonType.aTag, ButtonColor.Info, ButtonSize.Mini, true, IconType.Edit, IconSize.Default, false, new { @href = Url.Action("Edit", "Campaign", new { Id = Model.Id }) })</p>
+
+<div class="detail-view">
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.Name)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.Type)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.Status)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.StartDate)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.EndDate)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.BudgetedCost)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.ExpectedRevenue)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.ActualCost)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.ExpectedResponse)
+    </div>
+    <div class="row control-group">
+        @Html.DetailViewItemFor2(model => model.Commision)
+    </div>
+</div>
+<p></p>
+<div class="widget-box">
+    <div class="widget-header">
+        <h5 class="widget-title">Html control</h5>
+        <div class="widget-toolbar">
+            <a href="#" data-action="collapse">
+                <i class="ace-icon fa fa-chevron-up"></i>
+            </a>
+        </div>
+    </div>
+    <div class="widget-body">
+        <div class="widget-main">
+            
+        </div>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Administration.Models
+
+@model WardViewModel
+
+@{
+    ViewBag.Title = "Chỉnh sửa phường, xã, thị trấn";
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower().Equals("true") ?  "_PopupLayout.cshtml":"ACE_AdminLayout.cshtml");
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Ward",
+        ActionName = StringExtention.ACTION_EDIT,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    SelectList provinceList = Erp.BackOffice.Helpers.Common.GetSelectList_Location("0", Model.ProvinceId);
+    SelectList districtList = Erp.BackOffice.Helpers.Common.GetSelectList_Location(Model.ProvinceId, Model.DistrictId);
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@using(Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, pageSetting.ActionName, pageSetting.ModuleName, null, FormMethod.Post, new { @class = "form-horizontal", showButton = true }))
+{
+
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.WardId)
+    @Html.HiddenFor(model => model.CreatedUserId)
+    @Html.HiddenFor(model => model.AssignedUserId)
+    @Html.HiddenFor(model => model.CreatedDate)
+    @Html.HiddenFor(model => model.IsDeleted)
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+    @Html.CustomDropDownListFor(model => model.ProvinceId, provinceList, WidthType.span12)
+    @Html.CustomDropDownListFor(model => model.DistrictId, districtList, WidthType.span12)
+    @Html.CustomDropDownListFor(model => model.Type, SelectListHelper.GetSelectList_Category("TypeWard", Model.Type, "value", "- Đơn vị hành chính -"))
+    @Html.CustomTextboxFor(model => model.Name, null, null, WidthType.span12)
+  
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+    
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+
+    <script>
+        $(function () {
+            var url = '/api/BackOfficeServiceAPI/FetchLocation';
+            var districts = $('#DistrictId'); // cache it
+
+            $("#ProvinceId").change(function () {
+                var id = $(this).val(); // Use $(this) so you don't traverse the DOM again
+                $.getJSON(url, { parentId: id }, function (response) {
+                    districts.empty(); // remove any existing options
+                    
+                    $(response).each(function () {
+                        $(document.createElement('option'))
+                            .attr('value', this.Id)
+                            .text(capitalizeFirstAllWords(this.Name.toLowerCase().replace('huyện', '').replace('quận', '')))
+                            .appendTo(districts);
+                    });
+
+                    districts.trigger("chosen:updated");
+                });
+            });
+        });
+    </script>
+}

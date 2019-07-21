@@ -1,0 +1,385 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Account.Models
+
+@model ProductInvoiceViewModel
+
+@{
+    ViewBag.Title = Wording.PageCreateFromOrder_ProductInvoice;
+
+    Layout = null;
+
+    IEnumerable<SelectListItem> SaleList = (IEnumerable<SelectListItem>)ViewBag.SaleList;
+    
+    IEnumerable<ProductViewModel> productList = (IEnumerable<ProductViewModel>)ViewBag.productList;
+
+    SelectList provinceList = Erp.BackOffice.Helpers.Common.GetSelectList_Location("0", null);
+    SelectList districtList = Erp.BackOffice.Helpers.Common.GetSelectList_Location(Model.ShipCityId, null);
+    SelectList wardList = Erp.BackOffice.Helpers.Common.GetSelectList_Location(Model.ShipDistrictId, null);
+
+    IEnumerable<SelectListItem> productCategoryList = Erp.BackOffice.Helpers.Common.GetSelectList_Category("product", null, "value");
+    IEnumerable<SelectListItem> serviceCategoryList = Erp.BackOffice.Helpers.Common.GetSelectList_Category("service", null, "value");
+    
+    if (Request["IsPayment"] != null) { 
+        Model.IsPayment = Request["IsPayment"].ToLower() == "true" ? true : false ;
+    }
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+<style type="text/css">
+    .has-error .field-validation-error, .has-error .field-validation-valid{
+        color:#de2a2a;
+    }
+    html,body{
+        overflow:hidden;
+    }
+</style>
+
+@using (Ajax.BeginForm("CreateFromOrder", "ProductInvoice"
+    , new AjaxOptions()
+    {
+        HttpMethod = "POST",
+        OnBegin = "FormProductInvoice_OnBegin",
+        OnSuccess = "FormProductInvoice_OnSuccess"
+    }
+    , new { id = "ProductInvoice_CreateFromOrder", @class = "form-horizontal clearfix edit-view" }))
+{
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.CreatedUserName)
+    @*@Html.HiddenFor(model => model.SaleOrderId)*@
+    
+    <div class="col-sm-12" style="padding:0 27px 0 0;">
+        <div class="col-md-8 col-sm-12 no-padding clearfix">
+
+            <div class="float-md-right bottom-15">
+                <button type="submit" class="btn btn-info btn-sm" name="Submit" value="Save">
+                    <i class="ace-icon fa fa-save bigger-110"></i>
+                    @Wording.Save
+                </button>
+                <button style="margin-left:20px;" type="submit" class="btn btn-primary btn-sm" name="Submit-print" value="Save-print">
+                    <i class="ace-icon fa fa-print bigger-110"></i>
+                    @Wording.SaveAndPrint
+                </button>
+            </div>
+
+            <div class="float-md-left">
+                <input id="product_barcode" placeholder="Mã vạch..." />
+                <input data-val="true" data-val-required="Chưa chọn sản phẩm" id="numOfdetailItem" name="numOfdetailItem" type="text" value="1" style="">
+                <div class="clearfix top-15"></div>
+                <span class="field-validation-valid help-inline" style="color:#F44336" data-valmsg-for="numOfdetailItem" data-valmsg-replace="true"></span>
+            </div>
+
+        </div>
+        <div class="col-sm-4">
+
+        </div>
+    </div>
+
+    <div class="col-sm-12 no-padding clearfix">
+
+        <div class="col-md-8 col-sm-12 no-padding">
+
+            <div class="box bottom-5 box-height-max" style="padding:0px 0px 0px; margin-top:0px; box-shadow:none">
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered bottom-5">
+                            <thead>
+                                <tr>
+                                    <th class="detail-th-orderno" style="display:none">STT</th>
+                                    <th class="detail-th-category">Danh mục</th>
+                                    <th class="detail-th-product-name">Tên sản phẩm</th>
+                                    <th class="detail-th-quantity">Số lượng</th>
+                                    <th class="detail-th-price">Đơn giá</th>
+                                    <th class="detail-th-discount">% CK</th>
+                                    <th class="detail-th-discount-amount">Trị giá chiết khấu</th>
+                                    <th class="detail-th-promotion">Khuyến mãi</th>
+                                    <th class="detail-th-total">Thành tiền</th>
+                                    <th class="detail-th-action"></th>
+                                </tr>
+                            </thead>
+                            <tbody style="display:none" class="template-clone">
+                                <tr>
+                                    <td class="category-template">
+                                        <select class="detail_item_category_type type_product" style="width:100%">
+                                            @foreach (var item in productCategoryList.OrderBy(x => x.Text))
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        </select>
+                                        <select class="detail_item_category_type type_service" style="width:100%">
+                                            @foreach (var item in serviceCategoryList.OrderBy(x => x.Text))
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td class="product-template">
+                                        <select data-val="true" data-val-required="Chưa chọn sản phẩm" class="detail_item_id type_product" style="width:100%">
+                                            <option value="">- chọn -</option>
+                                            @foreach (var item in productList.Where(x => x.Type == "product").OrderBy(x => x.Name))
+                                            {
+                                                <option value="@item.Id" data-value="@item.Id | @item.Image_Name | @item.Name | @item.QuantityTotalInventory" data-code="@item.Code" data-barcode="@item.Barcode" data-product-type="@item.CategoryCode" data-price="@item.PriceOutbound" data-unit="@item.Unit">@item.Name</option>
+                                            }
+                                        </select>
+                                        <select  data-val="true" data-val-required="Chưa chọn dịch vụ" class="detail_item_id type_service" style="width:100%">
+                                            <option value="">- chọn -</option>
+                                            @foreach (var item in productList.Where(x => x.Type == "service").OrderByDescending(x => x.IsServicePackage).ThenBy(x => x.Name))
+                                            {
+                                                <option value="@item.Id" data-value="@item.Id | @item.Image_Name | @item.Name | @item.ServicesChild" data-code="@item.Code" data-barcode="@item.Barcode" data-product-type="@item.CategoryCode" data-price="@item.PriceOutbound" data-unit="@item.Unit">@item.Name</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody class="detailList">
+                                @foreach(var item in Model.DetailList)
+                                { 
+                                    int index = Model.DetailList.IndexOf(item);
+                                    decimal? subTotal = (item.Quantity * item.Price.Value);
+                                    decimal? subDiscountAmount = (item.Quantity * item.Price.Value) * item.DisCount / 100;
+                                    if (item.PromotionValue.HasValue)
+                                    {
+                                        subTotal = subTotal - Math.Round((Convert.ToDecimal(item.PromotionValue) * subTotal.Value) / 100);
+                                    }
+                                    if (item.DisCount.HasValue)
+                                    {
+                                        subTotal = subTotal - subDiscountAmount;
+                                    }   
+                                <tr role="@index"  data-type="@item.ProductType" data-id="@item.ProductId">
+                                    <td class="text-center" style="display:none">1</td>
+                                    <td class="category-append"  data-id="">
+                                        
+                                    </td>
+                                    <td class="has-error">
+                                        <div class="form-group control-group product-append"  style="margin:0">
+
+                                            <span class="field-validation-valid help-inline" data-valmsg-for="DetailList[@index].ProductId" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </td>
+                                    <td class="has-error">
+                                        <input type="hidden" name="DetailList[@index].Unit" value="" class="detail_item_unit" />
+                                        <input type="number" style="width:100%" min="1" value="@item.Quantity" data-val-range="Số lượng phải lớn hơn 1" name="DetailList[@index].Quantity" id="DetailList_@(index)_Quantity" class="detail_item_qty" />
+                                        <span style="display:block" class="field-validation-valid help-inline" data-valmsg-for="DetailList[@index].Quantity" data-valmsg-replace="false"></span>
+                                    </td>
+                                    <td class="has-error detail-product-price">
+                                        <input class="detail_item_price" type="text" id="DetailList_@(index)_Price" name="DetailList[@index].Price" value="@item.Price" role="price" style="width:100%" data-val="true" data-val-required="Chưa nhập giá" />
+                                        <span class="field-validation-valid help-inline" data-valmsg-for="DetailList[@index].Price" data-valmsg-replace="false"></span>
+                                    </td>
+                                    <td class="detail_item_discount text-right">
+                                        <span class="display-value" title="">@item.DisCount%</span>
+                                    </td>
+                                    <td class="detail_item_discount_amount text-right">
+                                        <span class="display-value" title="">@Common.PhanCachHangNgan(subDiscountAmount)</span>
+                                    </td>
+                                    <td class="detail_item_promotion text-right">
+                                        <span class="display-value" title="">@item.PromotionValue%</span>
+                                    </td>
+                                    <td class="detail_item_total">@Common.PhanCachHangNgan(subTotal)</td>
+                                    <td class="text-center">
+                                        <input type="hidden" name="DetailList[@index].PromotionId" value="@item.PromotionId" class="detail_item_promotion_id" />
+                                        <input type="hidden" name="DetailList[@index].PromotionDetailId" value="@item.PromotionDetailId" class="detail_item_promotion_detail_id" />
+                                        <input type="hidden" name="DetailList[@index].PromotionValue" value="@item.PromotionValue" class="detail_item_promotion_value" />
+                                        <a class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clearfix bottom-10">
+                <a class="btn btn-xs btn-primary btn-add-detail-item" role="product">Thêm sản phẩm</a>
+                <a class="btn btn-xs btn-primary btn-add-detail-item" role="service">Thêm dịch vụ</a>
+            </div>
+
+            <div class="clearfix list-product-display">
+                <h4>Các sản phẩm bán chạy</h4>
+                @foreach (var item in productList.Where(x => x.Type == "product").Take(12))
+                {
+                    <div class="col-sm-2">
+                        <div class="product-display">
+                            <div class="image-product">
+                                <img role="@item.Id" src="@item.Image_Name" alt="@item.Name" />
+                            </div>
+                            <a style="padding-top:5px" onclick="OpenPopup('/Product/Detail?IsPopup=true&Id=' + @item.Id, 'Xem sản phẩm', 1000, 500)">@item.Name</a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div><!--end .col-sm-7-->
+
+        <div class="col-md-4 col-sm-6 no-padding-right no-padding-md-down-left">
+
+            <ul class="nav nav-tabs" id="myTab">
+                <li id="li-tab1" class="active"><a data-target="#tab1" data-toggle="tab" aria-expanded="true">Khách hàng</a></li>
+                <li id="li-tab2" class=""><a data-target="#tab2" data-toggle="tab" aria-expanded="false">Thông tin khác</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1">
+
+                    @Html.CustomTextboxFor(model => model.CustomerName, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12" }, { "readonly", "readonly" } })
+
+                    <div class="control-group form-group">
+                        <label class="control-label no-padding-right col-lg-5 col-md-4 col-sm-4">Xem thông tin</label>
+                        <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                            <div class="clearfix btn-create-popup">
+                                <a style="padding-top:5px" onclick="$('.ship-info').slideToggle();">Giao hàng</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ship-info" style="display:none;">
+                        @Html.CustomTextboxFor(model => model.ShipName, null, null, WidthType.span12)
+                        @Html.CustomTextboxFor(model => model.Phone, null, null, WidthType.span12)
+                        @Html.CustomTextboxFor(model => model.ShipAddress, null, null, WidthType.span12)
+                        @Html.CustomDropDownListFor(model => model.ShipCityId, provinceList, WidthType.span12)
+                        @Html.CustomDropDownListFor(model => model.ShipDistrictId, districtList, WidthType.span12)
+                        @Html.CustomDropDownListFor(model => model.ShipWardId, wardList, WidthType.span12)
+                    </div>
+
+                </div>
+                <div class="tab-pane" id="tab2">
+                    @Html.CustomTextboxFor(model => model.SaleOrderCode, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12" }, { "disabled", "disabled" } })
+
+                    @Html.CustomTextboxFor(model => model.CodeInvoiceRed, null, null, WidthType.span12)
+                    @*@if (ViewBag.isAdmin)
+                    {*@
+                        @Html.CustomTextboxFor(model => model.CreatedUserName, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12" }, { "readonly", "readonly" } })
+                        @Html.CustomDropDownListFor(model => model.SalerId, SaleList, WidthType.span12, true, "- chọn -")
+                    @*}
+                    else
+                    {
+                        @Html.CustomTextboxFor(model => model.SalerName, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12" }, { "readonly", "readonly" } })
+                    }*@
+
+                    @Html.CustomTextAreaFor(model => model.Note, Wording.Note, WidthType.span12, true, null, "hide", "col-md-12")
+
+                </div>
+            </div>
+
+        </div><!--end .col-sm-5-->
+
+        <div class="col-md-4 col-sm-6 no-padding-right no-padding-xs-down-left">
+
+            <ul class="nav nav-tabs" id="myTab">
+                <li id="li-tab1" class="active"><a data-target="#tab-payment" data-toggle="tab" aria-expanded="true">Thanh toán</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab-payment">
+                    <div class="">
+
+                        <input autocomplete="off" class="col-sm-12 text-right" readonly id="ProductListTotal" maskformat="" name="ProductListTotal" type="hidden" value="0">
+
+                        @*<div id="" class="control-group form-group">
+                            <label class="control-label no-padding-right col-lg-5 col-md-4 col-sm-4" for="ProductListTotal">@Wording.ProductListTotal</label>
+                            <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                <div class="clearfix">
+                                    <input autocomplete="off" class="col-sm-12 text-right" readonly id="ProductListTotal" maskformat="" name="ProductListTotal" type="text" value="0">
+                                </div>
+                            </div>
+                        </div>*@
+
+                        @Html.CustomTextboxFor(model => model.Discount, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+
+                        <div id="" class="control-group form-group">
+                            <label class="control-label no-padding-right col-lg-5 col-md-4 col-sm-4" for="DiscountMoney">@Wording.DiscountMoney</label>
+                            <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                <div class="clearfix">
+                                    <input autocomplete="off" class="col-sm-12 text-right" readonly id="DiscountMoney" maskformat="" name="DiscountMoney" type="text" value="0">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="">
+                        @Html.CustomTextboxFor(model => model.TaxFee, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+                        @Html.CustomTextboxFor(model => model.TotalAmount, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12" }, { "readonly", "readonly" } })
+
+                        <div class="control-group form-group">
+                            <label class="control-label no-padding-right col-lg-5 col-md-4 col-sm-4" for="IsPayment">@Wording.PaymentNow</label>
+                            <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                <div class="clearfix">
+                                    <label style="margin:4px 0 0">
+                                        <input type="checkbox" class="ace" id="IsPayment" name="IsPayment" @(Model.IsPayment == true ? "checked" : "") value="True" />
+                                        <span class="lbl"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bank-container control-group-payment" style="display:none">
+                            @Html.HiddenFor(model => model.ReceiptViewModel.Name)
+
+                            @Html.CustomTextboxFor(model => model.ReceiptViewModel.Amount, null, null, WidthType.span12, false, new Dictionary<string, object> { { "class", "col-sm-12 text-right" } })
+
+                            <div class="NextPaymentDate-container" style="display:none">
+                                <div class="control-group form-group">
+                                    <label class="control-label no-padding-right col-lg-5 col-md-4 col-sm-4" for="AmountRemain">Số tiền còn lại</label>
+                                    <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                        <div class="clearfix">
+                                            @Html.TextBox("AmountRemain", 0, new { disabled = "disabled", @class = "col-sm-12 text-right" })
+                                        </div>
+                                    </div>
+                                </div>
+                                @Html.DateInput(model => model.NextPaymentDate, "dd/MM/yyyy", "99/99/9999", true, WidthType.span12, "col-lg-5 col-md-4 col-sm-4", "col-lg-7 col-md-8 col-sm-8")
+                            </div>
+
+                            @Html.CustomDropDownListFor(model => model.ReceiptViewModel.PaymentMethod, SelectListHelper.GetSelectList_Category("FormPayment", null, "Name", Wording.Empty), WidthType.span12, true, null, DropdownListStyle.DropdownListStyleDefault)
+                        </div>
+
+                        <div class="bank-container control-group-payment-method" style="display:none">
+                            @Html.CustomTextboxFor(model => model.ReceiptViewModel.BankAccountNo, null, null, WidthType.span12)
+                            @Html.CustomTextboxFor(model => model.ReceiptViewModel.BankAccountName, null, null, WidthType.span12)
+                            @Html.CustomTextboxFor(model => model.ReceiptViewModel.BankName, null, null, WidthType.span12)
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- .content-scroll -->
+
+}
+
+<script>
+  
+    function initCreateFromOrder() {
+        var $thisForm = $('#ProductInvoice_CreateFromOrder');
+
+        $tr_template = $thisForm.find('.detailList tr:first-child').clone();
+        //thêm các select box vào dòng mẫu
+        $tr_template.find('.category-append').append($thisForm.find('.category-template select').clone());
+        $tr_template.find('.product-append').prepend($thisForm.find('.product-template select').clone());
+        $tr_template.removeDataAttr('type,id');
+        $tr_template.find('.detail_item_id').attr('name', 'DetailList[0].ProductId').attr('id', 'DetailList_0_ProductId');
+
+        $thisForm.find('.detailList tr').each(function (index, tr) {
+            var type = $(tr).data('type');
+            var role = $(tr).attr('role');
+            //thêm select box danh mục
+            $(tr).find('.category-append').append($thisForm.find('.category-template select.type_' + type).clone());
+
+            //thêm select box sản phẩm
+            $(tr).find('.product-append').prepend($thisForm.find('.product-template select.type_' + type).clone());
+            $(tr).find('.detail_item_id').val($(tr).data('id')).trigger('change');
+            $(tr).find('.detail_item_id').attr('name', 'DetailList[' + role + '].ProductId').attr('id', 'DetailList_' + role + '_ProductId');
+        });
+
+        $thisForm.find('.template-clone').remove();
+    };
+
+</script>
+
+@section Scripts {    
+    
+}

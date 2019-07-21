@@ -1,0 +1,45 @@
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Crm.Models
+
+@model TaskViewModel
+
+@{
+    ViewBag.Title = Wording.PageEdit_Task;
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Edit", "Task", null, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.CreatedUserId)
+    @Html.HiddenFor(model => model.AssignedUserId)
+    @Html.HiddenFor(model => model.CreatedDate)
+    @Html.HiddenFor(model => model.IsDeleted)
+
+    @Html.CustomTextboxFor(model => model.Subject, null, null, WidthType.span6)
+    @Html.CustomDropDownListFor(model => model.Status, SelectListHelper.GetSelectList_Category("task_status", null, "Value", Wording.Empty), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleDefault)
+    @Html.DateInput(model => model.StartDate, "dd/MM/yyyy", "99/99/9999", true)
+    @Html.DateInput(model => model.DueDate, "dd/MM/yyyy", "99/99/9999", true)
+    @Html.CustomDropDownListFor(model => model.ParentType, SelectListHelper.GetSelectList_Module(null), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleChosen)
+    @Html.CustomDropDownListFor(model => model.ContactId, SelectListHelper.GetSelectList_Contact(null), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleChosen)
+    @Html.CustomDropDownListFor(model => model.Priority, SelectListHelper.GetSelectList_Category("task_priority", null, "Value", Wording.Empty), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleDefault)
+    @Html.CustomTextAreaFor(model => model.Description, null, WidthType.span12)
+
+    <button style="margin-top:10px" type="submit" class="btn btn-info" name="Submit" value="Save">
+        <i class="ace-icon fa fa-save bigger-110"></i>
+        @Wording.Save
+    </button>
+}
+
+@section Scripts {
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+}

@@ -1,0 +1,77 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model MemberCardViewModel
+
+@{
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "MemberCard",
+        ActionName = "Detail",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+
+<h5 class="blue"><b>LỊCH SỬ CẤP THẺ</b></h5>
+<div style="">
+    @foreach (var item in Model.ListMemberCard)
+    {
+        @Html.Partial("_item", item)
+    }
+</div>
+
+@using (Html.BeginButtonContainer(pageSetting))
+{
+    //if (Erp.BackOffice.Filters.SecurityFilter.IsAdmin())
+    //{
+        <p class="top-10">
+            <a class="btn btn-sm btn-white btn-primary" onclick="OpenPopup('@Url.Action("Create", "MemberCard", new { IsPopup = true, CustomerId = Model.CustomerId })', 'Cấp thẻ', 500, 500)">
+                <i class="ace-icon fa fa-credit-card"></i>
+                Cấp lại thẻ
+            </a>
+        </p>
+    @*  }*@
+    @*<a class="btn btn-mini btn-primary" href="@Url.Action("Edit", pageSetting.ModuleName, new { Id = Model.Id })">
+            <i class="ace-icon fa fa-edit"></i>
+            @Wording.Edit
+        </a>*@
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        function CheckIsval() {
+            if ($('[name="DeleteAll-checkbox"]').is(':checked') == false) {
+                alert("Phải chọn ít nhất 1 item.");
+                return false;
+            }
+            else {
+                if (confirm('Bạn có chắc muốn xóa các item đã chọn ?')) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        $('[name="Delete"]').click(function () {
+            if (confirm('Bạn có chắc muốn xóa item ?')) {
+                $(this).closest('tr').children('td').each(function (i, e) {
+                    $(this).find("input.class-delete-all").prop("checked", true);
+                    return true;
+                })
+            }
+            else {
+                return false;
+            }
+
+        })
+
+    </script>
+}

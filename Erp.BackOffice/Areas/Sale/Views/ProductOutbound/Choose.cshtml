@@ -1,0 +1,126 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model ProductOutboundViewModel
+
+@{
+    ViewBag.Title = Wording.PageChoose_ProductOutbound;
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "ProductOutbound",
+        ActionName = "Choose",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    IEnumerable<PurchaseOrderViewModel> PurchaseOrderList = (IEnumerable<PurchaseOrderViewModel>)ViewBag.PurchaseOrderList;
+    IEnumerable<ProductInvoiceViewModel> InvoiceList = (IEnumerable<ProductInvoiceViewModel>)ViewBag.InvoiceList;
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Mã đơn hàng</th>
+            <th>Khách hàng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{int index = 0;}
+        @foreach (var item in InvoiceList)
+        {
+            <tr>
+                <td>@(++index)</td>
+                <td><a href="/ProductOutbound/Create?InvoiceId=@item.Id">@item.Code</a></td>
+                <td>@item.CustomerCode</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@*<div class="row">
+
+    <div class="col-sm-6" style="display:none">
+        <div class="widget-box">
+            <div class="widget-header widget-header-blue widget-header-flat">
+                <h4 class="lighter">Xuất cho đơn hàng đại lý</h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Mã đơn yêu cầu</th>
+                                <th>Kho đích đến</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int index = 0;}
+                            @foreach (var item in PurchaseOrderList)
+                            {
+                                <tr>
+                                    <td>@(++index)</td>
+                                    <td><a href="/ProductOutbound/Create?OrderId=@item.Id">@item.Code</a></td>
+                                    <td>@item.WarehouseDestinationName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12">
+        <div class="widget-box">
+            <div class="widget-header widget-header-blue widget-header-flat">
+                <h4 class="lighter">Xuất cho hóa đơn</h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>*@
+
+@section Scripts {
+    
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+
+<script>
+    $(document).ready(function () {
+        //định dạng tiền tệ
+        $('#TotalAmount').numberFormat();
+    });
+</script>
+
+}

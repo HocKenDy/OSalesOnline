@@ -1,0 +1,42 @@
+﻿@{
+    List<int> arrayWidthChange = (List<int>)ViewData["arrayWidthChange"];
+    string class_div = ViewData["name"].ToString();
+    int width = (int)ViewData["width"];
+    int colCount = (int)ViewData["colCount"];
+    int marginBottom = ViewData["marginBottom"] != null ? (int)ViewData["marginBottom"] : 360;
+    int marginScroll = ViewData["marginScroll"] != null ? (int)ViewData["marginScroll"] : 20;
+    int w_table = colCount * width - ((width * arrayWidthChange.Count) - arrayWidthChange.Sum(n => n)) + marginScroll;
+}
+
+<style type="text/css">
+       .@(class_div) table tbody,.@(class_div) table thead {
+            display: block;
+        }
+
+       .@(class_div) table tbody {
+            overflow: auto;
+            height: calc(100vh - @(marginBottom)px)!important;
+        }
+
+       .@(class_div) table {
+            width: @(w_table)px!important; /* can be dynamic */
+        }
+
+       .@(class_div) th {
+            width: @(width)px;
+        }
+        .@(class_div) td {
+            width: @(width)px;
+        }
+
+        .@(class_div) > thead > tr > th {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+
+        .@(class_div) > tbody > tr > td {
+            vertical-align: middle;
+            text-align: center;
+        }
+</style>

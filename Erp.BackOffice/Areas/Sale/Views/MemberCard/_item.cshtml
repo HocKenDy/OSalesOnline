@@ -1,0 +1,26 @@
+﻿@using Erp.BackOffice.Sale.Models
+@model MemberCardViewModel
+
+<div class="alert alert-warning col-sm-3">
+    <p class="clearfix">
+        <b class="pull-left">
+            MÃ THẺ: <span class="green">@Model.Code</span>
+        </b>
+        @*@if (Erp.BackOffice.Filters.SecurityFilter.IsAdmin())
+        {*@
+            <a class="pull-right" onclick="OpenPopup('@Url.Action("Edit", "MemberCard", new { IsPopup = true, Id = Model.Id })', 'Chỉnh sửa', 0, 0)">
+                <i class="fa fa-pencil"></i> Chỉnh sửa
+            </a>
+        @*  }*@
+    </p>
+    <p>
+        <b>
+            NGÀY CẤP THẺ: <span class="green">@(Model.DateOfIssue !=null ? Model.DateOfIssue.Value.ToString("dd/MM/yyyy HH:mm") :"")</span>
+        </b>
+    </p>
+
+    <p class="top-10">
+        <img src="@("/files/membercardtype/" + Model.MemberCardTypeImage)" style="max-width:100%" />
+    </p>
+</div>
+<p></p>

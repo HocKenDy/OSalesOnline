@@ -1,0 +1,155 @@
+﻿@using GridMvc.Columns
+@model GridMvc.IGrid
+@{
+    string guid_class = string.Concat("qts", Guid.NewGuid().ToString());
+}
+@if (Model == null) { return; }
+@if (Model.RenderOptions.RenderRowsOnly)
+{
+    @RenderGridBody();
+}
+else
+{
+    <div class="grid-mvc" data-lang="@Model.Language" data-gridname="@Model.RenderOptions.GridName" data-selectable="@Model.RenderOptions.Selectable.ToString().ToLower()" data-multiplefilters="@Model.RenderOptions.AllowMultipleFilters.ToString().ToLower()">
+        <div class="grid-wrap @guid_class">
+            <table class="table table-striped grid-table ui-responsive">
+                @* Draw grid header *@
+                <thead>
+                    @RenderGridHeader()
+                </thead>
+                <tbody>
+                    @RenderGridBody()
+                </tbody>
+            </table>
+            @RenderGridPager()
+        </div>
+
+    </div>
+    @RenderCss(guid_class)
+}
+
+@helper RenderCss(string guild)
+{
+string reponsive = "@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {";
+
+string content_td_tr = "div." + guild + ">table.ui-responsive," + "div." + guild + ">table.ui-responsive thead, " + "div." + guild + ">table.ui-responsive tbody, " + "div." + guild + ">table.ui-responsive th, " + "div." + guild + ">table.ui-responsive td, " + "div." + guild + ">table.ui-responsive tr {"
+                        + "display: block;                                                                                "
+                        + "}                                                                                              "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive.ui-responsive tr:hover td {                       "
+                        + "        background-image: none !important;                                                     "
+                        + "        border-top: none !important;                                                           "
+                        + "        border-bottom: solid #d1e1ec 1px !important;                                           "
+                        + "        border-top: none !important;                                                           "
+                        + "        background-color: #d1e1ec;                                                             "
+                        + "        box-sizing: border-box;                                                                "
+                        + "        cursor: pointer;                                                                       "
+                        + "    }                                                                                          "
+                         + "div." + guild + ">table.grid-table.ui-responsive.ui-responsive tr.grid-row.grid-row-selected {"
+                        + "        background-color: #d1e1ec!important;                                                   "
+                        + "    }                                                                                          "
+                        + "                                                                                               "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive tr.detail-row:hover td {                      "
+                        + "        background-image: none !important;                                                     "
+                        + "        border-top: none !important;                                                           "
+                        + "        cursor: pointer;                                                                       "
+                        + "        border-bottom: none !important;                                                        "
+                        + "    }                                                                                          "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive tr.detail-row:hover td td {                   "
+                        + "            background-image: none !important;                                                 "
+                        + "            border-top: none !important;                                                       "
+                        + "            border-bottom: none !important;                                                    "
+                        + "        }                                                                                      "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive thead tr {                                    "
+                        + "        position: absolute !important;                                                         "
+                        + "        top: -9999px !important;                                                               "
+                        + "        left: -9999px !important;                                                              "
+                        + "    }                                                                                          "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive tr {                                          "
+                        + "        border: 1px solid #ccc;                                                                "
+                        + "        margin-bottom: 10px !important;                                                        "
+                        + "        padding-bottom: 10px !important;  box-shadow: 0 2px 4px #33333347;                     "
+                        + "    }                                                                                          "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive td {                                          "
+                        + "        border: none !important;                                                               "
+                        + "        border-bottom: 1px solid #eee !important;                                              "
+                        + "        position: relative !important;                                                         "
+                        + "        padding-left: 50% !important;                                                          "
+                        + "        text-align: left !important;                                                           "
+                        + "        min-height: 29px !important;                                                           "
+                        + "    }                                                                                          "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive td:before {                                   "
+                        + "            position: absolute;                                                                "
+                        + "            top: 6px;                                                                          "
+                        + "            left: 6px;                                                                         "
+                        + "            width: 45%;                                                                        "
+                        + "            padding-right: 10px;                                                               "
+                        + "            white-space: nowrap;                                                               "
+                        + "        }                                                                                      "
+                        + "                                                                                               "
+                        + "div." + guild + ">table.grid-table.ui-responsive .ace-thumbnails {                             "
+                        + "        text-align: left !important;                                                           "
+                        + "    }                                                                                          ";
+
+string content_header = "";
+int index = 1;
+foreach (IGridColumn column in Model.Columns)
+{
+    content_header += "div." + guild + ">table.grid-table.ui-responsive td:nth-of-type(" + index + "):before {font-weight: 700;content: \"" + Erp.BackOffice.Helpers.Common.GetContentTextInElement(@column.HeaderRenderer.Render(column).ToHtmlString()) + "\";}";
+    index++;
+}
+    <style>
+           @Html.Raw(reponsive+ content_td_tr + content_header+"}")
+    </style>
+}
+
+@helper RenderGridBody()
+{
+if (!Model.ItemsToDisplay.Any())
+{
+        <tr class="grid-empty-text">
+            <td colspan="@Model.Columns.Count()">
+                @Model.EmptyGridText
+            </td>
+        </tr>
+}
+else
+{
+    foreach (object item in Model.ItemsToDisplay)
+    {
+            <tr class="grid-row @Model.GetRowCssClasses(item)">
+                @foreach (IGridColumn column in Model.Columns)
+                {
+                    @column.CellRenderer.Render(column, column.GetCell(item))
+                }
+            </tr>
+    }
+}
+}
+@helper RenderGridHeader()
+{
+    <tr>
+        @foreach (IGridColumn column in Model.Columns)
+        {
+            @column.HeaderRenderer.Render(column)
+
+        }
+    </tr>
+}
+
+
+@helper RenderGridPager()
+{
+if (Model.EnablePaging && Model.Pager != null)
+{
+        <div class="grid-footer">
+            @Html.Partial(Model.Pager.TemplateName, Model.Pager)
+        </div>
+}
+}

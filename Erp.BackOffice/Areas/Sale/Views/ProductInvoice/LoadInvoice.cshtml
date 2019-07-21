@@ -1,0 +1,77 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model List<ProductInvoiceViewModel>
+@{
+    int index = 1;
+
+}<table id="simple-table" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th style="width:50px;"></th>
+            <th style="width:130px;">Ngày đơn hàng</th>
+            <th style="width:120px">Mã đơn hàng</th>
+            <th>Số tiền</th>
+            <th style="width:120px">Chu kỳ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                <tr data-id="@item.Id">
+                    <td class="center">
+                        <div class="action-buttons">
+                            <a href="#" class="green bigger-140 show-details-btn" title="Show Details">
+                                <i class="ace-icon fa fa-angle-double-down"></i>
+                                <span class="sr-only">Details</span>
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        @string.Format("{0: dd/MM/yyyy HH:mm}", item.CreatedDate)
+                    </td>
+                    <td><a onclick="">@item.Code</a></td>
+                    <td class="text-right">@Common.PhanCachHangNgan(item.TotalAmount)</td>
+                    <td class="text-right">@Common.CalculateTwoDates(item.CreatedDate.Value, DateTime.Now) Ngày</td>
+                </tr>
+                <tr class="detail-row">
+                    <td colspan="5">
+                        <div class="table-detail">
+                            <div class="row" id="detailInvoiceBefore_@(item.Id)">
+                                @Html.Partial("_Loading")
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+<script>
+    $('.show-details-btn').on('click', function (e)
+    {
+        e.preventDefault();
+        var Id = $(this).closest('tr').data("id");
+        var className = $(this).closest('tr').next().attr('class');
+        if (className == "detail-row")
+        {
+            console.log(className);
+            loadInvoiceDetailBefore(Id);
+        }
+        $(this).closest('tr').next().toggleClass('open');
+        $(this).find(ace.vars['.icon']).toggleClass('fa-angle-double-down').toggleClass('fa-angle-double-up');
+    });
+    function loadInvoiceDetailBefore(Id)
+    {
+        $("#detailInvoiceBefore_" + Id).html("loading....");
+        $("#detailInvoiceBefore_" + Id).load('@Url.Action("LoadDetailInvoice", "ProductInvoice", new { area = "Sale",})?InvoiceId=' + Id, function ()
+        {
+
+        });
+    }
+</script>

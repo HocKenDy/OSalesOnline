@@ -1,0 +1,131 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model IEnumerable<UsingServiceViewModel>
+
+@{
+    ViewBag.Title = Wording.PageCreate_UsingService;
+
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+
+    string txtCheckCode = Request["txtCheckCode"];
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "UsingService",
+        ActionName = "Create",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+<div class="col-sm-12 clearfix">
+    @using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Create", "UsingService", null, FormMethod.Post, new { @class = "form-horizontal", id = "UsingService" }))
+    {
+        @Html.ValidationSummary(true)
+
+        <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+        <input type="hidden" value="@ViewBag.customerId" name="CustomerId" />
+
+        <div class="col-sm-12">
+            @if (ViewBag.isCustomer == false)
+            {
+                <p class="text-danger">Không tìm thấy mã khách hàng: @txtCheckCode</p>
+            }
+            @if (ViewBag.isCustomer == true && Model.Count() == 0)
+            {
+                <p class="text-danger">Không có dịch vụ trong trạng thái chờ sử dụng cho mã khách hàng: @txtCheckCode</p>
+            }
+
+            @if (ViewBag.isInvoice == false)
+            {
+                <p class="text-danger">Không tìm thấy mã hóa đơn: @txtCheckCode</p>
+            }
+            @if (ViewBag.isInvoice == true && Model.Count() == 0)
+            {
+                <p class="text-danger">Không có dịch vụ trong trạng thái chờ sử dụng cho mã hóa đơn: @txtCheckCode</p>
+            }
+        </div>
+
+        <div class="col-sm-12 clearfix">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width:30px">Chọn</th>
+                            <th>Tên dịch vụ</th>
+                            <th style="width:100px;">SL mua</th>
+                            <th style="width:100px;">SL còn lại</th>
+                            <th style="width:200px;">Thuộc gói DV</th>
+                            <th style="width:150px;">Mã hóa đơn</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int index = 0;}
+                        @foreach (var item in Model)
+                        {
+                            <tr class="service-@item.Id">
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="ace" value="@item.Id" name="using-service-item" />
+                                        <span class="lbl"></span>
+                                    </label>
+                                </td>
+                                <td>@item.ProductName</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.QuantityRemaining</td>
+                                <td>@(item.PackageProductId != null ? item.PackageProductName : "")</td>
+                                <td>@item.InvoiceCode</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            @using (Html.BeginButtonContainer(pageSetting))
+            {
+                <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+                    <i class="ace-icon fa fa-save"></i>
+                    @Wording.Save
+                </button>
+                <label class="error-submit-label text-danger"></label>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+            $('#UsingService').submit(function () {
+                $('.error-submit-label').text('');
+                var items = $('input[name="using-service-item"]:checked');
+                if (items.length == 0) {
+                    $('.error-submit-label').text('Hãy chọn ít nhất 1 dịch vụ!');
+                    HideLoading();
+                    return false
+                }
+                else
+                    return true;
+            });
+        });
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+}

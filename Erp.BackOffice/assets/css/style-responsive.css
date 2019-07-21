@@ -1,0 +1,236 @@
+﻿/**************************************** responsive *************************************/
+/***************** 1200 *******************/
+@media (max-width: 1199px) {
+    .no-padding-lg-down-left {
+        padding-left: 0 !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .float-xl-left {
+        float: left !important;
+    }
+
+    .float-xl-right {
+        float: right !important;
+    }
+
+    .float-xl-none {
+        float: none !important;
+    }
+}
+
+/***************** 992 *******************/
+@media (max-width: 991px) {
+    #topmenu .dropdown-menu {
+        background-color: #fff;
+        color: #777 !important;
+        position: static;
+    }
+
+        #topmenu .dropdown-menu a {
+            color: #777 !important;
+        }
+
+        #topmenu .dropdown-menu:after, #topmenu .dropdown-menu:before {
+            display: none;
+        }
+
+    .user-login-box {
+        float: right !important;
+    }
+
+    body.mob-safari .navbar-fixed-top + .main-container .sidebar.responsive {
+        top: 45px;
+        bottom: 21px;
+    }
+
+    #sidebar-collapse {
+        margin-top: 0px !important;
+    }
+
+    .no-padding-md-down-left {
+        padding-left: 0 !important;
+    }
+}
+
+@media (min-width: 992px) {
+    #topmenu {
+        padding-right: 0px;
+    }
+
+        #topmenu .nav.navbar-nav {
+            padding: 0;
+        }
+
+    .user-login-box .nav.ace-nav {
+        padding: 0;
+    }
+
+    .edit-view .chosen-single, .edit-view input, .edit-view select {
+        max-width: 500px;
+    }
+
+    .float-lg-left {
+        float: left !important;
+    }
+
+    .float-lg-right {
+        float: right !important;
+    }
+
+    .float-lg-none {
+        float: none !important;
+    }
+
+    .no-padding-lg-up-left {
+        padding-left: 0 !important;
+    }
+}
+
+/***************** 768 *******************/
+@media (max-width: 768px) {
+    .no-padding-sm-down-left {
+        padding-left: 0 !important;
+    }
+
+    .hidden-phone {
+        display: none;
+    }
+
+    .edit-view label {
+        width: 100% !important;
+        float: none !important;
+        font-weight: bold !important;
+        border-bottom: 1px solid #eee;
+    }
+
+    .page-content {
+        padding: 15px 12px 90px;
+    }
+
+    .main-content-popup {
+        padding-bottom: 80px;
+    }
+
+    #navbar-container .logo-big {
+        line-height: 30px;
+        padding: inherit;
+        margin-left: 5px;
+        font-size: 45px;
+        height: 45px;
+    }
+
+    .navbar .ace-nav > li {
+        height: 45px;
+        line-height: 45px;
+    }
+
+    #notifications_button {
+        padding-top: 4px;
+    }
+
+    .navbar-fixed-top + .main-container {
+        padding-top: 45px;
+    }
+
+    #navbar-container .fa-user {
+        font-size: 20px;
+        margin-top: 12px;
+    }
+
+    #menu-phone ul ul {
+        display: block;
+    }
+
+    #menu-phone .navbar-collapse {
+        max-height: -webkit-fill-available;
+        padding-bottom: 25px;
+    }
+
+    .navbar .navbar-nav > li > a {
+        height: 40px;
+        line-height: 40px;
+        padding: 0 12px;
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 769px) {
+    .float-md-left {
+        float: left !important;
+    }
+
+    .float-md-right {
+        float: right !important;
+    }
+
+    .float-md-none {
+        float: none !important;
+    }
+
+    .no-padding-md-up-left {
+        padding-left: 0 !important;
+    }
+
+    .page-content {
+        padding: 15px 12px 90px;
+    }
+
+    .main-content-popup {
+        padding-bottom: 50px;
+    }
+
+    .visible-phone {
+        display: none;
+    }
+
+    .infobox > .infobox-data {
+        min-width: 110px;
+    }
+}
+
+/***************** 576 *******************/
+@media (max-width: 575px) {
+    .no-padding-xs-down-left {
+        padding-left: 0 !important;
+    }
+}
+
+@media (min-width: 576px) {
+    .float-sm-left {
+        float: left !important;
+    }
+
+    .float-sm-right {
+        float: right !important;
+    }
+
+    .float-sm-none {
+        float: none !important;
+    }
+
+    .no-padding-sm-up-left {
+        padding-left: 0 !important;
+    }
+}
+
+/***************** 480 *******************/
+@media (max-width: 479px) {
+
+    footer .user-login-box {
+        margin-left: 0px !important;
+    }
+
+    .group-multi-control {
+        float: none !important;
+    }
+
+        .group-multi-control .separate-control {
+            display: none;
+        }
+
+    .infobox {
+        width: 100%;
+    }
+}

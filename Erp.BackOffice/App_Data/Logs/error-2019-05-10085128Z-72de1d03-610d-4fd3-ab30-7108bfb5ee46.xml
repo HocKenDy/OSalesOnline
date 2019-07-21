@@ -1,0 +1,179 @@
+﻿<error errorId="72de1d03-610d-4fd3-ab30-7108bfb5ee46" application="/LM/W3SVC/2/ROOT" host="DESKTOP-ROE9NHL" type="System.Web.HttpException" message="The controller for path '/__browserLink/requestData/91877141096444f091709d70f83660c4' was not found or does not implement IController." source="System.Web.Mvc" detail="System.Web.HttpException (0x80004005): The controller for path '/__browserLink/requestData/91877141096444f091709d70f83660c4' was not found or does not implement IController.&#xD;&#xA;   at System.Web.Mvc.DefaultControllerFactory.GetControllerInstance(RequestContext requestContext, Type controllerType)&#xD;&#xA;   at System.Web.Mvc.DefaultControllerFactory.CreateController(RequestContext requestContext, String controllerName)&#xD;&#xA;   at System.Web.Mvc.MvcHandler.ProcessRequestInit(HttpContextBase httpContext, IController&amp; controller, IControllerFactory&amp; factory)&#xD;&#xA;   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, Object state)&#xD;&#xA;   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContext httpContext, AsyncCallback callback, Object state)&#xD;&#xA;   at System.Web.Mvc.MvcHandler.System.Web.IHttpAsyncHandler.BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)&#xD;&#xA;   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()&#xD;&#xA;   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)&#xD;&#xA;   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean&amp; completedSynchronously)" user="admin" time="2019-05-10T08:51:28.9760845Z" statusCode="404">
+  <serverVariables>
+    <item name="ALL_HTTP">
+      <value string="HTTP_CONNECTION:keep-alive&#xD;&#xA;HTTP_ACCEPT:application/json, text/javascript, */*; q=0.01&#xD;&#xA;HTTP_ACCEPT_ENCODING:gzip, deflate, br&#xD;&#xA;HTTP_ACCEPT_LANGUAGE:en-US,en;q=0.9&#xD;&#xA;HTTP_COOKIE:culture=en; ASP.NET_SessionId=asyhn4kmlde02qhgqkypuget; __RequestVerificationToken=nBxxOxvfRZXqJ1exKxzUWFHxU9cv-PbSd2mq9M18FgbcZYxHqYLHEJLMl6bMaf_Js9tvb9Mmndi5FZI-bHlDShqh6Y0KNM5jFa0gChxoARo1; BO=5A435679F14C120E24F72D93324E088A02BFC416F64AF76E9CD0D436F450038B08FDC48D55773670A84296431D1C75E65BEAE9A0A5BC89661B82B83A0AA364571BE0593A6A05F10751324F978B431353F6C7F21BD46E10CDE9EF8929BD5A66E4&#xD;&#xA;HTTP_HOST:localhost:59230&#xD;&#xA;HTTP_REFERER:http://localhost:59230/Customer/Index&#xD;&#xA;HTTP_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36&#xD;&#xA;HTTP_X_REQUESTED_WITH:XMLHttpRequest&#xD;&#xA;" />
+    </item>
+    <item name="ALL_RAW">
+      <value string="Connection: keep-alive&#xD;&#xA;Accept: application/json, text/javascript, */*; q=0.01&#xD;&#xA;Accept-Encoding: gzip, deflate, br&#xD;&#xA;Accept-Language: en-US,en;q=0.9&#xD;&#xA;Cookie: culture=en; ASP.NET_SessionId=asyhn4kmlde02qhgqkypuget; __RequestVerificationToken=nBxxOxvfRZXqJ1exKxzUWFHxU9cv-PbSd2mq9M18FgbcZYxHqYLHEJLMl6bMaf_Js9tvb9Mmndi5FZI-bHlDShqh6Y0KNM5jFa0gChxoARo1; BO=5A435679F14C120E24F72D93324E088A02BFC416F64AF76E9CD0D436F450038B08FDC48D55773670A84296431D1C75E65BEAE9A0A5BC89661B82B83A0AA364571BE0593A6A05F10751324F978B431353F6C7F21BD46E10CDE9EF8929BD5A66E4&#xD;&#xA;Host: localhost:59230&#xD;&#xA;Referer: http://localhost:59230/Customer/Index&#xD;&#xA;User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36&#xD;&#xA;X-Requested-With: XMLHttpRequest&#xD;&#xA;" />
+    </item>
+    <item name="APPL_MD_PATH">
+      <value string="/LM/W3SVC/2/ROOT" />
+    </item>
+    <item name="APPL_PHYSICAL_PATH">
+      <value string="D:\ProjectZOZ\src\Erp.BackOffice\" />
+    </item>
+    <item name="AUTH_TYPE">
+      <value string="Forms" />
+    </item>
+    <item name="AUTH_USER">
+      <value string="admin" />
+    </item>
+    <item name="AUTH_PASSWORD">
+      <value string="*****" />
+    </item>
+    <item name="LOGON_USER">
+      <value string="admin" />
+    </item>
+    <item name="REMOTE_USER">
+      <value string="admin" />
+    </item>
+    <item name="CERT_COOKIE">
+      <value string="" />
+    </item>
+    <item name="CERT_FLAGS">
+      <value string="" />
+    </item>
+    <item name="CERT_ISSUER">
+      <value string="" />
+    </item>
+    <item name="CERT_KEYSIZE">
+      <value string="" />
+    </item>
+    <item name="CERT_SECRETKEYSIZE">
+      <value string="" />
+    </item>
+    <item name="CERT_SERIALNUMBER">
+      <value string="" />
+    </item>
+    <item name="CERT_SERVER_ISSUER">
+      <value string="" />
+    </item>
+    <item name="CERT_SERVER_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="CERT_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="CONTENT_LENGTH">
+      <value string="0" />
+    </item>
+    <item name="CONTENT_TYPE">
+      <value string="" />
+    </item>
+    <item name="GATEWAY_INTERFACE">
+      <value string="CGI/1.1" />
+    </item>
+    <item name="HTTPS">
+      <value string="off" />
+    </item>
+    <item name="HTTPS_KEYSIZE">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SECRETKEYSIZE">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SERVER_ISSUER">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SERVER_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="INSTANCE_ID">
+      <value string="2" />
+    </item>
+    <item name="INSTANCE_META_PATH">
+      <value string="/LM/W3SVC/2" />
+    </item>
+    <item name="LOCAL_ADDR">
+      <value string="::1" />
+    </item>
+    <item name="PATH_INFO">
+      <value string="/__browserLink/requestData/91877141096444f091709d70f83660c4" />
+    </item>
+    <item name="PATH_TRANSLATED">
+      <value string="D:\ProjectZOZ\src\Erp.BackOffice\__browserLink\requestData\91877141096444f091709d70f83660c4" />
+    </item>
+    <item name="QUERY_STRING">
+      <value string="version=2" />
+    </item>
+    <item name="REMOTE_ADDR">
+      <value string="::1" />
+    </item>
+    <item name="REMOTE_HOST">
+      <value string="::1" />
+    </item>
+    <item name="REMOTE_PORT">
+      <value string="54040" />
+    </item>
+    <item name="REQUEST_METHOD">
+      <value string="GET" />
+    </item>
+    <item name="SCRIPT_NAME">
+      <value string="/__browserLink/requestData/91877141096444f091709d70f83660c4" />
+    </item>
+    <item name="SERVER_NAME">
+      <value string="localhost" />
+    </item>
+    <item name="SERVER_PORT">
+      <value string="59230" />
+    </item>
+    <item name="SERVER_PORT_SECURE">
+      <value string="0" />
+    </item>
+    <item name="SERVER_PROTOCOL">
+      <value string="HTTP/1.1" />
+    </item>
+    <item name="SERVER_SOFTWARE">
+      <value string="Microsoft-IIS/10.0" />
+    </item>
+    <item name="URL">
+      <value string="/__browserLink/requestData/91877141096444f091709d70f83660c4" />
+    </item>
+    <item name="HTTP_CONNECTION">
+      <value string="keep-alive" />
+    </item>
+    <item name="HTTP_ACCEPT">
+      <value string="application/json, text/javascript, */*; q=0.01" />
+    </item>
+    <item name="HTTP_ACCEPT_ENCODING">
+      <value string="gzip, deflate, br" />
+    </item>
+    <item name="HTTP_ACCEPT_LANGUAGE">
+      <value string="en-US,en;q=0.9" />
+    </item>
+    <item name="HTTP_COOKIE">
+      <value string="culture=en; ASP.NET_SessionId=asyhn4kmlde02qhgqkypuget; __RequestVerificationToken=nBxxOxvfRZXqJ1exKxzUWFHxU9cv-PbSd2mq9M18FgbcZYxHqYLHEJLMl6bMaf_Js9tvb9Mmndi5FZI-bHlDShqh6Y0KNM5jFa0gChxoARo1; BO=5A435679F14C120E24F72D93324E088A02BFC416F64AF76E9CD0D436F450038B08FDC48D55773670A84296431D1C75E65BEAE9A0A5BC89661B82B83A0AA364571BE0593A6A05F10751324F978B431353F6C7F21BD46E10CDE9EF8929BD5A66E4" />
+    </item>
+    <item name="HTTP_HOST">
+      <value string="localhost:59230" />
+    </item>
+    <item name="HTTP_REFERER">
+      <value string="http://localhost:59230/Customer/Index" />
+    </item>
+    <item name="HTTP_USER_AGENT">
+      <value string="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36" />
+    </item>
+    <item name="HTTP_X_REQUESTED_WITH">
+      <value string="XMLHttpRequest" />
+    </item>
+  </serverVariables>
+  <queryString>
+    <item name="version">
+      <value string="2" />
+    </item>
+  </queryString>
+  <cookies>
+    <item name="culture">
+      <value string="en" />
+    </item>
+    <item name="ASP.NET_SessionId">
+      <value string="asyhn4kmlde02qhgqkypuget" />
+    </item>
+    <item name="__RequestVerificationToken">
+      <value string="nBxxOxvfRZXqJ1exKxzUWFHxU9cv-PbSd2mq9M18FgbcZYxHqYLHEJLMl6bMaf_Js9tvb9Mmndi5FZI-bHlDShqh6Y0KNM5jFa0gChxoARo1" />
+    </item>
+    <item name="BO">
+      <value string="5A435679F14C120E24F72D93324E088A02BFC416F64AF76E9CD0D436F450038B08FDC48D55773670A84296431D1C75E65BEAE9A0A5BC89661B82B83A0AA364571BE0593A6A05F10751324F978B431353F6C7F21BD46E10CDE9EF8929BD5A66E4" />
+    </item>
+  </cookies>
+</error>

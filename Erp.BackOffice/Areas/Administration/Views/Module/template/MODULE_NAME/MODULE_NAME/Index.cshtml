@@ -1,0 +1,205 @@
+﻿@model IEnumerable<<MODULE_NAME>ViewModel>
+
+@using <APP_NAME>.BackOffice.App_GlobalResources
+@using <APP_NAME>.BackOffice.<AREA_NAME>.Models
+@using <APP_NAME>.BackOffice.Helpers
+@using GridMvc.Html
+
+@{
+    ViewBag.Title = Wording.PageIndex_<MODULE_NAME>;
+    bool isPopup = Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower() == "true" ? true : false;
+    Layout = isPopup? StringExtention.LAYOUT_POPUP: StringExtention.LAYOUT_ADMIN; 
+    
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {        
+        ModuleName = StringExtention.MODULE_<MODULE_NAME_UPPER>,
+        ActionName = StringExtention.ACTION_INDEX,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = true,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+    int rowNumber = 0;
+    int numberOfItem = 20;
+    int currentPage = Request["grid-page"] != null ? Convert.ToInt32(Request["grid-page"]) : 1;
+}
+
+<link href="@Url.Content("~/assets/css/Gridmvc.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"> </script>
+
+@helper GridColumnCommand(int id)
+{
+        <p>
+         	@if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_EDIT,  StringExtention.MODULE_<MODULE_NAME_UPPER>, StringExtention.<AREA_NAME_UPPER>))
+            {
+                <button type="button" class="btn btn-mini btn-success" onclick="OpenPopup('@Url.Action(StringExtention.ACTION_EDIT, StringExtention.MODULE_<MODULE_NAME_UPPER>, new { Id = id, IsPopup=true })', '@Wording.Edit', 0, 0)" >
+                    <i class="ace-icon fa fa-edit"></i>
+                </button>
+            }
+            @if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_DELETE, StringExtention.MODULE_<MODULE_NAME_UPPER>, StringExtention.<AREA_NAME_UPPER>))
+            {
+                <button name="Delete" value="Delete" type="submit" class="btn btn-mini btn-danger">
+                    <i class="ace-icon fa fa-trash bigger-120"></i>
+                </button>
+            }
+        </p>
+}
+
+@helper GridColumnName(string name, int id, bool isPopup)
+{
+	name = string.IsNullOrEmpty(name) == false ? name : "No Title";
+    if (!isPopup)
+    {
+    	if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_DETAIL, StringExtention.MODULE_<MODULE_NAME_UPPER>, StringExtention.<AREA_NAME_UPPER>))
+        {
+	        <a onclick="OpenPopup('@Url.Action(StringExtention.ACTION_DETAIL,  StringExtention.MODULE_<MODULE_NAME_UPPER>, new { area = StringExtention.<AREA_NAME_UPPER>, Id = id, IsPopup = true })', '@Wording.Detail', 0, 0)">
+	            @name
+	        </a>
+    	}
+    	else
+    	{
+    		<span>@name</span>
+    	}
+    }
+    else
+    {
+        <a onclick="parent.selectItem<MODULE_NAME>(@id, '@name')">
+            @name
+        </a>
+    }
+}
+@helper GridColumnHtml(string obj)
+{
+    <p>
+        @(obj != null && obj.Length > 250 ? obj.Substring(0, 249) + ".v.v..." : obj)
+    </p>
+}
+
+@helper GridColumnCategoryValue(object value)
+{
+    var attr = Common.GetCategoryByValueOrId("value", value);
+    <span>@(attr != null ? attr.Name : "")</span>
+}
+
+@helper CheckDeleteColumns(int Id)
+{
+    <label>
+        <input class="ace class-delete-all" type="checkbox" name="DeleteId-checkbox" value="@Id">
+        <span class="lbl"></span>
+    </label>
+}
+
+@helper BuildCheckAll()
+{
+    <label>
+        <input class="ace" type="checkbox" name="checkAll" id="checkAll" />
+        <span class="lbl"></span>
+    </label>
+}
+
+@using(Html.BeginPageHeaderContainer(pageSetting))
+{
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+	
+}
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+
+@if (!isPopup)
+{
+    using (Html.BeginForm(StringExtention.ACTION_DELETE, pageSetting.ModuleName, FormMethod.Post))
+    {
+        @Html.Grid(Model).Columns(columns =>
+        {
+            columns.Add().Titled(BuildCheckAll().ToHtmlString()).SetWidth(20).Sanitized(false).Encoded(false).RenderValueAs(n => CheckDeleteColumns(n.Id));
+            columns.Add().Titled("STT").SetWidth(50).RenderValueAs(o =>
+            {
+                rowNumber++;
+                return @<text> @(rowNumber + ((currentPage - 1) * numberOfItem)) </text>;
+            });
+            columns.Add().Titled(Wording.Name).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnName(u.Name, u.Id, isPopup));
+            columns.Add(u => u.CreatedDate).Titled(Wording.CreatedDate).SetWidth(130).Format("{0:dd/MM/yyyy HH:mm}");
+            columns.Add(u => u.ModifiedDate).Titled(Wording.ModifiedDate).SetWidth(130).Sortable(true).Format("{0:dd/MM/yyyy HH:mm}");
+            columns.Add(u => u.Id).Titled(Wording.Action).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnCommand(u.Id)).SetWidth(20);
+        }).WithPaging(10)
+    
+        using (Html.BeginButtonContainer(pageSetting))
+        {
+            if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_CREATE,  StringExtention.MODULE_<MODULE_NAME_UPPER>, StringExtention.<AREA_NAME_UPPER>))
+            {
+                <button class="btn btn-info btn-mini" onclick="OpenPopup('@Url.Action(StringExtention.ACTION_CREATE, pageSetting.ModuleName, new { IsPopup =true})', 'Thêm mới', 0, 0)" type="button">
+                    <i class="ace-icon fa fa-plus"></i>
+                    @Wording.CreateNew
+                </button>
+            }
+            if (Erp.BackOffice.Filters.SecurityFilter.AccessRight(StringExtention.ACTION_DELETE,  StringExtention.MODULE_<MODULE_NAME_UPPER>, StringExtention.<AREA_NAME_UPPER>))
+            {
+                <button name="DeleteAll" value="DeleteAll" type="submit" class="btn btn-mini btn-danger" onclick="return CheckIsval();">
+                    <i class="ace-icon fa fa-trash bigger-120"></i>
+                    @Wording.Delete
+                </button>
+            }            
+        }
+    }
+}
+else
+{
+    @Html.Grid(Model).Columns(columns =>
+    {
+        //columns.Add().Titled(BuildCheckAll().ToHtmlString()).SetWidth(20).Sanitized(false).Encoded(false).RenderValueAs(n => CheckDeleteColumns(n.Id));
+        columns.Add().Titled(Html.DisplayNameFor(u => u.FirstOrDefault().Name).ToString()).Sortable(false).Sanitized(false).Encoded(false).RenderValueAs(u => GridColumnName(u.Name, u.Id, isPopup));
+    }).WithPaging(10)
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        function CheckIsval() {
+            if ($('[name="DeleteId-checkbox"]').is(':checked') == false) {
+                alert("Phải chọn ít nhất 1 item.");
+                return false;
+            }
+            else {
+                if (confirm('Bạn có chắc muốn xóa các item đã chọn ?')) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        $('[name="Delete"]').click(function () {
+            if (confirm('Bạn có chắc muốn xóa item ?')) {
+                $(this).closest('tr').children('td').each(function (i, e) {
+                    $(this).find("input.class-delete-all").prop("checked", true);
+                    return true;
+                })
+            }
+            else {
+                return false;
+            }
+
+        })
+
+    </script>
+}

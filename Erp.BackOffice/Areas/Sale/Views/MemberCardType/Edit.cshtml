@@ -1,0 +1,73 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model MemberCardTypeViewModel
+
+@{
+    ViewBag.Title = Wording.PageEdit_MemberCardType;
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] != null && Request["IsPopup"].ToString().ToLower().Equals("true") ? "_PopupLayout.cshtml" : "ACE_AdminLayout.cshtml");
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = StringExtention.MODULE_MEMBERCARDTYPE,
+        ActionName = StringExtention.ACTION_EDIT,
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, pageSetting.ActionName, pageSetting.ModuleName, null, FormMethod.Post, new { @class = "form-horizontal", showButton = true, enctype = "multipart/form-data" }))
+{
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.CreatedUserId)
+    @Html.HiddenFor(model => model.AssignedUserId)
+    @Html.HiddenFor(model => model.CreatedDate)
+    @Html.HiddenFor(model => model.IsDeleted)
+    @Html.HiddenFor(model => model.Image)
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+
+    <div class="col-sm-2 no-padding">
+        <div class="wrap-btn-upload">
+            <a class="btn btn-primary btn-sm"><i class="fa fa-upload"></i><span>Tải hình mới</span></a>
+            <input type="file" id="file-image" name="file-image" class="file-image" onchange="previewFileImage(event, '#display-image img')" />
+        </div>
+        <div class="text-center" id="display-image">
+            <img src="@(string.IsNullOrEmpty(Model.Image) ? "/assets/css/images/noimage.gif" : "/files/membercardtype/" + Model.Image)" title="@Model.Name" id="" />
+        </div>
+    </div>
+    <div class="col-sm-10">
+        @Html.CustomTextboxFor(model => model.Name, null, null, WidthType.span12)
+        @Html.CustomTextboxFor(model => model.TargetPoint, null, null, WidthType.span12)
+        @Html.CustomDropDownListFor(model => model.CardId, SelectListHelper.GetSelectList_Card(Model.CardId, "-Chọn-"))
+    </div>
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+    <script>
+        $(document).ready(function () {
+            $('#TargetPoint').numberFormat();
+        });
+    </script>
+}

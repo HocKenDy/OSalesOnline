@@ -1,0 +1,50 @@
+﻿@using Erp.Domain.Entities;
+@using Erp.BackOffice.Administration.Models;
+
+
+@helper LoadLanguage(Dictionary<string, bool> languageIds, ActionModel actionModel, int id, System.Web.Mvc.UrlHelper Url)
+{
+    //test list language
+    //new Dictionary<string, bool>() { { "en-US", true }, { "vi-VN", false } };
+    List<Language> results = new List<Language>();// list not Contain default
+    results.Add(new Language { Id = "fr-US", Name = "France", IsDefault = true, ActiveImage = "/Images/us.gif", DeactiveImage = "/Images/us_d.gif" });
+    results.Add(new Language { Id = "vi-VN", Name = "Tiếng việt", IsDefault = false, ActiveImage = "/Images/vn.gif", DeactiveImage = "/Images/vn.gif" });
+    if (results != null)
+    {
+        foreach (Language obj in results)
+        {            
+            //set active        
+            bool isNotRender = true;
+            if(languageIds !=null || languageIds.Count>0)
+            {
+                foreach(var item in languageIds)
+                {
+                    if (item.Key.ToLower() == obj.Id.ToLower())
+                    {
+                        if(item.Value)
+                        {                               
+                            <a href="@Url.Action(actionModel.EditActionName, actionModel.ControllerName, new { id=id, languageId=item.Key})">
+                                <img alt="" title="@obj.Name" src="@obj.ActiveImage" />       
+                            </a>             
+                        }
+                        else
+                        {
+                            <a href="@Url.Action(actionModel.EditActionName, actionModel.ControllerName, new { id=id, languageId=item.Key})">
+                                <img alt="" title="@obj.Name" src="@obj.DeactiveImage" />       
+                            </a>
+                        }
+                        isNotRender = false;
+                        break;
+                    }                    
+                }
+            }
+             
+            if(isNotRender)
+            {
+                <a href="@Url.Action(actionModel.CreateActionName, actionModel.ControllerName, new { id=id, languageId=obj.Id})">
+                    <img alt="" title="@obj.Name" src="@obj.DeactiveImage" />       
+                </a>  
+            }
+        }        
+    }     
+}

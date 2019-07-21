@@ -1,0 +1,63 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Account.Models
+@using GridMvc.Html
+@model CustomerJsonModel
+
+@{
+    Layout = null;
+}
+<div class="row top-5">
+    <div class="col-sm-12">
+        <ul class="list-unstyled inline">
+            <li>
+                <i class="ace-icon fa fa-caret-right green"></i>Doanh số: <a onclick="">@Common.PhanCachHangNgan2(Model.TotalAmountInvoice)</a>
+            </li>
+            <li>
+                <i class="ace-icon fa fa-caret-right green"></i>Điểm tích luỹ: @Common.PhanCachHangNgan(Model.Point)
+            </li>
+        </ul>
+        <ul class="list-unstyled inline">
+            <li>
+                <i class="ace-icon fa fa-caret-right green"></i>Số lần đến: @Common.PhanCachHangNgan(Model.CountInvoice)
+            </li>
+            <li>
+                <i class="ace-icon fa fa-caret-right green"></i>Ngày đến gần nhất: @string.Format("{0: dd/MM/yyyy HH:mm}", Model.EndDateProductInvoice)
+            </li>
+        </ul>
+        <div class="alert alert-warning top-5" style="padding:3px;margin-bottom:0px;">
+            <div class="inline">
+                <div class="col-sm-6">
+                    <p style="margin-bottom:0px; font-size:13px;">
+                        <b>
+                            MÃ THẺ:
+                            @if (string.IsNullOrEmpty(Model.CardCode))
+                            {
+                                <span class="red">chưa cấp thẻ</span>
+                            }
+                            else
+                            {
+                                <a onclick="OpenPopup('@Url.Action("Detail", "MemberCard", new {area ="Sale", IsPopup = true, Id = Model.MemberCardId })', 'Chi tiết thẻ', 0, 0)"> @Model.CardCode</a>
+                            }
+                        </b>
+                    </p>
+                    <p style="margin-bottom:0px; font-size:13px;"><b>NGÀY CẤP: <span class="green">@string.Format("{0: dd/MM/yyyy HH:mm}", Model.DateOfIssue)</span></b></p>
+                </div>
+                <div class="col-sm-6" ">
+                    @if (string.IsNullOrEmpty(Model.CardCode))
+            {
+                        <a class="btn btn-sm btn-white btn-primary" onclick="OpenPopup('@Url.Action("Create", "MemberCard", new {area ="Sale" ,IsPopup = true,IsInvoice = true, CustomerId = Model.Id })', 'Cấp thẻ', 0, 0)">
+                            <i class="ace-icon fa fa-credit-card"></i>
+                            Cấp thẻ
+                        </a>
+                    }
+                    else
+                    {
+                        <img src="@("/files/membercardtype/" + Model.MemberCardTypeImage)" style="max-width:100%; height:100px" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

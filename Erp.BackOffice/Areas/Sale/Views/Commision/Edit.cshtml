@@ -1,0 +1,120 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model CommisionViewModel
+
+@{
+    ViewBag.Title = Wording.PageEdit_Commision;
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Commision",
+        ActionName = "Edit",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    IEnumerable<SelectListItem> branchList = (IEnumerable<SelectListItem>)ViewBag.branchList;
+    
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+
+<style>
+    .bootstrap-duallistbox-container select {
+        height: 150px !important;
+    }
+</style>
+
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Edit", "Commision", null, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.CreatedUserId)
+    @Html.HiddenFor(model => model.CreatedDate)
+    @Html.HiddenFor(model => model.IsDeleted)
+
+    <div class="col-sm-6">
+        @Html.CustomTextboxFor(model => model.Name, null, null, WidthType.span12, true)
+        @Html.CustomTextboxFor(model => model.Code, null, null, WidthType.span12, true)
+        @Html.CustomTextboxFor(model => model.PercentOfCommision, null, null, WidthType.span12, true)
+    </div>
+    <div class="col-sm-6">
+        @Html.DateInput(model => model.StartDate, "dd/MM/yyyy", "99/99/9999", true)
+        @Html.DateInput(model => model.EndDate, "dd/MM/yyyy", "99/99/9999", true)
+        @Html.CustomTextAreaFor(model => model.Note, null, WidthType.span12)
+    </div>
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label class="col-sm-2 control-label no-padding-top" for="duallist"> Chọn chi nhánh </label>
+
+            <div class="col-sm-8">
+
+                <select multiple="multiple" size="10" name="BranchIdList" id="duallist" style="height:270px !important">
+                    @foreach (var item in branchList)
+                    {
+                        <option value="@item.Value" @(Model.BranchIdList.Where(x => item.Value.Equals(x)).FirstOrDefault() != null ? "selected" : "")>@item.Text</option>
+                    }
+                </select>
+
+                <div class="hr hr-16 hr-dotted"></div>
+            </div>
+        </div>
+    </div>
+
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+    @Html.ScriptBottom_DatePicker("dd/mm/yyyy")
+
+<link rel="stylesheet" href="/assets/css/bootstrap-duallistbox.min.css" />
+<script src="/assets/js/jquery.bootstrap-duallistbox.min.js"></script>
+
+<script type="text/javascript">
+        $(document).ready(function () {
+            var duallist = $('#duallist').bootstrapDualListbox({
+                infoTextFiltered: '<span class="label label-purple label-lg">Đã lọc</span>',
+                infoText: '',
+                showFilterInputs: false,
+                filterPlaceHolder: 'Tìm theo tên'
+            });
+            var container1 = duallist.bootstrapDualListbox('getContainer');
+            container1.find('.btn').addClass('btn-white btn-info btn-bold');
+
+            /**var setRatingColors = function() {
+                $(this).find('.star-on-png,.star-half-png').addClass('orange2').removeClass('grey');
+                $(this).find('.star-off-png').removeClass('orange2').addClass('grey');
+            }*/
+
+
+            //in ajax mode, remove remaining elements before leaving page
+            $(document).one('ajaxloadstart.page', function (e) {
+                $('[class*=select2]').remove();
+                $('select[name="duallistbox_demo1[]"]').bootstrapDualListbox('destroy');
+                $('.rating').raty('destroy');
+                $('.multiselect').multiselect('destroy');
+            });
+
+        });
+</script>
+}

@@ -1,0 +1,436 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model ProductInboundViewModel
+
+@{
+    ViewBag.Title = Wording.PageView_ProductInBound;
+
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "ProductInBound",
+        ActionName = "Edit",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+
+    IEnumerable<SelectListItem> warehouseList = (IEnumerable<SelectListItem>)ViewBag.warehouseList;
+
+    IEnumerable<ProductViewModel> productList = (IEnumerable<ProductViewModel>)ViewBag.productList;
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+<style>
+    .lighter.block.green {
+        display: none !important;
+    }
+</style>
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, "Edit", "ProductInBound", null, FormMethod.Post, new { @class = "form-horizontal clearfix" }))
+{
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.CreatedUserId)
+    @Html.HiddenFor(model => model.CreatedDate)
+    @Html.HiddenFor(model => model.IsDeleted)
+    @Html.HiddenFor(model => model.IsArchive)
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="product-search-box">
+                <input id="product_barcode" type="text" placeholder="Mã sản phẩm..." autocomplete="off" />
+                <select id="productSelectList" name="productSelectList" style="width:400px">
+                    <option value="">- Tìm sản phẩm -</option>
+                    @foreach (var item in productList.OrderBy(x => x.Name))
+                    {
+                        <option value="@item.Id" data-selected="0" data-value="@item.Id | @("/assets/css/images/noimage.gif") | @(item.Code + " - " + item.Name + " (" + Common.PhanCachHangNgan(item.PriceInbound) + ")")" data-code="@item.Code" data-barcode="@item.Barcode" data-product-type="@item.CategoryCode" data-price="@(item.PriceInbound)" data-unit="@item.Unit">@item.Code - @item.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div id="listOrderDetail" class="table-responsive top-10">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="40">STT</th>
+                            <th>Tên sản phẩm</th>
+                            <th width="100">Lô</th>
+                            <th width="80" style="text-align:center">SL</th>
+                            <th width="100" style="text-align:right">Đơn giá</th>
+                            <th width="100" style="text-align:right">Thành tiền</th>
+                            <th width="50" style="text-align:right"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailList" class="detailList">
+                        @for (int i = 0; i < Model.DetailList.Count; i++)
+                        {
+                            <tr role="@(i + 1)" id="product_item_@Model.DetailList[i].ProductId" data-id="@Model.DetailList[i].ProductId">
+                                <td>@(i + 1)</td>
+                                <td class="detail_item_id">
+                                    @Html.Hidden("DetailList[" + i + "].ProductId", Model.DetailList[i].ProductId)
+                                    <input type="hidden" name="DetailList[@i].QuantityUsed" value="@Model.DetailList[i].QuantityUsed" class="detail_item_qtyUsed" />
+                                    @Html.Hidden("DetailList[" + i + "].Id", Model.DetailList[i].Id)
+                                    @Html.Hidden("DetailList[" + i + "].ProductCode", Model.DetailList[i].ProductCode)
+                                    <span>@Model.DetailList[i].ProductCode - @Model.DetailList[i].ProductName</span>
+                                </td>
+                                <td>
+                                    @Html.TextBox("DetailList[" + i + "].LoCode", Model.DetailList[i].LoCode, new { @style = "width:100px;" })
+
+                                    <input class="form-control input-mask-date" type="text" id="DetailList_@(i)_ExpiryDate" name="DetailList[@i].ExpiryDate" value="@Model.DetailList[i].ExpiryDate" style=" width:100px;">
+                                </td>
+                                <td class="has-error" style="text-align:right">
+                                    <input type="hidden" name="DetailList[@i].Unit" value="@Model.DetailList[i].Unit" class="detail_item_unit" />
+                                    @if (Model.PurchaseOrderId != null)
+                                    {
+                                        <input type="hidden" min="1" value="@Model.DetailList[i].Quantity" name="DetailList[@i].Quantity" id="DetailList[@i]_Quantity" class="detail_item_qty" />
+                                        <span> @Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.DetailList[i].Quantity)</span>
+                                    }
+                                    else
+                                    {
+                                        <input style="width:100%" type="number" min="1" value="@Model.DetailList[i].Quantity" name="DetailList[@i].Quantity" id="DetailList[@i]_Quantity" class="detail_item_qty" />
+                                        <span class="field-validation-valid help-inline" data-valmsg-for="DetailList[@i]_Quantity" data-valmsg-replace="true"></span>
+                                    }
+                                </td>
+                                <td class="has-error detail-product-price">
+                                    <input class="detail_item_price" type="text" id="DetailList[@i]_Price" name="DetailList[@i].Price" value="@Model.DetailList[i].Price" role="price" style="width:100px" data-val="true" data-val-required="Chưa nhập giá" />
+                                    <span class="field-validation-valid help-inline" data-valmsg-for="DetailList[@i]_Price" data-valmsg-replace="false"></span>
+                                </td>
+                                <td class="detail_item_total">@Erp.BackOffice.Helpers.Common.PhanCachHangNgan(Model.DetailList[i].Price * Model.DetailList[i].Quantity)</td>
+                                <td class="text-center">
+                                    <a class="btn-delete-item">
+                                        <i class="ace-icon fa fa-trash red bigger-120" style="cursor:pointer"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td id="TongSoLuong" align="right" style="font-weight:bold"></td>
+                            <td></td>
+                            <td id="TongThanhTien" align="right" style="font-weight:bold"></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <ul class="nav nav-tabs" id="myTab">
+                <li id="li-tab1" class="active"><a data-target="#tab1" data-toggle="tab" aria-expanded="true">Thông tin chi tiết</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active clearfix" id="tab1">
+                    @Html.CustomTextboxCodeFor(model => model.Code, "ProductInbound", null, null, WidthType.span12)
+                    <div class="detail-view col-xs-12">
+                        @*<div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.Code, null, null, "col-xs-4", "col-xs-8")
+                        </div>*@
+                        <div class="row control-group">
+                            @Html.DetailViewItemFor2(model => model.WarehouseDestinationName, null, null, "col-xs-4", "col-xs-8")
+                        </div>
+                        <div class="row control-group">
+                            <div class="col-xs-4 control-label"><label for="CreatedDate">Ngày phiếu nhập</label></div><div class="col-xs-8 control-value">@Model.CreatedDate.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                        </div>
+                    </div>
+                    @Html.CustomTextAreaFor(model => model.Note, null, WidthType.span12, true, null, "hide", "full-w")
+                </div>
+            </div>
+
+            <div class="widget-box top-10" id="widget-box-1">
+                <div class="widget-header">
+                    <h5 class="widget-title">Thanh toán</h5>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        @Html.CustomTextboxFor(model => model.TotalAmount, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12 text-right" }, { "readonly", "readonly" } })
+
+                        <div class="control-group form-group ">
+                            <label class="control-label col-lg-5 col-md-4 col-sm-4" for="TotalVAT">VAT</label>
+                            <div class="control-value col-lg-7 col-md-8 col-sm-8">
+                                <div class="clearfix">
+                                    <input class="text-right" id="VAT" name="VAT" value="@Model.VAT" style="width:30px" readonly="readonly" />
+                                    <span>%</span>
+                                    <input style="width:153px" autocomplete="off" class="text-right" data-val="true" data-val-number="The field TotalVAT must be a number." data-val-required="The TotalVAT field is required." readonly="readonly" id="TotalVAT" name="TotalVAT" placeholder="" type="text" value="@Model.TotalVAT" />
+                                </div>
+                                <div class="clearfix">
+                                    <span class="field-validation-valid help-inline" data-valmsg-for="TotalVAT" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @Html.CustomTextboxFor(model => model.Total, null, null, WidthType.span12, true, new Dictionary<string, object> { { "class", "col-sm-12 text-right" }, { "readonly", "readonly" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+@section Scripts {
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+
+    <link href="/Scripts/RadCombobox_v1/RadComboBoxLite.css" rel="stylesheet" />
+    <script src="/Scripts/RadCombobox_v1/rabCombobox.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.detail_item_price').numberFormat('before');
+            $('.detail_item_qty').numberFormat('before');
+            $.mask.definitions['~'] = '[+-]';
+            $('.input-mask-date').mask('99/99/9999');
+
+            $('#TotalAmount').numberFormat();
+            $('#TotalVAT').numberFormat();
+            $('#Total').numberFormat();
+
+            //init rcb chọn sản phẩm
+            $('#productSelectList').radComboBox({
+                colTitle: 'ID, Hình, Tên sản phẩm',
+                colValue: 1,
+                colImage: 2,
+                colHide: '1',
+                colSize: '0px,50px,',
+                colClass: ',,',
+                //width: 600,
+                height: 300,
+                boxSearch: true,
+                colSearch: 2
+            });
+
+            //Hiển thị giá và tính thành tiền khi chọn sản phẩm
+            $('#productSelectList').on('change', function () {
+                var $this = $(this);
+                var selected = $this.find("option:selected");
+
+                if (selected.val() == '' || $('#product_item_' + selected.val()).length > 0)
+                    return;
+
+                var OrderNo = $('.detailList tr').length;
+                var ProductId = selected.val();
+                var ProductName = selected.text();
+                var Unit = selected.data("unit");
+                var Quantity = 1;
+                var Price = selected.data("price");
+                var ProductType = selected.data("product-type");
+                var ProductCode = selected.data("code");
+
+                var formdata = {
+                    OrderNo: OrderNo,
+                    ProductId: ProductId,
+                    ProductName: ProductName,
+                    Unit: Unit,
+                    Quantity: Quantity,
+                    Price: Price,
+                    ProductType: ProductType,
+                    ProductCode: ProductCode
+                };
+
+                //Thêm dòng mới
+                ClickEventHandler(true, "/ProductInbound/LoadProductItem", ".detailList", formdata, function () {
+                    $('#ProductItemCount').val($('#listOrderDetail .detailList tr').length);
+                    $('.detail_item_price').numberFormat();
+                    calcTotalAmount();
+                    $("#DetailList_" + formdata.OrderNo + "_Quantity").focus().select();
+                });
+            });
+
+            // tính thành tiền và tổng cộng
+            $('#detailList').on('change', '.detail_item_qty', function () {
+                var $this = $(this);
+                var $detail_item_id = $this.closest('tr').find('.detail_item_id');
+                var $qty = $detail_item_id.closest('tr').find('.detail_item_qty');
+                var qty = 1;
+                if ($qty.val() == '') {
+                    $qty.val(1);
+                } else {
+                    qty = parseInt($qty.val()) < 0 ? parseInt($qty.val()) * -1 : parseInt($qty.val());
+                }
+                var $qtyUsed = $detail_item_id.closest('tr').find('.detail_item_qtyUsed');
+                var qtyUsed = 1;
+                if ($qtyUsed.val() == '') {
+                    $qtyUsed.val(1);
+                } else {
+                    qtyUsed = parseInt($qtyUsed.val()) < 0 ? parseInt($qtyUsed.val()) * -1 : parseInt($qtyUsed.val());
+                }
+                if (qty < qtyUsed) {
+                    $qty.val(qtyUsed);
+                }
+                else {
+                    $qty.val(qty);
+                }
+                //console.log($qty);
+                calcAmountItem($detail_item_id, 'price');
+                calcTotalAmount();
+
+            });
+
+            // xóa sản phẩm
+            $('#listOrderDetail').on('click', '.btn-delete-item', function () {
+                //$(this).closest('tr').next('tr.template_location').remove();
+                $(this).closest('tr').remove();
+
+                var countItem = $('.detailList tr').length;
+                $('#ProductItemCount').val(countItem);
+
+                if (countItem == 0) {
+                    $('#ProductItemCount').val(0);
+                    $('#TongSoLuong').text('0');
+                    $('#TongThanhTien').text('0');
+                    $('#TotalAmount').val(0);
+                    $('#mask-TotalAmount').val(0);
+
+                    var vat = $('#VAT').val();
+
+                    $('#mask-TotalVAT').val(0);
+                    $('#TotalVAT').val(0);
+
+                    $('#mask-Total').val(0);
+                    $('#Total').val(0);
+                }
+                calcTotalAmount();
+
+                $('.detailList tr').each(function (index, tr) {
+                    $(tr).attr('role', index);
+                    $(tr).find('td:first-child').text(index + 1);
+
+                    $(tr).find('.detail_item_id input').attr('name', 'DetailList[' + index + '].ProductId').attr('id', 'DetailList_' + index + '_ProductId');
+                    $(tr).find('.detail_item_qty').attr('name', 'DetailList[' + index + '].Quantity').attr('id', 'DetailList_' + index + '_Quantity');
+                    $(tr).find('.detail_item_price').filter(':not(.mask-format-currency)').attr('name', 'DetailList[' + index + '].Price').attr('id', 'DetailList_' + index + '_Price');
+                    $(tr).find('.detail_item_unit').attr('name', 'DetailList[' + index + '].Unit');
+                });
+            });
+
+            $('#detailList').on('change', '.detail-product-price .detail_item_price:last-of-type', function () {
+                var $this = $(this);
+                var $detail_item_id = $this.closest('tr').find('.detail_item_id');
+                calcAmountItem($detail_item_id, 'price');
+                calcTotalAmount();
+            });
+            calcTotalAmount();
+
+            $('#detailList').on('focus', '.detail_item_qty', function () {
+                $(this).select();
+            });
+
+            $('#detailList').on('keypress', '.detail_item_qty', function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                }
+            });
+            $('#Code').change(function () {
+                var code = $('#Code').val();
+                var id = $('#Id').val();
+                $.post("@Url.Action("checkExitsCode", "ProductInbound", new { area = "Sale" })", { code: code, id: id })
+      .done(function (data) {
+          if (data == "error") {
+              alert("Mã phiếu nhập này đã tồn tại. Vui lòng chọn mã phiếu nhập khác.");
+              return false;
+          }
+          return true;
+      });
+            });
+
+            $('#listOrderDetail').on('focus', '.detail_item_price', function () {
+                $(this).select();
+            });
+
+            $('#listOrderDetail').on('focus', '.detail_item_qty', function () {
+                $(this).select();
+            });
+        });
+
+        function calcAmountItem($detail_item_id, priceFrom) {
+            var price = 0;
+            var $priceElem = $detail_item_id.closest('tr').find('.detail_item_price');
+            if (priceFrom == 'item select') {
+                $priceElem.val($option.data('price')).trigger('change');
+                price = parseFloat($option.data('price'));
+            } else {
+                price = parseFloat($priceElem.last().val().replace(/[^0-9\.]/g, ''));
+            }
+
+            var $qty = $detail_item_id.closest('tr').find('.detail_item_qty');
+            var qty = 1;
+            if ($qty.val() == '') {
+                $qty.val(1);
+            } else {
+                qty = parseInt($qty.val()) < 0 ? parseInt($qty.val()) * -1 : parseInt($qty.val());
+            }
+            var total = price * qty;
+            $detail_item_id.closest('tr').find('.detail_item_total').text(currencyFormat(total));
+        };
+
+        function calcTotalAmount() {
+            var total = 0;
+            var total1 = 0;
+            $('#detailList tr').each(function (index, elem) {
+                if ($(elem).find('.detail_item_total').text() != '') { // la số thì mới tính
+                    total += parseInt($(elem).find('.detail_item_total').text().replace(/\./g, ''));
+                    $('#TongThanhTien').text(currencyFormat(total));
+                    $('#TotalAmount').text(total);
+                    // console.log(total);
+                }
+
+                if ($(elem).find('.detail_item_qty').val() != '') { // la số thì mới tính
+                    total1 += parseInt($(elem).find('.detail_item_qty').val().replace(/\./g, ''));
+
+                    $('#TongSoLuong').text(currencyFormat(total1));
+                }
+
+                if (index == $('#detailList tr').length - 1) {
+                    $('#mask-TotalAmount').val(currencyFormat(total));
+                    $('#TotalAmount').val(total);
+
+                    var vat = $('#VAT').val();
+
+                    var TotalVAT = Math.round(vat * total / 100);
+                    $('#mask-TotalVAT').val(currencyFormat(TotalVAT));
+                    $('#TotalVAT').val(TotalVAT);
+
+                    var TongCong = total + TotalVAT;
+                    $('#mask-Total').val(currencyFormat(TongCong));
+                    $('#Total').val(TongCong);
+                }
+            });
+        }
+
+        function Kiemtra(Id, $detail_item_id) {
+            var quantity = parseInt($detail_item_id.closest('tr').find('.detail_item_qty').val().replace(/\./g, ''));
+            //DetailList[" + i + "].ProductId
+            $.ajax({
+                url: '/ProductInbound/CheckQuantity',
+                type: 'GET',
+                data: { Id: Id, quantity: quantity },
+                success: function (res) {
+                    if (res == "success") {
+                        return;
+                    } else {
+                        $detail_item_id.closest('tr').find('.detail_item_qty').val(currencyFormat(res));
+                    }
+                }
+            });
+
+        };
+    </script>
+}

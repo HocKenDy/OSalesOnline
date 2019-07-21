@@ -1,0 +1,274 @@
+﻿@model IEnumerable<BranchViewModel>
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Sale.Models
+@using Erp.BackOffice.Helpers
+
+@{
+    ViewBag.Title = Wording.PageIndex_Branch;
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "Branch",
+        ActionName = "Diagrams",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = false
+    };
+}
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+
+<div id="PanelBranchManager">
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+    @if (ViewBag.AccessRightCreate)
+    {
+    <p>@Html.Button(Wording.AddBranch, ButtonType.aTag, ButtonColor.Success, ButtonSize.Mini, true, IconType.Plus, IconSize.Default, false, new { @class = "btn-BranchCreate", @onclick = "OpenPopup('" + Url.Action("Create", "Branch", new { area = "Sale", IsPopup = "true" }) + "', '" + Wording.PageCreate_Branch + "', 300, 300)" })</p>
+    }
+  
+    @foreach (var item in Model)
+    {
+        <div id="branch-item-@item.Id" class="widget-box branch" style="margin-bottom:10px; display:none;">
+            <div class="widget-header widget-header-blue widget-header-flat">
+                <h4 class="lighter">
+                    <a onclick="OpenPopup('@Url.Action("DetailBasic", "Branch", new { area = "Sale", Id = item.Id, IsPopup = "true" })', '@Wording.PageDetailBranch', 700, 360)"><b>@item.Name</b></a>
+                    @if (ViewBag.AccessRightEdit)
+                    {
+                        @Html.Button(Wording.Edit, ButtonType.aTag, ButtonColor.Info, ButtonSize.Minier, true, IconType.Edit, IconSize.Default, false, new { @class = "btn-BranchEdit", @onclick = "OpenPopup('" + Url.Action("Edit", "Branch", new { area = "Sale", Id = item.Id, IsPopup = "true" }) + "', '" + Wording.PageEdit_Branch + "', 300, 300)" })
+                    }
+
+                    @if (ViewBag.AccessRightDelete)
+                    {
+                        @Html.Button(Wording.Delete, ButtonType.buttonTag, ButtonColor.Danger, ButtonSize.Minier, true, IconType.Trash, IconSize.Default, false, new { @class = "btn-BranchDelete", @onclick = "return BranchDelete(" + item.Id + ")" })
+                    }
+                    <span>Tổng số phòng ban: <span class="badge badge-info total-number"></span>@item.TotalDepartment</span> - <span>Tổng số nhân viên:  <span class="badge badge-info total-minus"></span>@item.TotalSale</span>
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main">
+                    @if (ViewBag.AccessRightCreate)
+                    {
+                        <p>@Html.Button(Wording.AddDepartment, ButtonType.aTag, ButtonColor.Success, ButtonSize.Mini, true, IconType.Plus, IconSize.Default, false, new { @class = "btn-DepartmentCreate", @onclick = "OpenPopup('" + Url.Action("Create", "BranchDepartment", new { area = "Sale", BranchId = item.Id, IsPopup = "true" }) + "', '" + Wording.PageCreate_BranchDepartment + "', 300, 300)" })</p>
+                    }
+
+                    @Html.Action("Index", "BranchDepartment", new { area = "Sale", BranchId = item.Id })
+                    @*   @Html.Action("DetailBasic", "Sales", new { area = "Sale", BranchId = item.Id })*@
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+<div id="DepartmentDetail" style="display:none"></div>
+<div id="SaleDetail" style="display:none"></div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-rel="tooltip"]').tooltip({ container: 'body' });
+        });
+        //Script xử lý sơ đồ phòng ban bơi hết vào đây
+        var nBranchIdSelected = -1;
+        var nDepartmentIdSelected = -1;
+        var nSaleIdSelected = -1;
+
+        var Panel_BranchManager = null;
+        var Panel_DepartmentDetail = null;
+        var Panel_SaleDetail = null;
+
+        //Phần chi nhánh
+        //   1.1 Build treeview
+        $(function () {
+            Panel_BranchManager = $("#PanelBranchManager");
+            Panel_DepartmentDetail = $("#DepartmentDetail");
+            Panel_SaleDetail = $("#SaleDetail");
+        });
+        //   1.2 Load thông tin nhân viên
+        function LoadSaleDetail(id, bReload) {
+            ShowLoading();
+            Panel_BranchManager.hide();
+            Panel_DepartmentDetail.hide();
+            nDepartmentIdSelected = id;
+            nSaleIdSelected = -1;
+            nBranchIdSelected = -1;
+            $("#SaleDetail").html("");
+            $.ajax({
+                url: '@Url.Action("Detail", "Sales", new { area = "Sale" })',
+                data: { id: id },
+                success: function (rs) {
+                    $("#SaleDetail").html(rs);
+                    Panel_SaleDetail.show();
+                    HideLoading();
+                }
+            });
+        }
+        //   1.2 Load thông tin phòng ban
+        function LoadDepartmentDetail(id, bReload) {
+            ShowLoading();
+            Panel_BranchManager.hide();
+            nDepartmentIdSelected = id;
+            nSaleIdSelected = -1;
+            nBranchIdSelected = -1;
+            $("#DepartmentDetail").html("");
+            $.ajax({
+                url: '@Url.Action("Detail", "BranchDepartment", new { area = "Sale" })',
+                data: { id: id },
+                success: function (rs) {
+                    $("#DepartmentDetail").html(rs);
+                    Panel_DepartmentDetail.show();
+                    HideLoading();
+                }
+            });
+        }
+
+        //    1.3 Chuyển về danh sách Chi nhánh/ phòng ban
+        function BackToPanelBranchManager() {
+            Panel_BranchManager.show();
+            Panel_DepartmentDetail.hide();
+            Panel_SaleDetail.hide();
+        }
+
+        //    1.3 Chuyển về thông tin phòng ban
+        function BackToPanelDepartmentDetail() {
+            // LoadClassDetail(nClassIdSelected);
+            Panel_DepartmentDetail.show();
+            //  Panel_ClassDetail.hide();
+            Panel_SaleDetail.hide();
+        }
+        //    1.4 Xóa chi nhánh
+        function BranchDelete(id) {
+            if (confirm('Bạn có chắc muốn xóa các item đã chọn ?')) {
+                ShowLoading();
+                $.post("@Url.Action("Delete", "Branch", new { area = "Sale" })", { id: id })
+                .done(function (data) {
+                    $("#branch-item-" + id).remove();
+                    HideLoading();
+                });
+                return false;
+            }
+            else {
+                return false;
+            }
+        }
+
+        //    1.4 Xóa phòng ban
+        function DepartmentDelete(id) {
+            if (confirm('Bạn có chắc muốn xóa các item đã chọn ?')) {
+                ShowLoading();
+                $.post("@Url.Action("Delete", "BranchDepartment", new { area = "Sale" })", { id: id })
+                .done(function (data) {
+                    $("#department-item-" + id).parent().remove();
+                    HideLoading();
+                });
+                return false;
+            }
+            else {
+                return false;
+            }
+        }
+        //    1.4 Xóa nhân viên
+        function SaleDelete(id) {
+            if (confirm('Bạn có chắc muốn xóa các item đã chọn ?')) {
+                ShowLoading();
+                $.post("@Url.Action("Delete", "Sales", new { area = "Sale" })", { id: id })
+            .done(function (data) {
+                $("#btn_delete_Sale_" + id).closest('tr').remove();
+                HideLoading();
+            });
+                return false;
+            }
+            else {
+                return false;
+            }
+        };
+        function ClosePopupAndDoSomething() {
+            ShowLoading();
+            ClosePopup(true);
+        }
+        function ClosePopupAndReloadPageSaleDetail() {
+            ShowLoading();
+            ClosePopup(true);
+
+        };
+        function showBranchIfEmptyDepartment(id) {
+            $('#branch-item-' + id).show();
+            $('#PanelBranchManager #label-none-assign').hide();
+        }
+        function showLabelEmptyDepartment() {
+            var flagHasBranchVisible = false;
+            $('.branch').each(function (i, elem) {
+                if ($(elem).is(':visible')) {
+                    flagHasBranchVisible = true;
+                    return;
+                }
+            });
+            if (flagHasBranchVisible == false)
+                $('#PanelBranchManager #label-none-assign').show();
+        }
+        function showDepartmentvIfEmptySale(id) {
+            $('#department-item-' + id).show();
+            $('#PanelBranchManager #label-none-assign').hide();
+        }
+
+        var url = '/api/BackOfficeServiceAPI/FetchLocation';
+        var districts = $('#DistrictId'); // cache it
+        var ward = $('#WardId');
+
+        $("#CityId").change(function () {
+            var id = $(this).val(); // Use $(this) so you don't traverse the DOM again
+            $.getJSON(url, { parentId: id }, function (response) {
+                districts.empty(); // remove any existing options
+                ward.empty();
+                $(document.createElement('option'))
+                        .attr('value', '')
+                        .text('- Rỗng -')
+                        .appendTo(ward).trigger('chosen:updated');
+                $(response).each(function () {
+                    $(document.createElement('option'))
+                        .attr('value', this.Id)
+                        .text(capitalizeFirstAllWords(this.Name.toLowerCase().replace('huyện', '').replace('quận', '')))
+                        .appendTo(districts).trigger('chosen:updated');
+                });
+            });
+        });
+
+        $("#DistrictId").change(function () {
+            var id = $(this).val(); // Use $(this) so you don't traverse the DOM again
+            $.getJSON(url, { parentId: id }, function (response) {
+                ward.empty(); // remove any existing options
+                $(response).each(function () {
+                    $(document.createElement('option'))
+                        .attr('value', this.Id)
+                        .text(capitalizeFirstAllWords(this.Name.toLowerCase()))
+                        .appendTo(ward).trigger('chosen:updated');
+                });
+            });
+        });
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_DatePicker("dd/mm/yyyy")
+    @Html.ScriptBottom_ChosenStyle()
+}

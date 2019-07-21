@@ -1,0 +1,78 @@
+﻿@model EditUserViewModel
+@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Areas.Administration.Models
+
+@{
+    ViewBag.Title = Wording.EditUser;
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "User",
+        ActionName = "EditUser",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    var userType = Model.UserTypeId;
+    var selectUserType = new SelectList(Model.ListUserType, "Id", "Name", userType);
+    var userTypeList = Model.ListUserType.AsEnumerable().Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() });
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_DatePicker()
+    @Html.ScriptTop_ChosenStyle()
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+@using (Html.BeginForm("EditUser", "User", null, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.Status)
+    <h3 class="header smaller lighter blue">@Wording.LoginInformation</h3>
+    <div class="top-20">
+        @Html.CustomTextboxFor(model => model.UserName, null, null, WidthType.span4)
+    </div>
+
+    @Html.CustomDropDownListFor(model => model.UserTypeId, userTypeList, WidthType.span4, true, "Chọn bộ phận", DropdownListStyle.DropdownListStyleDefault)
+
+    <h3 class="header smaller lighter blue">@Wording.PersonalInformation</h3>
+    <div class="top-20">
+        @Html.CustomTextboxFor(model => model.FirstName, null, null, WidthType.span4, true)
+        @Html.CustomTextboxFor(model => model.LastName, null, null, WidthType.span4, true)
+        @Html.DateInput(model => model.DateOfBirth, "dd/MM/yyyy", "99/99/9999", true)
+        @Html.CustomDropDownListFor(model => model.Sex, SelectListHelper.GetSelectList_Gender(Model.Sex), WidthType.span4, true, null, DropdownListStyle.DropdownListStyleDefault)
+        @*@Html.CustomRadioButtonListFor(model => model.Sex, new SelectList(new[]{
+                                                                                new SelectListItem{ Text="Nữ", Value="True"},
+                                                                                new SelectListItem{ Text="Nam", Value="False"},
+                                                                            }, "Value", "Text"), true)*@
+        @Html.CustomTextboxFor(model => model.Email, null, null, WidthType.span4, true)
+        @Html.CustomTextboxFor(model => model.Address, null, null, WidthType.span4, true)
+        @Html.CustomTextboxFor(model => model.Mobile, null, "9999999999?9", WidthType.span4, true)
+        @Html.CustomDropDownListFor(model => model.BranchId, SelectListHelper.GetSelectList_Branch(Model.BranchId, "- Chọn chi nhánh -"), WidthType.span4, true,null, DropdownListStyle.DropdownListStyleDefault)
+    </div>
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_DatePicker("dd/mm/yyyy")
+    @Html.ScriptBottom_ChosenStyle()
+    @Html.ScriptBottom_RequireEitherInput()
+    @Html.ScriptBottom_InputMask()
+
+    <script type="text/javascript">
+    </script>
+}

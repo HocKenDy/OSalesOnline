@@ -1,0 +1,76 @@
+﻿@using Erp.BackOffice.Helpers
+
+@{
+    var titleUI = ViewData["titleUI"];
+    var validError = ViewData["validError"];
+    var controlClass = ViewData["controlClass"];
+    var url = ViewData["url"];
+    var placeHolder = ViewData["placeHolder"];
+    var fieldName = ViewData["fieldName"];
+    var url2 = ViewData["url2"];
+    var parameter = ViewData["parameter"];
+    var value = ViewData["value"];
+    var validUI = ViewData["validUI"];
+    var functionSelect = ViewData["functionSelect"];
+}
+
+<div class="control-group form-group @validError">
+    @titleUI
+    <div class="control-value @controlClass">
+        <div class="clearfix">
+            <input name="@fieldName" id="@fieldName" value="@value" hidden />
+            <select class="js-data-@(fieldName)-ajax"></select>
+        </div>
+        <div class="clearfix">
+            @validUI
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('.js-data-@(fieldName)-ajax').on('select2:select', function (e)
+        {
+            var data = e.params.data;
+            console.log(data);
+            $('#@(fieldName)').val(data.id);
+            @functionSelect
+        });
+        $(".js-data-@(fieldName)-ajax").select2({
+            ajax: {
+                url: "@url",
+                dataType: 'json',
+                delay: 250,
+                data: function (params)
+                {
+                    return {
+                        @parameter: params.term, // search term
+                    };
+                },
+            },
+            placeholder: '@placeHolder',
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            minimumInputLength: 1,
+        });
+        if ($('#@(fieldName)').val() != '')
+        {
+            var select = $(".js-data-@(fieldName)-ajax");
+            $.ajax({
+                type: 'GET',
+                url: '@(url2)?Id=' + $('#@(fieldName)').val()
+            }).then(function (data)
+            {
+                // create the option and append to Select2
+                var option = new Option(data.text, data.id, true, true);
+                select.append(option).trigger('change');
+                // manually trigger the `select2:select` event
+                select.trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+        }
+    });
+</script>
+

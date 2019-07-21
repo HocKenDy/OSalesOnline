@@ -1,0 +1,73 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model IEnumerable<PurchaseOrderViewModel>
+
+@{
+    ViewBag.Title = Wording.PageChoose_ProductInbound;
+
+    Layout = "~/Views/Shared/ACE_AdminLayout.cshtml";
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "ProductInbound",
+        ActionName = "Choose",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+@using (Html.BeginPageHeaderContainer(pageSetting))
+{
+
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Mã đơn yêu cầu</th>
+            <th>Kho đích đến</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{int index = 0;}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@(++index)</td>
+                <td><a href="/ProductInbound/CreateWH?OrderId=@item.Id">@item.Code</a></td>
+                <td>@item.WarehouseDestinationName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+
+    <script>
+        $(document).ready(function () {
+            //định dạng tiền tệ
+            $('#TotalAmount').numberFormat();
+        });
+    </script>
+}

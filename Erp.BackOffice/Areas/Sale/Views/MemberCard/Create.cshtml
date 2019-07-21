@@ -1,0 +1,138 @@
+﻿@using Erp.BackOffice.App_GlobalResources
+@using Erp.BackOffice.Helpers
+@using Erp.BackOffice.Sale.Models
+
+@model MemberCardViewModel
+
+@{
+    ViewBag.Title = Wording.PageCreate_MemberCard;
+
+    Layout = "~/Views/Shared/" + (Request["IsPopup"] == null ? "ACE_AdminLayout.cshtml" : "_PopupLayout.cshtml");
+
+    Erp.BackOffice.Models.PageSetting pageSetting = new Erp.BackOffice.Models.PageSetting
+    {
+        ModuleName = "MemberCard",
+        ActionName = "Create",
+        PageTitle = ViewBag.Title,
+        DisplaySearchPanel = false,
+        IsPopup = false,
+        DisplayBackButton = true
+    };
+    int index = 0;
+}
+
+@section HeadOfPage {
+    @Html.ScriptTop_ChosenStyle()
+
+    <style>
+        .card {
+            border: #eee solid 2px;
+            padding: 5px;
+        }
+
+            .card:hover, .card.checked {
+                border: orange solid 2px;
+                cursor: pointer;
+                background: orange;
+                color: #fff;
+            }
+    </style>
+}
+
+@if (ViewBag.SuccessMessage != null && ViewBag.SuccessMessage != "")
+{
+    <div class="alert alert-block alert-success">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-check green"></i>
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+@if (ViewBag.FailedMessage != null && ViewBag.FailedMessage != "")
+{
+    <div class="alert alert-block alert-danger">
+        <button class="close" data-dismiss="alert" type="button">
+            <i class="ace-icon fa fa-times"></i>
+        </button>
+        <i class="ace-icon fa fa-warning red"></i>
+        @ViewBag.FailedMessage
+    </div>
+}
+
+@using (Html.BeginForm_AceStyle((string)ViewBag.Title, pageSetting.ActionName, pageSetting.ModuleName, null, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.CustomerId)
+    <input type="hidden" value="@Request["IsPopup"]" name="IsPopup" />
+    <input type="hidden" value="@Request["IsInvoice"]" name="IsInvoice" />
+    <p><b>Chọn loại thẻ</b></p>
+    <div class="row">
+        @foreach (var item in Model.ListMemberCardType)
+        {
+            <div class="col-sm-3">
+                <label class="card">
+                    <span class="clearfix" style="display:block">
+                        <input name="MemberCardTypeId" type="radio" class="ace" @(Model.MemberCardTypeId == item.Id || (Model.MemberCardTypeId == null && index == 0)? "checked" : "") value="@item.Id" data-val="true" data-val-required="Vui lòng chọn loại thẻ" />
+                        <span class="lbl"> @item.Name</span>
+                    </span>
+                    <span class="clearfix top-10" style="display:block">
+                        <img src="@("/files/membercardtype/" + item.Image)" style="max-width:100%" />
+                    </span>
+                </label>
+            </div>
+            index++;
+        }
+    </div>
+    <div class="clearfix">
+        <span class="field-validation-valid help-inline red" data-valmsg-for="MemberCardTypeId" data-valmsg-replace="true"></span>
+    </div>
+
+    <div class="alert alert-warning top-20">
+        <p>Mã thẻ</p>
+        <div class="clearfix">
+            <input autocomplete="off" class="col-xs-12" data-val="true" data-val-required="Vui lòng nhập mã thẻ" id="Code" maskformat="" name="Code" placeholder="" type="text" value="">
+        </div>
+        <div class="clearfix">
+            <span class="field-validation-valid help-inline red" data-valmsg-for="Code" data-valmsg-replace="true"></span>
+        </div>
+    </div>
+
+    using (Html.BeginButtonContainer(pageSetting))
+    {
+        <button class="btn btn-mini btn-primary" type="submit" name="Submit" value="Save">
+            <i class="ace-icon fa fa-save"></i>
+            @Wording.Save
+        </button>
+    }
+}
+
+@section Scripts {
+    <script>
+        //truyền từ action create của controller qua khi thực hiện submit và return về lại view create, để nhận biết là được gọi theo dạng popup
+        var closePopup = '@ViewBag.closePopup';
+        $(document).ready(function () {
+            //nếu là được gọi theo dạng popup từ form khác thì chạy đoạn code bên dưới
+            if (closePopup != '') {
+                //window.parent.ClosePopupAndAppendSelect(option);
+                window.parent.ClosePopupMemberCard();
+            }
+
+            $(".card").click(function () {
+                $(".card").removeClass("checked");
+                $(this).addClass("checked");
+            });
+
+            $("#Code").focus();
+        });
+        function ClosePopupAndReloadPage(id, name) {
+            $("#CustomerId").val(id);
+            $("#CustomerId_DisplayText").val(name);
+            ClosePopup(false);
+
+        }
+    </script>
+    @Html.ScriptBottom_ValidationMvc()
+    @Html.ScriptBottom_ChosenStyle()
+}
